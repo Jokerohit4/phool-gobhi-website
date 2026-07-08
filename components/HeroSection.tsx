@@ -28,7 +28,7 @@ export default function HeroSection() {
   }, [isLoaded]);
 
   return (
-    <section className="relative w-full overflow-hidden dot-grid bg-[#F7F3E9] dark:bg-gray-950 pt-16 pb-20 transition-colors duration-300">
+    <section className="relative w-full overflow-hidden dot-grid bg-cream-50 dark:bg-gray-950 pt-16 pb-20 transition-colors duration-300">
       {/* Scattered stickers */}
       <StickerBadge color="mustard" size={64} rotate={-10} delay={0} className="absolute top-24 left-[6%] hidden sm:flex">🥦</StickerBadge>
       <StickerBadge color="terracotta" size={56} rotate={12} delay={0.6} className="absolute top-40 right-[10%] hidden md:flex">🏋️</StickerBadge>
@@ -39,7 +39,7 @@ export default function HeroSection() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left */}
           <div className="space-y-7" style={{ animation: isLoaded ? 'fadeInLeft 1s ease-out' : 'none' }}>
-            <div className="sticker inline-flex px-5 py-2 bg-white dark:bg-gray-900">
+            <div className="sticker inline-flex px-5 py-2 bg-cream-100 dark:bg-gray-900">
               <span className="font-bold text-sm text-gray-900 dark:text-white">✨ Coming Soon</span>
             </div>
 
@@ -77,7 +77,7 @@ export default function HeroSection() {
 
           {/* Right card */}
           <div className="relative flex justify-center" style={{ animation: isLoaded ? 'fadeInRight 1s ease-out 0.2s backwards' : 'none' }}>
-            <div className="sticker w-full max-w-sm bg-white dark:bg-gray-900 p-8 sm:p-10 rounded-3xl !border-4">
+            <div className="sticker w-full max-w-sm bg-cream-100 dark:bg-gray-900 p-8 sm:p-10 rounded-3xl !border-4">
               <h2 className="font-display text-5xl sm:text-6xl text-emerald-600 dark:text-emerald-400 mb-1">Phool Gobhi</h2>
               <p className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-6">Premium Fitness</p>
 

@@ -20,6 +20,11 @@
   --color-terracotta-500: #c85a3d;
   --color-terracotta-600: #a8432a;
 
+  /* Warm cream light theme, matching the investor pitch deck */
+  --color-cream-50: #fbf8f1;
+  --color-cream-100: #f1ecdd;
+  --color-cream-200: #ded5be;
+
   --font-display: var(--font-bebas-neue), Impact, sans-serif;
 }
 
@@ -48,7 +53,7 @@
 }
 
 body {
-  @apply bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300;
+  @apply bg-cream-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
   overflow-x: hidden;
 }
@@ -304,7 +309,7 @@ body {
 
 /* Premium card styles */
 .card-premium {
-  @apply bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg hover:shadow-xl transition-all duration-300;
+  @apply bg-cream-100 dark:bg-gray-900 rounded-2xl border border-cream-200 dark:border-gray-800 shadow-lg hover:shadow-xl transition-all duration-300;
 }
 
 .card-gradient {
@@ -379,6 +384,20 @@ html {
 .stroke-terracotta { -webkit-text-stroke-color: #c85a3d; }
 .dark .stroke-terracotta { -webkit-text-stroke-color: #e0755a; }
 
+/* Safety net: if the browser doesn't support text-stroke, show solid text
+   instead of leaving it transparent (and therefore invisible). */
+@supports not (-webkit-text-stroke-width: 1px) {
+  .text-stroke { color: inherit; }
+  .stroke-ink { color: #111827; }
+  .dark .stroke-ink { color: #ffffff; }
+  .stroke-emerald { color: #059669; }
+  .dark .stroke-emerald { color: #34d399; }
+  .stroke-mustard { color: #d4a017; }
+  .dark .stroke-mustard { color: #e8b64a; }
+  .stroke-terracotta { color: #c85a3d; }
+  .dark .stroke-terracotta { color: #e0755a; }
+}
+
 .sticker {
   border-radius: 9999px;
   border: 3px solid rgb(23 23 23);
@@ -392,3 +411,4 @@ html {
 .tilt-sticker {
   animation: float 4s ease-in-out infinite;
 }
+

@@ -53,9 +53,9 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
 
 export default function PitchDeckContent() {
   return (
-    <div className="bg-white dark:bg-gray-950">
+    <div className="bg-cream-50 dark:bg-gray-950">
       {/* Cover */}
-      <section className="min-h-[80vh] flex items-center section-padding bg-gradient-to-b from-emerald-50 to-white dark:from-gray-900 dark:to-gray-950">
+      <section className="min-h-[80vh] flex items-center section-padding dot-grid bg-cream-50 dark:bg-gray-950">
         <div className="container-custom">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <div className="mb-6"><PhoolGobhiLogo /></div>
@@ -97,7 +97,7 @@ export default function PitchDeckContent() {
       </section>
 
       {/* Problem Part 2 */}
-      <section className="section-padding bg-gray-50 dark:bg-gray-900">
+      <section className="section-padding bg-cream-100 dark:bg-gray-900">
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>The Problem · Part 2 of 3</Eyebrow>
@@ -164,7 +164,7 @@ export default function PitchDeckContent() {
       </section>
 
       {/* At a Glance */}
-      <section className="section-padding bg-gray-50 dark:bg-gray-900">
+      <section className="section-padding bg-cream-100 dark:bg-gray-900">
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>At a Glance</Eyebrow>
@@ -210,7 +210,7 @@ export default function PitchDeckContent() {
       </section>
 
       {/* Business Overview */}
-      <section className="section-padding bg-gray-50 dark:bg-gray-900">
+      <section className="section-padding bg-cream-100 dark:bg-gray-900">
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>Business Overview</Eyebrow>
@@ -261,7 +261,7 @@ export default function PitchDeckContent() {
       </section>
 
       {/* Market Opportunity */}
-      <section className="section-padding bg-gray-50 dark:bg-gray-900">
+      <section className="section-padding bg-cream-100 dark:bg-gray-900">
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>Market Opportunity</Eyebrow>
@@ -331,7 +331,7 @@ export default function PitchDeckContent() {
       </section>
 
       {/* Product */}
-      <section className="section-padding bg-gray-50 dark:bg-gray-900">
+      <section className="section-padding bg-cream-100 dark:bg-gray-900">
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>Product — What&apos;s Built</Eyebrow>
@@ -391,7 +391,7 @@ export default function PitchDeckContent() {
       </section>
 
       {/* GTM */}
-      <section className="section-padding bg-gray-50 dark:bg-gray-900">
+      <section className="section-padding bg-cream-100 dark:bg-gray-900">
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>Go-To-Market Strategy</Eyebrow>
@@ -436,7 +436,7 @@ export default function PitchDeckContent() {
       </section>
 
       {/* Risk */}
-      <section className="section-padding bg-gray-50 dark:bg-gray-900">
+      <section className="section-padding bg-cream-100 dark:bg-gray-900">
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>Risk &amp; Mitigation</Eyebrow>
@@ -482,7 +482,7 @@ export default function PitchDeckContent() {
               </div>
               <div className="flex flex-wrap justify-center gap-3 mb-8">
                 {['5,000 users within 6 months of launch', '100 partner gyms across 2 cities', '₹10–15L monthly GMV by Month 10'].map((m) => (
-                  <div key={m} className="px-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-600 dark:text-gray-400">{m}</div>
+                  <div key={m} className="px-4 py-2 bg-cream-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-600 dark:text-gray-400">{m}</div>
                 ))}
               </div>
               <div className="flex justify-center gap-8">
@@ -500,7 +500,7 @@ export default function PitchDeckContent() {
       </section>
 
       {/* Sources */}
-      <section className="section-padding bg-gray-50 dark:bg-gray-900">
+      <section className="section-padding bg-cream-100 dark:bg-gray-900">
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>Sources</Eyebrow>

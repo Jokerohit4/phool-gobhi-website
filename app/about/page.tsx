@@ -7,7 +7,7 @@ import { PosterFill, PosterOutline, StickerBadge } from '@/components/Poster';
 
 export default function AboutPage() {
   return (
-    <section className="relative min-h-screen section-padding dot-grid bg-[#F7F3E9] dark:bg-gray-950 overflow-hidden">
+    <section className="relative min-h-screen section-padding dot-grid bg-cream-50 dark:bg-gray-950 overflow-hidden">
       <StickerBadge color="mustard" size={56} rotate={-12} delay={0} className="absolute top-28 left-[8%] hidden md:flex">🌱</StickerBadge>
       <StickerBadge color="terracotta" size={48} rotate={14} delay={0.5} className="absolute top-44 right-[10%] hidden lg:flex">🎯</StickerBadge>
 
@@ -58,7 +58,7 @@ export default function AboutPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="sticker !rounded-3xl bg-white dark:bg-gray-900 p-10 text-center"
+          className="sticker !rounded-3xl bg-cream-100 dark:bg-gray-900 p-10 text-center"
         >
           <h2 className="font-display text-3xl md:text-4xl mb-3">Want the rest of the story?</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-xl mx-auto">

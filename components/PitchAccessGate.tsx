@@ -39,7 +39,7 @@ export default function PitchAccessGate({ children }: { children: ReactNode }) {
   };
 
   if (status === 'checking-session') {
-    return <div className="min-h-screen bg-white dark:bg-gray-950" />;
+    return <div className="min-h-screen bg-cream-50 dark:bg-gray-950" />;
   }
 
   if (status === 'granted') {
@@ -47,7 +47,7 @@ export default function PitchAccessGate({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center section-padding bg-white dark:bg-gray-950">
+    <div className="min-h-screen flex items-center justify-center section-padding bg-cream-50 dark:bg-gray-950">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

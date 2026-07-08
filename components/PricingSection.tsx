@@ -75,7 +75,7 @@ export default function PricingSection() {
   }, [isInView]);
 
   return (
-    <section className="section-padding bg-white dark:bg-gray-950 transition-colors" data-pricing-section>
+    <section className="section-padding bg-cream-50 dark:bg-gray-950 transition-colors" data-pricing-section>
       <div className="container-custom">
         <div className="text-center mb-16">
           <h2 className="font-display text-5xl md:text-7xl mb-6">

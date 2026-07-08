@@ -29,7 +29,7 @@ export default function ContactPage() {
   };
 
   return (
-    <section className="min-h-screen section-padding dot-grid bg-[#F7F3E9] dark:bg-gray-950">
+    <section className="min-h-screen section-padding dot-grid bg-cream-50 dark:bg-gray-950">
       <div className="container-custom max-w-4xl">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center mb-12">
           <h1 className="font-display text-6xl md:text-7xl mb-4">

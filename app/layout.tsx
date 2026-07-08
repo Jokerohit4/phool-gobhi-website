@@ -65,7 +65,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-white dark:bg-gray-950 transition-colors duration-300">
+      <body className="min-h-full flex flex-col bg-cream-50 dark:bg-gray-950 transition-colors duration-300">
         <ScrollProgress />
         <Header />
         <main className="flex-grow">{children}</main>

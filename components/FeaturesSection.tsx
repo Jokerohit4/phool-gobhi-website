@@ -27,7 +27,7 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section className="section-padding bg-white dark:bg-gray-950 transition-colors">
+    <section className="section-padding bg-cream-50 dark:bg-gray-950 transition-colors">
       <div className="container-custom">
         <div className="text-center mb-16">
           <h2 className="font-display text-5xl md:text-7xl mb-4">
@@ -42,7 +42,7 @@ export default function FeaturesSection() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="sticker !rounded-2xl p-6 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-gray-900 dark:to-gray-800 hover:!shadow-[5px_5px_0_currentColor] transition-all duration-300 hover:scale-105 hover:-translate-y-1 group cursor-default"
+              className="sticker !rounded-2xl p-6 bg-cream-100 dark:bg-gray-900 hover:!shadow-[5px_5px_0_currentColor] transition-all duration-300 hover:scale-105 hover:-translate-y-1 group cursor-default"
             >
               <div className="text-4xl mb-4 inline-block group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">
                 {feature.icon}

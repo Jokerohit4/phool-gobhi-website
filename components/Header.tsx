@@ -21,7 +21,7 @@ export default function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 shadow-sm transition-colors duration-300">
+    <header className="sticky top-0 z-50 bg-cream-50 dark:bg-gray-950 border-b border-cream-200 dark:border-gray-800 shadow-sm transition-colors duration-300">
       <div className="container-custom">
         <div className="flex justify-between items-center py-4">
           <Link href="/" className="flex items-center gap-3">
