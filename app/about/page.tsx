@@ -31,19 +31,21 @@ export default function AboutPage() {
           className="space-y-6 text-gray-700 dark:text-gray-300 leading-relaxed mb-16"
         >
           <p>
-            Nearly half of Indian adults are physically inactive today — a number that has more than doubled since
-            2000 and keeps climbing. The government has already named getting India fit as a national priority. What
-            it hasn&apos;t built is the everyday product that turns that ambition into a habit for the average person.
+            India has spent years telling people to get fit. What nobody built is the everyday product that makes it
+            easy to actually start — one that doesn&apos;t ask for a year of commitment before you&apos;ve even tried
+            the gym. We think that gap is one of the more interesting problems in Indian consumer tech right now, and
+            we&apos;ve gone looking for the data to prove it.
           </p>
           <p>
-            Phool Gobhi is that product. We&apos;re a pay-per-session gym marketplace — book a session the way you&apos;d
-            book a cab, with no long-term membership and no upfront leap of faith. It&apos;s a small, deliberate first
-            step: remove the single biggest barrier to starting, then build the habit, community, and intelligence
-            layers on top.
+            Phool Gobhi is our answer: a pay-per-session gym marketplace. Book a session the way you&apos;d book a
+            cab — no annual contract, no upfront leap of faith, just show up and pay for that visit. It&apos;s
+            deliberately the smallest first move, because the fastest way to get a country moving is to make the very
+            first session effortless.
           </p>
           <p>
-            We&apos;re a pre-launch startup based in Gurugram, building toward an August 2026 launch, backed by an
-            MVP that&apos;s already live end-to-end and gyms who&apos;ve already told us they&apos;re ready to onboard.
+            We&apos;re a pre-launch startup out of Gurugram. Between the product we&apos;ve built, the gyms
+            we&apos;ve already spoken with, and the research behind why this works, there&apos;s a lot more to this
+            story than fits on one page.
           </p>
         </motion.div>
 
@@ -54,13 +56,14 @@ export default function AboutPage() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="card-gradient p-10 text-center"
         >
-          <h2 className="text-2xl font-bold mb-3">Curious about the business behind the app?</h2>
+          <h2 className="text-2xl font-bold mb-3">Want the rest of the story?</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-xl mx-auto">
-            We share the full investor story — the problem, the market, our traction, and what we&apos;re raising —
-            with people we&apos;ve shared this link with directly.
+            The market size, what we found when we asked gyms and customers directly, what&apos;s already built, and
+            what we&apos;re raising — we walk through all of it in the full deck, shared privately with investors,
+            partners, and anyone else who&apos;s asked.
           </p>
           <Link href="/pitch-deck" className="btn-primary inline-block">
-            Refer to Pitch Deck
+            Request the Pitch Deck
           </Link>
         </motion.div>
       </div>
