@@ -48,7 +48,7 @@ export default function Footer() {
               className="flex items-center gap-2 mb-4 w-fit"
             >
               <PhoolGobhiLogo />
-              <span className="text-2xl font-black bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">
+              <span className="font-display text-3xl text-emerald-400">
                 Phool Gobhi
               </span>
             </motion.div>

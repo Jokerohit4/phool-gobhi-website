@@ -21,6 +21,19 @@ const config: Config = {
           800: '#166534',
           900: '#145231',
         },
+        mustard: {
+          400: '#e8b64a',
+          500: '#d4a017',
+          600: '#b3860f',
+        },
+        terracotta: {
+          400: '#e0755a',
+          500: '#c85a3d',
+          600: '#a8432a',
+        },
+      },
+      fontFamily: {
+        display: ['var(--font-bebas-neue)', 'Impact', 'sans-serif'],
       },
     },
   },

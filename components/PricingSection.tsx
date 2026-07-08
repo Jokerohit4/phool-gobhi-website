@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { PosterFill, PosterOutline } from './Poster';
 
 const plans = [
   {
@@ -77,8 +78,8 @@ export default function PricingSection() {
     <section className="section-padding bg-white dark:bg-gray-950 transition-colors" data-pricing-section>
       <div className="container-custom">
         <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white mb-6">
-            Plans & <span className="gradient-text">What's Available</span>
+          <h2 className="font-display text-5xl md:text-7xl mb-6">
+            <PosterOutline>Plans &amp;</PosterOutline> <PosterFill color="mustard">What&apos;s Available</PosterFill>
           </h2>
           
           {/* Typewriter text */}

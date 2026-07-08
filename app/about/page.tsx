@@ -3,11 +3,15 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import PhoolGobhiLogo from '@/components/PhoolGobhiLogo';
+import { PosterFill, PosterOutline, StickerBadge } from '@/components/Poster';
 
 export default function AboutPage() {
   return (
-    <section className="min-h-screen section-padding bg-white dark:bg-gray-950">
-      <div className="container-custom max-w-4xl">
+    <section className="relative min-h-screen section-padding dot-grid bg-[#F7F3E9] dark:bg-gray-950 overflow-hidden">
+      <StickerBadge color="mustard" size={56} rotate={-12} delay={0} className="absolute top-28 left-[8%] hidden md:flex">🌱</StickerBadge>
+      <StickerBadge color="terracotta" size={48} rotate={14} delay={0.5} className="absolute top-44 right-[10%] hidden lg:flex">🎯</StickerBadge>
+
+      <div className="container-custom max-w-4xl relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -15,8 +19,8 @@ export default function AboutPage() {
           className="text-center mb-16"
         >
           <div className="flex justify-center mb-6"><PhoolGobhiLogo /></div>
-          <h1 className="text-5xl font-black mb-4">
-            About <span className="gradient-text">Phool Gobhi</span>
+          <h1 className="font-display text-6xl md:text-7xl mb-4">
+            <PosterOutline>About</PosterOutline> <PosterFill color="emerald">Phool Gobhi</PosterFill>
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             The first move toward a fitter India.
@@ -54,9 +58,9 @@ export default function AboutPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="card-gradient p-10 text-center"
+          className="sticker !rounded-3xl bg-white dark:bg-gray-900 p-10 text-center"
         >
-          <h2 className="text-2xl font-bold mb-3">Want the rest of the story?</h2>
+          <h2 className="font-display text-3xl md:text-4xl mb-3">Want the rest of the story?</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-xl mx-auto">
             The market size, what we found when we asked gyms and customers directly, what&apos;s already built, and
             what we&apos;re raising — we walk through all of it in the full deck, shared privately with investors,

@@ -1,5 +1,28 @@
 @import "tailwindcss";
 
+@theme {
+  --color-emerald-50: #f0fdf4;
+  --color-emerald-100: #dcfce7;
+  --color-emerald-200: #bbf7d0;
+  --color-emerald-300: #86efac;
+  --color-emerald-400: #4ade80;
+  --color-emerald-500: #22c55e;
+  --color-emerald-600: #16a34a;
+  --color-emerald-700: #15803d;
+  --color-emerald-800: #166534;
+  --color-emerald-900: #145231;
+
+  --color-mustard-400: #e8b64a;
+  --color-mustard-500: #d4a017;
+  --color-mustard-600: #b3860f;
+
+  --color-terracotta-400: #e0755a;
+  --color-terracotta-500: #c85a3d;
+  --color-terracotta-600: #a8432a;
+
+  --font-display: var(--font-bebas-neue), Impact, sans-serif;
+}
+
 @layer base {
   :root {
     --background: 255 255 255;
@@ -317,4 +340,55 @@ html {
 /* Perspective for 3D effects */
 .perspective {
   perspective: 1000px;
+}
+
+/* ── Poster aesthetic ─────────────────────────────────── */
+
+.dot-grid {
+  background-image: radial-gradient(rgba(16, 24, 20, 0.12) 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
+}
+.dark .dot-grid {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
+}
+
+.font-display {
+  font-family: var(--font-display), Impact, sans-serif;
+  letter-spacing: 0.01em;
+}
+
+/* Outlined "poster" text — pair with a stroke-* color class below.
+   Note: stroke color is set via -webkit-text-stroke-color, deliberately NOT
+   currentColor, because color itself is set to transparent on this element. */
+.text-stroke {
+  -webkit-text-stroke-width: 2px;
+  color: transparent;
+}
+@media (min-width: 768px) {
+  .text-stroke {
+    -webkit-text-stroke-width: 3px;
+  }
+}
+.stroke-ink { -webkit-text-stroke-color: #111827; }
+.dark .stroke-ink { -webkit-text-stroke-color: #ffffff; }
+.stroke-emerald { -webkit-text-stroke-color: #059669; }
+.dark .stroke-emerald { -webkit-text-stroke-color: #34d399; }
+.stroke-mustard { -webkit-text-stroke-color: #d4a017; }
+.dark .stroke-mustard { -webkit-text-stroke-color: #e8b64a; }
+.stroke-terracotta { -webkit-text-stroke-color: #c85a3d; }
+.dark .stroke-terracotta { -webkit-text-stroke-color: #e0755a; }
+
+.sticker {
+  border-radius: 9999px;
+  border: 3px solid rgb(23 23 23);
+  box-shadow: 3px 3px 0 rgb(23 23 23);
+}
+.dark .sticker {
+  border-color: rgb(243 244 246);
+  box-shadow: 3px 3px 0 rgb(243 244 246);
+}
+
+.tilt-sticker {
+  animation: float 4s ease-in-out infinite;
 }

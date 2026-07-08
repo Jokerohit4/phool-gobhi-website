@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { PosterFill, PosterOutline } from '@/components/Poster';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -28,11 +29,13 @@ export default function ContactPage() {
   };
 
   return (
-    <section className="min-h-screen section-padding bg-white">
+    <section className="min-h-screen section-padding dot-grid bg-[#F7F3E9] dark:bg-gray-950">
       <div className="container-custom max-w-4xl">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4">Get in Touch</h1>
-          <p className="text-xl text-gray-600">Have questions? We'd love to hear from you.</p>
+          <h1 className="font-display text-6xl md:text-7xl mb-4">
+            <PosterOutline>Get in</PosterOutline> <PosterFill color="terracotta">Touch</PosterFill>
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-400">Have questions? We&apos;d love to hear from you.</p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-12">

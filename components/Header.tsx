@@ -26,7 +26,7 @@ export default function Header() {
         <div className="flex justify-between items-center py-4">
           <Link href="/" className="flex items-center gap-3">
             <PhoolGobhiLogo />
-            <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-green-600">Phool Gobhi</span>
+            <span className="font-display text-3xl text-emerald-600 dark:text-emerald-400">Phool Gobhi</span>
           </Link>
 
           {/* Desktop Navigation */}

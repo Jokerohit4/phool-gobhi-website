@@ -62,7 +62,7 @@ export default function PitchDeckContent() {
             <p className="text-xs font-bold tracking-[0.25em] uppercase text-emerald-600 dark:text-emerald-400 mb-4">
               Phool Gobhi · Pre-Seed Proposal · Updated July 2026
             </p>
-            <h1 className="text-5xl sm:text-7xl font-black leading-[0.95] tracking-tight mb-6">
+            <h1 className="text-5xl sm:text-7xl font-display leading-[0.95] tracking-tight mb-6">
               Fitness,<br /><span className="gradient-text">for all.</span>
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-xl">
@@ -77,7 +77,7 @@ export default function PitchDeckContent() {
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>The Problem · Part 1 of 3</Eyebrow>
-            <h2 className="text-3xl sm:text-4xl font-black mb-8">
+            <h2 className="text-3xl sm:text-4xl font-display mb-8">
               India is moving less, <span className="gradient-text">not more.</span>
             </h2>
             <div className="grid sm:grid-cols-3 gap-4 mb-6">
@@ -101,7 +101,7 @@ export default function PitchDeckContent() {
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>The Problem · Part 2 of 3</Eyebrow>
-            <h2 className="text-3xl sm:text-4xl font-black mb-8">
+            <h2 className="text-3xl sm:text-4xl font-display mb-8">
               Even the people who try <span className="gradient-text">don&apos;t stay.</span>
             </h2>
             <div className="grid sm:grid-cols-3 gap-4 mb-6">
@@ -125,7 +125,7 @@ export default function PitchDeckContent() {
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>The Problem · Part 3 of 3</Eyebrow>
-            <h2 className="text-3xl sm:text-4xl font-black mb-8">
+            <h2 className="text-3xl sm:text-4xl font-display mb-8">
               The demand is proven. <span className="gradient-text">The delivery isn&apos;t built.</span>
             </h2>
             <div className="grid sm:grid-cols-3 gap-8 mb-8">
@@ -168,7 +168,7 @@ export default function PitchDeckContent() {
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>At a Glance</Eyebrow>
-            <h2 className="text-3xl sm:text-4xl font-black mb-8">
+            <h2 className="text-3xl sm:text-4xl font-display mb-8">
               Getting India fit, <span className="gradient-text">one friction point at a time.</span>
             </h2>
             <ul className="space-y-4 text-gray-700 dark:text-gray-300">
@@ -195,7 +195,7 @@ export default function PitchDeckContent() {
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>Executive Summary</Eyebrow>
-            <h2 className="text-3xl sm:text-4xl font-black mb-6">
+            <h2 className="text-3xl sm:text-4xl font-display mb-6">
               A flexible fitness marketplace — <span className="gradient-text">and a first step.</span>
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
@@ -214,7 +214,7 @@ export default function PitchDeckContent() {
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>Business Overview</Eyebrow>
-            <h2 className="text-3xl sm:text-4xl font-black mb-6">
+            <h2 className="text-3xl sm:text-4xl font-display mb-6">
               The access layer for <span className="gradient-text">a fitter India.</span>
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
@@ -233,7 +233,7 @@ export default function PitchDeckContent() {
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>Our Approach</Eyebrow>
-            <h2 className="text-3xl sm:text-4xl font-black mb-4">
+            <h2 className="text-3xl sm:text-4xl font-display mb-4">
               Book a gym session the way you&apos;d book <span className="gradient-text">a cab.</span>
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-8">
@@ -265,7 +265,7 @@ export default function PitchDeckContent() {
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>Market Opportunity</Eyebrow>
-            <h2 className="text-3xl sm:text-4xl font-black mb-8">
+            <h2 className="text-3xl sm:text-4xl font-display mb-8">
               A growing market, <span className="gradient-text">barely reaching anyone.</span>
             </h2>
             <div className="grid sm:grid-cols-3 gap-4 mb-8">
@@ -310,7 +310,7 @@ export default function PitchDeckContent() {
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>Proof of Concept</Eyebrow>
-            <h2 className="text-3xl sm:text-4xl font-black mb-6">
+            <h2 className="text-3xl sm:text-4xl font-display mb-6">
               We didn&apos;t guess. <span className="gradient-text">We asked.</span>
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">We surveyed 30 gyms directly, across Gurugram:</p>
@@ -335,7 +335,7 @@ export default function PitchDeckContent() {
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>Product — What&apos;s Built</Eyebrow>
-            <h2 className="text-3xl sm:text-4xl font-black mb-8">
+            <h2 className="text-3xl sm:text-4xl font-display mb-8">
               Pre-launch. <span className="gradient-text">MVP complete.</span>
             </h2>
             <div className="grid sm:grid-cols-2 gap-4 mb-6">
@@ -370,7 +370,7 @@ export default function PitchDeckContent() {
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>The Platform Layer</Eyebrow>
-            <h2 className="text-3xl sm:text-4xl font-black mb-6">
+            <h2 className="text-3xl sm:text-4xl font-display mb-6">
               Not tech-enabled. <span className="gradient-text">Tech-based.</span>
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
@@ -395,7 +395,7 @@ export default function PitchDeckContent() {
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>Go-To-Market Strategy</Eyebrow>
-            <h2 className="text-3xl sm:text-4xl font-black mb-8">
+            <h2 className="text-3xl sm:text-4xl font-display mb-8">
               Gurugram first — <span className="gradient-text">de-risked by design.</span>
             </h2>
             <div className="space-y-6">
@@ -422,7 +422,7 @@ export default function PitchDeckContent() {
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>Revenue Model</Eyebrow>
-            <h2 className="text-3xl sm:text-4xl font-black mb-8">
+            <h2 className="text-3xl sm:text-4xl font-display mb-8">
               Multiple lines, <span className="gradient-text">one core loop.</span>
             </h2>
             <div className="grid sm:grid-cols-2 gap-4">
@@ -440,7 +440,7 @@ export default function PitchDeckContent() {
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>Risk &amp; Mitigation</Eyebrow>
-            <h2 className="text-3xl sm:text-4xl font-black mb-8">
+            <h2 className="text-3xl sm:text-4xl font-display mb-8">
               What could go wrong, <span className="gradient-text">and what we do about it.</span>
             </h2>
             <div className="overflow-x-auto">
@@ -473,7 +473,7 @@ export default function PitchDeckContent() {
             <Eyebrow>
               <span className="mx-auto">Financial Ask</span>
             </Eyebrow>
-            <h2 className="text-3xl sm:text-4xl font-black mb-8">Closing the round.</h2>
+            <h2 className="text-3xl sm:text-4xl font-display mb-8">Closing the round.</h2>
             <div className="card-gradient p-8">
               <div className="text-5xl font-black mb-2">₹50 Lakhs</div>
               <p className="text-gray-600 dark:text-gray-400 mb-4">for 8% equity · 12–14 month runway</p>
@@ -504,7 +504,7 @@ export default function PitchDeckContent() {
         <div className="container-custom max-w-5xl">
           <motion.div {...fadeUp}>
             <Eyebrow>Sources</Eyebrow>
-            <h2 className="text-2xl sm:text-3xl font-black mb-8">Research referenced in this deck.</h2>
+            <h2 className="text-2xl sm:text-3xl font-display mb-8">Research referenced in this deck.</h2>
             <div className="grid sm:grid-cols-2 gap-x-8 gap-y-5 text-sm">
               {[
                 ['Physical inactivity trend (49.4%, gender split)', 'https://www.indiatvnews.com/health/nearly-50-adults-in-india-insufficiently-physically-active-lancet-study-2024-06-26-938938', 'indiatvnews.com — Lancet Global Health study coverage, 2024'],
@@ -536,7 +536,7 @@ export default function PitchDeckContent() {
           <motion.div {...fadeUp}>
             <div className="flex justify-center mb-4"><PhoolGobhiLogo /></div>
             <Eyebrow><span className="mx-auto">For Inquiries</span></Eyebrow>
-            <h2 className="text-3xl font-black mb-4">Contact <span className="gradient-text">Us</span></h2>
+            <h2 className="text-3xl font-display mb-4">Contact <span className="gradient-text">Us</span></h2>
             <p className="text-gray-600 dark:text-gray-400">
               <a href="https://phool-gobhi-website.vercel.app/" className="hover:text-emerald-600 dark:hover:text-emerald-400">phool-gobhi-website.vercel.app</a>
               {' · '}
