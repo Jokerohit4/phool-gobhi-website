@@ -10,6 +10,7 @@ export default function Header() {
 
   const links = [
     { href: '/', label: 'Home' },
+    { href: '/about', label: 'About' },
     // TODO: Re-enable when pages are ready to go live
     // { href: '/gyms', label: 'Find Gyms' },
     // { href: '/how-it-works', label: 'How It Works' },
