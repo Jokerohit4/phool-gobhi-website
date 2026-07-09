@@ -347,64 +347,76 @@ html {
   perspective: 1000px;
 }
 
-/* ── Poster aesthetic ─────────────────────────────────── */
+/* ── Poster aesthetic (dark mode) / calm deck aesthetic (light mode) ── */
 
+/* Light mode: sparse, subtle dots (like the investor deck's particle bg).
+   Dark mode: slightly denser grid — the bolder "poster" look. */
 .dot-grid {
-  background-image: radial-gradient(rgba(16, 24, 20, 0.12) 1.5px, transparent 1.5px);
-  background-size: 22px 22px;
+  background-image: radial-gradient(rgba(16, 24, 20, 0.07) 1.3px, transparent 1.3px);
+  background-size: 30px 30px;
 }
 .dark .dot-grid {
   background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px);
   background-size: 22px 22px;
 }
 
+/* Light mode: plain bold sans, like the pitch deck's headlines.
+   Dark mode: Bebas Neue condensed display face — the poster look. */
 .font-display {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.dark .font-display {
   font-family: var(--font-display), Impact, sans-serif;
+  font-weight: 400;
   letter-spacing: 0.01em;
 }
 
-/* Outlined "poster" text — pair with a stroke-* color class below.
+/* PosterOutline/PosterFill text. Light mode: always solid fill (no stroke) —
+   matches the deck's plain bold headlines. Dark mode: real outlined stroke
+   for words marked "outline" — the poster look.
    Note: stroke color is set via -webkit-text-stroke-color, deliberately NOT
-   currentColor, because color itself is set to transparent on this element. */
+   currentColor, because color itself is set to transparent when stroked. */
 .text-stroke {
+  color: inherit;
+}
+.stroke-ink { color: #111827; }
+.stroke-emerald { color: #059669; }
+.stroke-mustard { color: #b3860f; }
+.stroke-terracotta { color: #a8432a; }
+
+.dark .text-stroke {
   -webkit-text-stroke-width: 2px;
   color: transparent;
 }
 @media (min-width: 768px) {
-  .text-stroke {
+  .dark .text-stroke {
     -webkit-text-stroke-width: 3px;
   }
 }
-.stroke-ink { -webkit-text-stroke-color: #111827; }
-.dark .stroke-ink { -webkit-text-stroke-color: #ffffff; }
-.stroke-emerald { -webkit-text-stroke-color: #059669; }
-.dark .stroke-emerald { -webkit-text-stroke-color: #34d399; }
-.stroke-mustard { -webkit-text-stroke-color: #d4a017; }
-.dark .stroke-mustard { -webkit-text-stroke-color: #e8b64a; }
-.stroke-terracotta { -webkit-text-stroke-color: #c85a3d; }
-.dark .stroke-terracotta { -webkit-text-stroke-color: #e0755a; }
+.dark .stroke-ink { -webkit-text-stroke-color: #ffffff; color: transparent; }
+.dark .stroke-emerald { -webkit-text-stroke-color: #34d399; color: transparent; }
+.dark .stroke-mustard { -webkit-text-stroke-color: #e8b64a; color: transparent; }
+.dark .stroke-terracotta { -webkit-text-stroke-color: #e0755a; color: transparent; }
 
-/* Safety net: if the browser doesn't support text-stroke, show solid text
-   instead of leaving it transparent (and therefore invisible). */
+/* Safety net: if the browser doesn't support text-stroke, dark mode should
+   still show solid, readable text instead of staying transparent. */
 @supports not (-webkit-text-stroke-width: 1px) {
-  .text-stroke { color: inherit; }
-  .stroke-ink { color: #111827; }
   .dark .stroke-ink { color: #ffffff; }
-  .stroke-emerald { color: #059669; }
   .dark .stroke-emerald { color: #34d399; }
-  .stroke-mustard { color: #d4a017; }
   .dark .stroke-mustard { color: #e8b64a; }
-  .stroke-terracotta { color: #c85a3d; }
   .dark .stroke-terracotta { color: #e0755a; }
 }
 
+/* Light mode: plain thin border, no hard shadow — the deck's calm card look.
+   Dark mode: thick border + hard offset shadow — the poster "sticker" look. */
 .sticker {
   border-radius: 9999px;
-  border: 3px solid rgb(23 23 23);
-  box-shadow: 3px 3px 0 rgb(23 23 23);
+  border: 1px solid var(--color-cream-200);
 }
 .dark .sticker {
-  border-color: rgb(243 244 246);
+  border: 3px solid rgb(243 244 246);
   box-shadow: 3px 3px 0 rgb(243 244 246);
 }
 

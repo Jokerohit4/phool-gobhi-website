@@ -42,7 +42,7 @@ export default function FeaturesSection() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="sticker !rounded-2xl p-6 bg-cream-100 dark:bg-gray-900 hover:!shadow-[5px_5px_0_currentColor] transition-all duration-300 hover:scale-105 hover:-translate-y-1 group cursor-default"
+              className="sticker !rounded-2xl p-6 bg-cream-100 dark:bg-gray-900 hover:shadow-md dark:hover:!shadow-[5px_5px_0_currentColor] transition-all duration-300 hover:scale-105 hover:-translate-y-1 group cursor-default"
             >
               <div className="text-4xl mb-4 inline-block group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">
                 {feature.icon}
