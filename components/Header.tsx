@@ -24,9 +24,9 @@ export default function Header() {
     <header className="sticky top-0 z-50 bg-cream-50 dark:bg-gray-950 border-b border-cream-200 dark:border-gray-800 shadow-sm transition-colors duration-300">
       <div className="container-custom">
         <div className="flex justify-between items-center py-4">
-          <Link href="/" className="flex items-center gap-3">
-            <PhoolGobhiLogo />
-            <span className="font-display text-3xl text-emerald-600 dark:text-emerald-400">Phool Gobhi</span>
+          <Link href="/" className="group flex items-center gap-3">
+            <PhoolGobhiLogo interactive />
+            <span className="font-display text-3xl text-emerald-600 dark:text-emerald-400 transition-transform duration-300 group-hover:-translate-y-0.5">Phool Gobhi</span>
           </Link>
 
           {/* Desktop Navigation */}

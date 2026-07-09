@@ -449,3 +449,25 @@ html {
   animation: pulse-badge 2.6s ease-in-out infinite;
 }
 
+/* Sticker badge micro-interaction: pause the ambient float/wiggle/pulse
+   and snap to an exaggerated "pop" — a bigger, counter-rotated, bouncy
+   state — with a springy easing curve on the way in and out. */
+.sticker-hover {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+.sticker-hover:hover {
+  animation-play-state: paused;
+  transform: scale(1.35) rotate(calc(var(--tilt, 0deg) * -1.5)) !important;
+  z-index: 30;
+}
+.sticker-hover:active {
+  transform: scale(1.15) rotate(calc(var(--tilt, 0deg) * -1.5)) !important;
+  transition-duration: 0.1s;
+}
+.sticker-hover:hover {
+  box-shadow: 0 10px 24px rgba(16, 24, 20, 0.18);
+}
+.dark .sticker-hover:hover {
+  box-shadow: 5px 5px 0 rgb(243 244 246);
+}
+
