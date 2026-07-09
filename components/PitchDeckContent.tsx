@@ -24,7 +24,7 @@ function Stat({ label, value, desc, link }: { label: string; value: string; desc
   return (
     <div className="card-premium p-6 text-center">
       <div className="text-[0.65rem] font-bold tracking-wide uppercase text-emerald-600 dark:text-emerald-400 mb-2">{label}</div>
-      <div className="text-3xl font-black mb-2">{value}</div>
+      <div className="text-3xl font-black mb-2 tabular-nums">{value}</div>
       <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
         {desc}
         {link && (
@@ -140,7 +140,7 @@ export default function PitchDeckContent() {
                 </p>
               </div>
               <div>
-                <div className="text-3xl font-black mb-2">2019 / 2017</div>
+                <div className="text-3xl font-black mb-2 tabular-nums">2019 / 2017</div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   <a href="https://yas.nic.in/sports/khelo-india-national-programme-development-sports-0" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-600 dark:hover:text-emerald-400">
                     Fit India Movement and Khelo India
@@ -488,7 +488,7 @@ export default function PitchDeckContent() {
               <div className="flex justify-center gap-8">
                 {[['40%', 'Product'], ['30%', 'Marketing'], ['20%', 'Gym Onboarding'], ['10%', 'Team']].map(([pct, lbl]) => (
                   <div key={lbl}>
-                    <div className="text-2xl font-black text-amber-600 dark:text-amber-500">{pct}</div>
+                    <div className="text-2xl font-black text-amber-600 dark:text-amber-500 tabular-nums">{pct}</div>
                     <div className="text-[0.65rem] uppercase tracking-wide text-gray-500 dark:text-gray-500">{lbl}</div>
                   </div>
                 ))}

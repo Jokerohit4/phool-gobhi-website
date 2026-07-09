@@ -27,6 +27,9 @@ export default function HeroSection() {
     return () => clearInterval(timer);
   }, [isLoaded]);
 
+  const stagger = (delay: number, anim = 'fadeInUp') =>
+    isLoaded ? { animation: `${anim} 0.7s cubic-bezier(0.22, 1, 0.36, 1) ${delay}s backwards` } : { opacity: 0 };
+
   return (
     <section className="relative w-full overflow-hidden dot-grid bg-cream-50 dark:bg-gray-950 pt-16 pb-20 transition-colors duration-300">
       {/* Scattered stickers */}
@@ -38,23 +41,23 @@ export default function HeroSection() {
       <div className="container-custom relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left */}
-          <div className="space-y-7" style={{ animation: isLoaded ? 'fadeInLeft 1s ease-out' : 'none' }}>
-            <div className="sticker inline-flex px-5 py-2 bg-cream-100 dark:bg-gray-900">
+          <div className="space-y-7">
+            <div className="sticker inline-flex px-5 py-2 bg-cream-100 dark:bg-gray-900" style={stagger(0)}>
               <span className="font-bold text-sm text-gray-900 dark:text-white">✨ Coming Soon</span>
             </div>
 
             <h1 className="font-display text-6xl sm:text-7xl lg:text-8xl leading-[0.9] tracking-tight">
-              <PosterOutline>Fitness</PosterOutline>
+              <span className="inline-block" style={stagger(0.1)}><PosterOutline>Fitness</PosterOutline></span>
               <br />
-              <PosterFill color="mustard">Without</PosterFill>{' '}
-              <PosterFill color="emerald">Limits</PosterFill>
+              <span className="inline-block" style={stagger(0.2)}><PosterFill color="mustard">Without</PosterFill></span>{' '}
+              <span className="inline-block" style={stagger(0.3)}><PosterFill color="emerald">Limits</PosterFill></span>
             </h1>
 
-            <p className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 max-w-lg leading-relaxed">
+            <p className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 max-w-lg leading-relaxed" style={stagger(0.4)}>
               A new way to book gym sessions. Flexible access to premium fitness experiences without long-term commitments.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4" style={stagger(0.5)}>
               <Link href="/how-it-works" className="btn-primary text-center">
                 Explore Features 🚀
               </Link>
@@ -63,7 +66,7 @@ export default function HeroSection() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-8 border-t-2 border-gray-900/10 dark:border-white/10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-8 border-t-2 border-gray-900/10 dark:border-white/10" style={stagger(0.6)}>
               <div>
                 <p className="text-xs font-bold uppercase tracking-wide text-emerald-600 dark:text-emerald-400 mb-1">🏋️ What&apos;s Here</p>
                 <p className="text-sm text-gray-700 dark:text-gray-300">Handpicked premium gyms &amp; flexible booking</p>
@@ -76,8 +79,8 @@ export default function HeroSection() {
           </div>
 
           {/* Right card */}
-          <div className="relative flex justify-center" style={{ animation: isLoaded ? 'fadeInRight 1s ease-out 0.2s backwards' : 'none' }}>
-            <div className="sticker w-full max-w-sm bg-cream-100 dark:bg-gray-900 p-8 sm:p-10 rounded-3xl !border-4">
+          <div className="relative flex justify-center" style={stagger(0.35, 'popIn')}>
+            <div className="sticker w-full max-w-sm bg-cream-100 dark:bg-gray-900 p-8 sm:p-10 !rounded-3xl !border-4">
               <h2 className="font-display text-5xl sm:text-6xl text-emerald-600 dark:text-emerald-400 mb-1">Phool Gobhi</h2>
               <p className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-6">Premium Fitness</p>
 
@@ -102,7 +105,7 @@ export default function HeroSection() {
           </div>
         </div>
 
-        <div className="mt-16 text-center">
+        <div className="mt-16 text-center" style={stagger(0.7)}>
           <p className="text-lg sm:text-2xl font-medium text-emerald-700 dark:text-emerald-400 min-h-[2.5rem] flex items-center justify-center">
             {displayedText}
             {displayedText.length < fullText.length && <span className="ml-1 font-bold animate-pulse">|</span>}
@@ -111,13 +114,13 @@ export default function HeroSection() {
       </div>
 
       <style jsx>{`
-        @keyframes fadeInLeft {
-          from { opacity: 0; transform: translateX(-40px); }
-          to { opacity: 1; transform: translateX(0); }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(24px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes fadeInRight {
-          from { opacity: 0; transform: translateX(40px); }
-          to { opacity: 1; transform: translateX(0); }
+        @keyframes popIn {
+          from { opacity: 0; transform: scale(0.9) translateY(16px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
         }
       `}</style>
     </section>
