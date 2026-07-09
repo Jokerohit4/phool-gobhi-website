@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { PosterFill, PosterOutline } from './Poster';
+import { PosterFill, PosterOutline, StickerBadge } from './Poster';
 
 const plans = [
   {
@@ -75,8 +75,10 @@ export default function PricingSection() {
   }, [isInView]);
 
   return (
-    <section className="section-padding bg-cream-50 dark:bg-gray-950 transition-colors" data-pricing-section>
-      <div className="container-custom">
+    <section className="relative section-padding bg-cream-50 dark:bg-gray-950 transition-colors overflow-hidden" data-pricing-section>
+      <StickerBadge color="mustard" size={54} rotate={12} delay={0.4} motion="wiggle" className="absolute top-20 left-[5%] hidden lg:flex">💰</StickerBadge>
+      <StickerBadge color="emerald" size={48} rotate={-10} delay={1.0} motion="pulse" className="absolute bottom-24 right-[4%] hidden md:flex">✅</StickerBadge>
+      <div className="container-custom relative z-10">
         <div className="text-center mb-16">
           <h2 className="font-display text-5xl md:text-7xl mb-6">
             <PosterOutline>Plans &amp;</PosterOutline> <PosterFill color="mustard">What&apos;s Available</PosterFill>

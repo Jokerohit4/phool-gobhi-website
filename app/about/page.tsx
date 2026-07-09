@@ -8,8 +8,8 @@ import { PosterFill, PosterOutline, StickerBadge } from '@/components/Poster';
 export default function AboutPage() {
   return (
     <section className="relative min-h-screen section-padding dot-grid bg-cream-50 dark:bg-gray-950 overflow-hidden">
-      <StickerBadge color="mustard" size={56} rotate={-12} delay={0} className="absolute top-28 left-[8%] hidden md:flex">🌱</StickerBadge>
-      <StickerBadge color="terracotta" size={48} rotate={14} delay={0.5} className="absolute top-44 right-[10%] hidden lg:flex">🎯</StickerBadge>
+      <StickerBadge color="mustard" size={56} rotate={-12} delay={0} motion="wiggle" className="absolute top-28 left-[8%] hidden md:flex">🌱</StickerBadge>
+      <StickerBadge color="terracotta" size={48} rotate={14} delay={0.5} motion="pulse" className="absolute top-44 right-[10%] hidden lg:flex">🎯</StickerBadge>
 
       <div className="container-custom max-w-4xl relative z-10">
         <motion.div

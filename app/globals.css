@@ -67,10 +67,10 @@ body {
 
 @keyframes float {
   0%, 100% {
-    transform: translateY(0px);
+    transform: translateY(0px) rotate(var(--tilt, 0deg));
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-10px) rotate(var(--tilt, 0deg));
   }
 }
 
@@ -429,5 +429,23 @@ html {
 
 .tilt-sticker {
   animation: float 4s ease-in-out infinite;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(var(--tilt, 0deg)); }
+  50% { transform: rotate(calc(var(--tilt, 0deg) + 8deg)); }
+}
+
+.wiggle-sticker {
+  animation: wiggle 3.2s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% { transform: scale(1) rotate(var(--tilt, 0deg)); }
+  50% { transform: scale(1.08) rotate(var(--tilt, 0deg)); }
+}
+
+.pulse-sticker {
+  animation: pulse-badge 2.6s ease-in-out infinite;
 }
 

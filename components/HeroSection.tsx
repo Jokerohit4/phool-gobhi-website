@@ -31,9 +31,9 @@ export default function HeroSection() {
     <section className="relative w-full overflow-hidden dot-grid bg-cream-50 dark:bg-gray-950 pt-16 pb-20 transition-colors duration-300">
       {/* Scattered stickers */}
       <StickerBadge color="mustard" size={64} rotate={-10} delay={0} className="absolute top-24 left-[6%] hidden sm:flex">🥦</StickerBadge>
-      <StickerBadge color="terracotta" size={56} rotate={12} delay={0.6} className="absolute top-40 right-[10%] hidden md:flex">🏋️</StickerBadge>
-      <StickerBadge color="emerald" size={60} rotate={-6} delay={1.2} className="absolute bottom-24 left-[12%] hidden lg:flex">💪</StickerBadge>
-      <StickerBadge color="mustard" size={48} rotate={16} delay={0.3} className="absolute bottom-40 right-[6%] hidden sm:flex">📅</StickerBadge>
+      <StickerBadge color="terracotta" size={56} rotate={12} delay={0.6} motion="wiggle" className="absolute top-40 right-[10%] hidden md:flex">🏋️</StickerBadge>
+      <StickerBadge color="emerald" size={60} rotate={-6} delay={1.2} motion="pulse" className="absolute bottom-24 left-[12%] hidden lg:flex">💪</StickerBadge>
+      <StickerBadge color="mustard" size={48} rotate={16} delay={0.3} motion="wiggle" className="absolute bottom-40 right-[6%] hidden sm:flex">📅</StickerBadge>
 
       <div className="container-custom relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">

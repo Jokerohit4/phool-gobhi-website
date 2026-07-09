@@ -31,12 +31,19 @@ const BADGE_BG: Record<AccentColor, string> = {
   ink: 'bg-gray-200 dark:bg-gray-700',
 };
 
+const MOTION_CLASS = {
+  float: 'tilt-sticker',
+  wiggle: 'wiggle-sticker',
+  pulse: 'pulse-sticker',
+} as const;
+
 export function StickerBadge({
   children,
   color = 'emerald',
   size = 64,
   rotate = -8,
   delay = 0,
+  motion = 'float',
   className = '',
 }: {
   children: ReactNode;
@@ -44,17 +51,19 @@ export function StickerBadge({
   size?: number;
   rotate?: number;
   delay?: number;
+  motion?: keyof typeof MOTION_CLASS;
   className?: string;
 }) {
   return (
     <div
-      className={`sticker tilt-sticker inline-flex items-center justify-center select-none pointer-events-none ${BADGE_BG[color]} ${className}`}
+      className={`sticker ${MOTION_CLASS[motion]} inline-flex items-center justify-center select-none pointer-events-none ${BADGE_BG[color]} ${className}`}
       style={{
         width: size,
         height: size,
         fontSize: size * 0.42,
         transform: `rotate(${rotate}deg)`,
         animationDelay: `${delay}s`,
+        ['--tilt' as string]: `${rotate}deg`,
       }}
     >
       {children}

@@ -1,6 +1,6 @@
 'use client';
 
-import { PosterFill, PosterOutline } from './Poster';
+import { PosterFill, PosterOutline, StickerBadge } from './Poster';
 
 const features = [
   {
@@ -27,8 +27,11 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section className="section-padding bg-cream-50 dark:bg-gray-950 transition-colors">
-      <div className="container-custom">
+    <section className="relative section-padding bg-cream-50 dark:bg-gray-950 transition-colors overflow-hidden">
+      <StickerBadge color="emerald" size={52} rotate={-14} delay={0.2} motion="pulse" className="absolute top-16 left-[4%] hidden lg:flex">🎯</StickerBadge>
+      <StickerBadge color="terracotta" size={46} rotate={10} delay={0.8} motion="wiggle" className="absolute top-24 right-[6%] hidden md:flex">🔥</StickerBadge>
+      <StickerBadge color="mustard" size={50} rotate={-8} delay={1.4} className="absolute bottom-10 right-[3%] hidden lg:flex">🏆</StickerBadge>
+      <div className="container-custom relative z-10">
         <div className="text-center mb-16">
           <h2 className="font-display text-5xl md:text-7xl mb-4">
             <PosterOutline>Why Choose</PosterOutline> <PosterFill color="emerald">Phool Gobhi?</PosterFill>

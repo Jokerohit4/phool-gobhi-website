@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { PosterFill, PosterOutline } from '@/components/Poster';
+import { PosterFill, PosterOutline, StickerBadge } from '@/components/Poster';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -29,8 +29,10 @@ export default function ContactPage() {
   };
 
   return (
-    <section className="min-h-screen section-padding dot-grid bg-cream-50 dark:bg-gray-950">
-      <div className="container-custom max-w-4xl">
+    <section className="relative min-h-screen section-padding dot-grid bg-cream-50 dark:bg-gray-950 overflow-hidden">
+      <StickerBadge color="terracotta" size={50} rotate={-10} delay={0.3} motion="pulse" className="absolute top-24 left-[6%] hidden lg:flex">💬</StickerBadge>
+      <StickerBadge color="emerald" size={44} rotate={14} delay={0.9} motion="wiggle" className="absolute bottom-16 right-[5%] hidden md:flex">📩</StickerBadge>
+      <div className="container-custom max-w-4xl relative z-10">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center mb-12">
           <h1 className="font-display text-6xl md:text-7xl mb-4">
             <PosterOutline>Get in</PosterOutline> <PosterFill color="terracotta">Touch</PosterFill>
