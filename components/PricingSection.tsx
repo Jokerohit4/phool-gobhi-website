@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { PosterFill, PosterOutline, StickerBadge } from './Poster';
 
 const plans = [
@@ -33,29 +34,11 @@ const plans = [
 ];
 
 export default function PricingSection() {
-  const [isInView, setIsInView] = useState(false);
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
   const [displayedText, setDisplayedText] = useState('');
   const fullText = 'Flexible plans designed for every fitness journey';
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsInView(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    const section = document.querySelector('[data-pricing-section]');
-    if (section) {
-      observer.observe(section);
-    }
-
-    return () => {
-      if (section) observer.unobserve(section);
-    };
-  }, []);
+  const reduceMotion = useReducedMotion();
 
   // Typewriter effect when section comes into view
   useEffect(() => {
@@ -75,7 +58,7 @@ export default function PricingSection() {
   }, [isInView]);
 
   return (
-    <section className="relative section-padding bg-cream-50 dark:bg-gray-950 transition-colors overflow-hidden" data-pricing-section>
+    <section ref={sectionRef} className="relative section-padding bg-cream-50 dark:bg-gray-950 transition-colors overflow-hidden">
       <StickerBadge color="mustard" size={54} rotate={12} delay={0.4} motion="wiggle" className="absolute top-20 left-[5%] hidden lg:flex">💰</StickerBadge>
       <StickerBadge color="emerald" size={48} rotate={-10} delay={1.0} motion="pulse" className="absolute bottom-24 right-[4%] hidden md:flex">✅</StickerBadge>
       <div className="container-custom relative z-10">
@@ -83,7 +66,7 @@ export default function PricingSection() {
           <h2 className="font-display text-5xl md:text-7xl mb-6">
             <PosterOutline>Plans &amp;</PosterOutline> <PosterFill color="mustard">What&apos;s Available</PosterFill>
           </h2>
-          
+
           {/* Typewriter text */}
           <p className="text-xl text-emerald-600 dark:text-emerald-400 max-w-2xl mx-auto min-h-[3rem] flex items-center justify-center font-light">
             {displayedText}
@@ -95,20 +78,22 @@ export default function PricingSection() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {plans.map((plan, index) => (
-            <div
+            <motion.div
               key={index}
-              className={`group relative p-8 rounded-2xl border transition-all duration-500 hover:scale-105 overflow-hidden ${
+              initial={reduceMotion ? undefined : { opacity: 0, y: 40, scale: 0.92 }}
+              animate={isInView && !reduceMotion ? { opacity: 1, y: 0, scale: 1 } : reduceMotion ? { opacity: 1 } : undefined}
+              whileHover={reduceMotion ? undefined : { scale: 1.05, y: -4 }}
+              transition={{
+                type: 'spring',
+                stiffness: 260,
+                damping: 22,
+                delay: reduceMotion ? 0 : 0.15 + index * 0.12,
+              }}
+              className={`group relative p-8 rounded-2xl border overflow-hidden ${
                 plan.highlighted
                   ? 'bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-2xl border-transparent hover:shadow-2xl hover:shadow-emerald-500/50'
                   : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-emerald-400 dark:hover:border-emerald-500 hover:shadow-2xl dark:hover:shadow-emerald-500/40'
-              }`}
-              style={{
-                animation: isInView
-                  ? `slideInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) ${0.2 + index * 0.12}s forwards`
-                  : 'none',
-                opacity: isInView ? 1 : 0,
-                transform: isInView ? 'translateY(0)' : 'translateY(30px)',
-              }}
+              } transition-[border-color,box-shadow] duration-300`}
             >
               {/* Hover gradient background */}
               <div className={`absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 ${
@@ -129,7 +114,7 @@ export default function PricingSection() {
                   {plan.status}
                 </span>
 
-                <h3 className="text-lg font-bold mb-2 transition-all duration-300 group-hover:translate-y-1">
+                <h3 className="text-lg font-bold mb-2 transition-transform duration-300 group-hover:translate-y-1">
                   {plan.name}
                 </h3>
 
@@ -143,9 +128,9 @@ export default function PricingSection() {
                   {plan.features.map((feature, idx) => (
                     <li
                       key={idx}
-                      className="flex items-center gap-3 text-sm transition-all duration-300 group-hover:translate-x-1"
+                      className="flex items-center gap-3 text-sm transition-transform duration-300 group-hover:translate-x-1"
                     >
-                      <span className={`font-bold transition-all duration-300 group-hover:scale-125 ${
+                      <span className={`font-bold transition-transform duration-300 group-hover:scale-125 ${
                         plan.highlighted ? 'text-white' : 'text-emerald-500'
                       }`}>
                         ✓
@@ -157,7 +142,7 @@ export default function PricingSection() {
 
                 <Link
                   href="/contact"
-                  className={`block w-full py-3 rounded-lg font-bold transition-all duration-300 hover:shadow-2xl hover:scale-105 relative overflow-hidden group/btn text-center ${
+                  className={`block w-full py-3 rounded-lg font-bold transition-shadow duration-300 hover:shadow-2xl relative overflow-hidden group/btn text-center ${
                     plan.highlighted
                       ? 'bg-white text-emerald-600 hover:shadow-emerald-500/40'
                       : 'bg-emerald-600 dark:bg-emerald-600 text-white hover:shadow-emerald-500/50'
@@ -173,7 +158,7 @@ export default function PricingSection() {
                   />
                 </Link>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
@@ -183,19 +168,6 @@ export default function PricingSection() {
           </p>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes slideInUp {
-          from {
-            opacity: 0;
-            transform: translateY(40px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </section>
   );
 }
