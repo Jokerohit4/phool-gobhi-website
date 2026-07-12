@@ -10,6 +10,7 @@ const ALLOWED_EMAILS = new Set<string>([
 // Store as bare 10-digit Indian mobile numbers (no country code, no formatting).
 const ALLOWED_PHONES_10DIGIT = new Set<string>([
   '9354859197',
+  '9013267394',
 ]);
 
 function normalizeEmail(value: string): string {
