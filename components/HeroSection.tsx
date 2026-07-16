@@ -79,16 +79,16 @@ export default function HeroSection() {
       <div className="container-custom relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left */}
-          <motion.div className="space-y-7" variants={container} initial="hidden" animate="visible">
+          <motion.div className="space-y-7 min-w-0" variants={container} initial="hidden" animate="visible">
             <motion.div variants={item} className="sticker inline-flex px-5 py-2 bg-cream-100 dark:bg-gray-900">
               <span className="font-bold text-sm text-gray-900 dark:text-white">🥦 Cooking Soon</span>
             </motion.div>
 
-            <h1 className="font-display text-6xl sm:text-7xl lg:text-8xl leading-[0.9] tracking-tight">
-              <motion.span variants={word} className="inline-block"><PosterOutline>Flex</PosterOutline></motion.span>
+            <h1 className="font-display text-5xl sm:text-7xl lg:text-8xl leading-[0.9] tracking-tight break-words">
+              <motion.span variants={word} className="inline-block break-words"><PosterOutline>Flex</PosterOutline></motion.span>
               <br />
-              <motion.span variants={word} className="inline-block"><PosterFill color="mustard">Without</PosterFill></motion.span>{' '}
-              <motion.span variants={word} className="inline-block"><PosterFill color="emerald">Commitment</PosterFill></motion.span>
+              <motion.span variants={word} className="inline-block break-words"><PosterFill color="mustard">Without</PosterFill></motion.span>{' '}
+              <motion.span variants={word} className="inline-block break-words"><PosterFill color="emerald">Commitment</PosterFill></motion.span>
             </h1>
 
             <motion.p variants={item} className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 max-w-lg leading-relaxed">
