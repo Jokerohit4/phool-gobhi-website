@@ -36,8 +36,8 @@ export default function FeaturesSection() {
       <StickerBadge color="mustard" size={50} rotate={-8} delay={1.4} className="absolute bottom-10 right-[3%] hidden lg:flex">🏆</StickerBadge>
       <div className="container-custom relative z-10">
         <motion.div
-          initial={reduceMotion ? undefined : { opacity: 0, y: 20 }}
-          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-center mb-16"
@@ -54,11 +54,11 @@ export default function FeaturesSection() {
           {features.map((feature, index) => (
             <motion.div
               key={index}
-              initial={reduceMotion ? undefined : { opacity: 0, y: 32, scale: 0.94 }}
-              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
-              whileHover={reduceMotion ? undefined : { y: -6 }}
+              initial={reduceMotion ? false : { opacity: 0, y: 32, scale: 0.94 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              whileHover={{ y: -6 }}
               viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.55, delay: reduceMotion ? 0 : index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.55, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
               className="sticker !rounded-2xl p-6 bg-cream-100 dark:bg-gray-900 hover:shadow-md dark:hover:!shadow-[5px_5px_0_currentColor] transition-shadow duration-300 group cursor-default"
             >
               <div className="text-4xl mb-4 inline-block transition-transform duration-300 ease-out group-hover:scale-125 group-hover:rotate-12 group-active:scale-100">

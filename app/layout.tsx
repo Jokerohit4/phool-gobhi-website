@@ -4,6 +4,7 @@ import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ScrollProgress from '@/components/ScrollProgress';
+import MotionProvider from '@/components/MotionProvider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -66,10 +67,12 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col bg-cream-50 dark:bg-gray-950 transition-colors duration-300">
-        <ScrollProgress />
-        <Header />
-        <main className="flex-grow">{children}</main>
-        <Footer />
+        <MotionProvider>
+          <ScrollProgress />
+          <Header />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+        </MotionProvider>
       </body>
     </html>
   );

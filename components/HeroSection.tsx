@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, useReducedMotion, type Variants } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { PosterFill, PosterOutline, StickerBadge } from './Poster';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -11,7 +11,6 @@ export default function HeroSection() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [displayedText, setDisplayedText] = useState('');
   const fullText = 'No membership. No shame. Just show up.';
-  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     setIsLoaded(true);
@@ -34,44 +33,38 @@ export default function HeroSection() {
   const container: Variants = {
     hidden: {},
     visible: {
-      transition: reduceMotion
-        ? { staggerChildren: 0 }
-        : { staggerChildren: 0.13, delayChildren: 0.1 },
+      transition: { staggerChildren: 0.13, delayChildren: 0.1 },
     },
   };
 
   const item: Variants = {
-    hidden: reduceMotion ? { opacity: 0 } : { opacity: 0, y: 22 },
+    hidden: { opacity: 0, y: 22 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: reduceMotion ? 0.2 : 0.6, ease: EASE },
+      transition: { duration: 0.6, ease: EASE },
     },
   };
 
   const word: Variants = {
-    hidden: reduceMotion ? { opacity: 0 } : { opacity: 0, y: 34, scale: 0.92, rotate: -2 },
+    hidden: { opacity: 0, y: 34, scale: 0.92, rotate: -2 },
     visible: {
       opacity: 1,
       y: 0,
       scale: 1,
       rotate: 0,
-      transition: reduceMotion
-        ? { duration: 0.2 }
-        : { type: 'spring', stiffness: 260, damping: 20 },
+      transition: { type: 'spring', stiffness: 260, damping: 20 },
     },
   };
 
   const card: Variants = {
-    hidden: reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.85, y: 40, rotate: -3 },
+    hidden: { opacity: 0, scale: 0.85, y: 40, rotate: -3 },
     visible: {
       opacity: 1,
       scale: 1,
       y: 0,
       rotate: 0,
-      transition: reduceMotion
-        ? { duration: 0.2 }
-        : { type: 'spring', stiffness: 140, damping: 16, delay: 0.4 },
+      transition: { type: 'spring', stiffness: 140, damping: 16, delay: 0.4 },
     },
   };
 
@@ -103,12 +96,12 @@ export default function HeroSection() {
             </motion.p>
 
             <motion.div variants={item} className="flex flex-col sm:flex-row gap-4">
-              <motion.span whileHover={reduceMotion ? undefined : { scale: 1.04 }} whileTap={reduceMotion ? undefined : { scale: 0.96 }}>
+              <motion.span whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
                 <Link href="/how-it-works" className="btn-primary text-center block">
                   Convince Me 🥦
                 </Link>
               </motion.span>
-              <motion.span whileHover={reduceMotion ? undefined : { scale: 1.04 }} whileTap={reduceMotion ? undefined : { scale: 0.96 }}>
+              <motion.span whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
                 <Link href="/contact" className="btn-secondary text-center block">
                   Fine, I&apos;m In →
                 </Link>
@@ -135,7 +128,7 @@ export default function HeroSection() {
             animate="visible"
           >
             <motion.div
-              whileHover={reduceMotion ? undefined : { y: -6 }}
+              whileHover={{ y: -6 }}
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               className="sticker w-full max-w-sm bg-cream-100 dark:bg-gray-900 p-8 sm:p-10 !rounded-3xl !border-4"
             >
@@ -151,8 +144,8 @@ export default function HeroSection() {
                 {['Early Access (no queue)', 'Zero Guilt (patented)', 'Pay As You Go (revolutionary, we know)'].map((thing, i) => (
                   <motion.li
                     key={thing}
-                    initial={reduceMotion ? undefined : { opacity: 0, x: -12 }}
-                    animate={reduceMotion ? undefined : { opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.8 + i * 0.12, duration: 0.4, ease: EASE }}
                     className="flex items-center gap-3 text-sm font-medium"
                   >
@@ -163,8 +156,8 @@ export default function HeroSection() {
               </ul>
 
               <motion.span
-                whileHover={reduceMotion ? undefined : { scale: 1.03 }}
-                whileTap={reduceMotion ? undefined : { scale: 0.97 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 className="block"
               >
                 <Link href="/contact" className="btn-primary w-full text-center block">

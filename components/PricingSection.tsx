@@ -36,9 +36,9 @@ const plans = [
 export default function PricingSection() {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
+  const reduceMotion = useReducedMotion();
   const [displayedText, setDisplayedText] = useState('');
   const fullText = 'Straightforward pricing. Zero annual commitment ceremonies. Zero sacrifices required.';
-  const reduceMotion = useReducedMotion();
 
   // Typewriter effect when section comes into view
   useEffect(() => {
@@ -80,14 +80,14 @@ export default function PricingSection() {
           {plans.map((plan, index) => (
             <motion.div
               key={index}
-              initial={reduceMotion ? undefined : { opacity: 0, y: 40, scale: 0.92 }}
-              animate={isInView && !reduceMotion ? { opacity: 1, y: 0, scale: 1 } : reduceMotion ? { opacity: 1 } : undefined}
-              whileHover={reduceMotion ? undefined : { scale: 1.05, y: -4 }}
+              initial={reduceMotion ? false : { opacity: 0, y: 40, scale: 0.92 }}
+              animate={reduceMotion || isInView ? { opacity: 1, y: 0, scale: 1 } : undefined}
+              whileHover={{ scale: 1.05, y: -4 }}
               transition={{
                 type: 'spring',
                 stiffness: 260,
                 damping: 22,
-                delay: reduceMotion ? 0 : 0.15 + index * 0.12,
+                delay: 0.15 + index * 0.12,
               }}
               className={`group relative p-8 rounded-2xl border overflow-hidden ${
                 plan.highlighted
