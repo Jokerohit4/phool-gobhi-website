@@ -56,7 +56,7 @@ export function StickerBadge({
 }) {
   return (
     <div
-      className={`sticker sticker-hover ${MOTION_CLASS[motion]} inline-flex items-center justify-center select-none cursor-pointer ${BADGE_BG[color]} ${className}`}
+      className={`sticker sticker-hover ${MOTION_CLASS[motion]} items-center justify-center select-none cursor-pointer ${BADGE_BG[color]} ${className}`}
       style={{
         width: size,
         height: size,

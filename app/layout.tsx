@@ -22,9 +22,9 @@ const bebasNeue = Bebas_Neue({
 });
 
 export const metadata: Metadata = {
-  title: 'Phool Gobhi - Flexible Gym Memberships',
-  description: 'The world\'s most flexible gym membership platform. Book sessions on your terms with 500+ premium gyms. No contracts, transparent pricing.',
-  keywords: 'gym membership, flexible fitness, pay per session, gym booking, Gurugram, premium fitness',
+  title: 'Phool Gobhi — Pay-Per-Session Gym Access, No Membership',
+  description: 'Book a gym session in Gurugram without signing up for a 12-month membership. Pay per visit, find real gyms nearby, skip the guilt trip. No membership. No shame.',
+  keywords: 'pay per session gym, no membership gym, gym booking Gurugram, flexible fitness, gym near me',
 };
 
 export default function RootLayout({

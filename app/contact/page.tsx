@@ -37,12 +37,12 @@ export default function ContactPage() {
           <h1 className="font-display text-6xl md:text-7xl mb-4">
             <PosterOutline>Get in</PosterOutline> <PosterFill color="terracotta">Touch</PosterFill>
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400">Have questions? We&apos;d love to hear from you.</p>
+          <p className="text-xl text-gray-600 dark:text-gray-400">Questions, feedback, or you just want to argue with Gobhi about broccoli. We&apos;re listening.</p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-12">
           <motion.form initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} onSubmit={handleSubmit} className="space-y-6">
-            {submitted && <div className="p-4 bg-green-100 text-green-800 rounded-lg">Thanks for reaching out! We'll get back to you soon.</div>}
+            {submitted && <div className="p-4 bg-green-100 text-green-800 rounded-lg">Thanks for reaching out! Gobhi&apos;s typing back — he&apos;s got florets for hands, give him a minute.</div>}
             <div>
               <label className="block text-sm font-semibold mb-2">Name</label>
               <input type="text" name="name" value={formData.name} onChange={handleChange} required className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-emerald-600" />
@@ -62,7 +62,7 @@ export default function ContactPage() {
 
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} className="space-y-8">
             <div>
-              <h3 className="text-xl font-bold mb-4">Quick Links</h3>
+              <h3 className="text-xl font-bold mb-4">Fastest Ways To Bother Gobhi</h3>
               <div className="space-y-3">
                 <a href="https://wa.me/919354859197" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-700 hover:text-emerald-600">
                   <span className="text-2xl">💬</span>
@@ -88,8 +88,8 @@ export default function ContactPage() {
               </div>
             </div>
             <div className="bg-gradient-to-br from-emerald-50 to-green-50 p-8 rounded-xl">
-              <h3 className="text-xl font-bold mb-4">Response Time</h3>
-              <p className="text-gray-700">We typically respond to all inquiries within 24 hours. For urgent matters, reach out on WhatsApp.</p>
+              <h3 className="text-xl font-bold mb-4">Response Time (Ish)</h3>
+              <p className="text-gray-700">We reply within 24 hours. If it&apos;s urgent — like, your-gym-is-on-fire urgent — message us on WhatsApp instead.</p>
             </div>
           </motion.div>
         </div>

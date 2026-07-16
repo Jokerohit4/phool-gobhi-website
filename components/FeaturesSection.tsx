@@ -7,22 +7,22 @@ const features = [
   {
     icon: '🔍',
     title: 'Discover Gyms',
-    description: 'Browse hundreds of gyms near you with detailed information and ratings.',
+    description: "Hundreds of gyms near you, zero stalking required. Ratings included, unlike Gobhi's dating profile.",
   },
   {
     icon: '📅',
     title: 'Flexible Booking',
-    description: 'Book sessions as you go. No long-term commitments or hidden fees.',
+    description: "Book today, skip tomorrow. No one's judging. Definitely not Gobhi (he skipped Tuesday too).",
   },
   {
     icon: '💳',
     title: 'Affordable Pricing',
-    description: 'Pay per session or choose monthly plans that fit your budget.',
+    description: "Pay only for the days you actually show up. Gobhi called this 'basic math' and got weirdly smug about it.",
   },
   {
     icon: '⭐',
     title: 'Top Rated',
-    description: 'Connect with verified gyms and read honest reviews from real members.',
+    description: 'Real reviews from real humans who actually went. Gobhi tried to leave one too. Gobhi cannot type. Gobhi is a vegetable.',
   },
 ];
 
@@ -43,10 +43,10 @@ export default function FeaturesSection() {
           className="text-center mb-16"
         >
           <h2 className="font-display text-5xl md:text-7xl mb-4">
-            <PosterOutline>Why Choose</PosterOutline> <PosterFill color="emerald">Phool Gobhi?</PosterFill>
+            <PosterOutline>Okay But</PosterOutline> <PosterFill color="emerald">Why Gobhi?</PosterFill>
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Simple, transparent, and designed for your fitness goals.
+            No memberships. No forms. No guilt trips. Just gym, on your terms (and occasionally Gobhi&apos;s, but mostly yours).
           </p>
         </motion.div>
 

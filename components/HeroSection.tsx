@@ -10,7 +10,7 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 export default function HeroSection() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [displayedText, setDisplayedText] = useState('');
-  const fullText = 'Book any gym, anytime, anywhere. No commitment. Just flexibility.';
+  const fullText = 'No membership. No shame. Just show up.';
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
@@ -88,41 +88,41 @@ export default function HeroSection() {
           {/* Left */}
           <motion.div className="space-y-7" variants={container} initial="hidden" animate="visible">
             <motion.div variants={item} className="sticker inline-flex px-5 py-2 bg-cream-100 dark:bg-gray-900">
-              <span className="font-bold text-sm text-gray-900 dark:text-white">✨ Coming Soon</span>
+              <span className="font-bold text-sm text-gray-900 dark:text-white">🥦 Cooking Soon</span>
             </motion.div>
 
             <h1 className="font-display text-6xl sm:text-7xl lg:text-8xl leading-[0.9] tracking-tight">
-              <motion.span variants={word} className="inline-block"><PosterOutline>Fitness</PosterOutline></motion.span>
+              <motion.span variants={word} className="inline-block"><PosterOutline>Flex</PosterOutline></motion.span>
               <br />
               <motion.span variants={word} className="inline-block"><PosterFill color="mustard">Without</PosterFill></motion.span>{' '}
-              <motion.span variants={word} className="inline-block"><PosterFill color="emerald">Limits</PosterFill></motion.span>
+              <motion.span variants={word} className="inline-block"><PosterFill color="emerald">Commitment</PosterFill></motion.span>
             </h1>
 
             <motion.p variants={item} className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 max-w-lg leading-relaxed">
-              A new way to book gym sessions. Flexible access to premium fitness experiences without long-term commitments.
+              Pay per session. Skip the 12-month guilt trip. Gobhi&apos;s done the math — he&apos;s a vegetable, math is the only thing he&apos;s sure of. (He&apos;s still working on feelings.)
             </motion.p>
 
             <motion.div variants={item} className="flex flex-col sm:flex-row gap-4">
               <motion.span whileHover={reduceMotion ? undefined : { scale: 1.04 }} whileTap={reduceMotion ? undefined : { scale: 0.96 }}>
                 <Link href="/how-it-works" className="btn-primary text-center block">
-                  Explore Features 🚀
+                  Convince Me 🥦
                 </Link>
               </motion.span>
               <motion.span whileHover={reduceMotion ? undefined : { scale: 1.04 }} whileTap={reduceMotion ? undefined : { scale: 0.96 }}>
                 <Link href="/contact" className="btn-secondary text-center block">
-                  Get Notified →
+                  Fine, I&apos;m In →
                 </Link>
               </motion.span>
             </motion.div>
 
             <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-8 border-t-2 border-gray-900/10 dark:border-white/10">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-emerald-600 dark:text-emerald-400 mb-1">🏋️ What&apos;s Here</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">Handpicked premium gyms &amp; flexible booking</p>
+                <p className="text-xs font-bold uppercase tracking-wide text-emerald-600 dark:text-emerald-400 mb-1">🥦 What&apos;s Here</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Real gyms, real slots, zero paperwork. Gobhi hates forms too.</p>
               </div>
               <div>
                 <p className="text-xs font-bold uppercase tracking-wide text-emerald-600 dark:text-emerald-400 mb-1">🎯 What&apos;s Coming</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">Personalized recommendations &amp; rewards</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Gym buddies, perks &amp; whatever chaos Gobhi cooks up next. He doesn&apos;t have a kitchen. He&apos;s a vegetable.</p>
               </div>
             </motion.div>
           </motion.div>
@@ -140,15 +140,15 @@ export default function HeroSection() {
               className="sticker w-full max-w-sm bg-cream-100 dark:bg-gray-900 p-8 sm:p-10 !rounded-3xl !border-4"
             >
               <h2 className="font-display text-5xl sm:text-6xl text-emerald-600 dark:text-emerald-400 mb-1">Phool Gobhi</h2>
-              <p className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-6">Premium Fitness</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-6">Certified Floret. Uncertified Abs.</p>
 
               <h3 className="text-2xl font-bold mb-3">Coming Soon</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-                We&apos;re building something special. Be among the first to experience the future of gym access.
+                Gobhi&apos;s still warming up before launch — florets take a while to stretch. Get in early, skip the line, brag about it later.
               </p>
 
               <ul className="space-y-3 mb-8">
-                {['Early Access', 'Zero Commitment', 'Full Flexibility'].map((thing, i) => (
+                {['Early Access (no queue)', 'Zero Guilt (patented)', 'Pay As You Go (revolutionary, we know)'].map((thing, i) => (
                   <motion.li
                     key={thing}
                     initial={reduceMotion ? undefined : { opacity: 0, x: -12 }}
@@ -168,7 +168,7 @@ export default function HeroSection() {
                 className="block"
               >
                 <Link href="/contact" className="btn-primary w-full text-center block">
-                  Get Early Access ✨
+                  Count Me In, Gobhi 🥦
                 </Link>
               </motion.span>
             </motion.div>

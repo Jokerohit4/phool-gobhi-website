@@ -5,7 +5,7 @@ export default function PhoolGobhiLogo({ interactive = false }: { interactive?: 
     <div className="relative w-12 h-12">
       <Image
         src="/broc-mascot.png"
-        alt="Phool Gobhi Logo"
+        alt="Phool Gobhi mascot, mid-flex"
         width={48}
         height={48}
         priority

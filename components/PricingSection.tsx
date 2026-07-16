@@ -7,28 +7,28 @@ import { PosterFill, PosterOutline, StickerBadge } from './Poster';
 
 const plans = [
   {
-    name: 'Basic Access',
-    description: 'Perfect for trying it out',
-    features: ['Day pass to gyms', 'Flexible booking', 'No commitment'],
+    name: 'Pay As You Go',
+    description: "One session. No paperwork. No drama. Gobhi checked twice, there's really no fine print.",
+    features: ['Single session pass', 'Book same day', 'Zero commitment'],
     status: 'Available Now',
   },
   {
-    name: 'Member Tier',
-    description: 'For regular fitness enthusiasts',
-    features: ['Unlimited weekly access', 'Priority bookings', 'Member perks'],
+    name: 'Regular Round',
+    description: 'For people who actually show up weekly. A rare breed. Gobhi respects you.',
+    features: ['Unlimited weekly access', 'Priority bookings', 'Bonus perks'],
     status: 'Launching Soon',
   },
   {
-    name: 'Premium Plus',
-    description: 'Maximum flexibility and benefits',
-    features: ['24/7 access', 'Exclusive venues', 'Premium support'],
+    name: "Gobhi's Favourite",
+    description: "All the access, none of the guilt. Gobhi picked this one himself — totally unbiased, he's a vegetable.",
+    features: ['24/7 access', 'Exclusive venues', 'Actual human support'],
     status: 'In Development',
     highlighted: true,
   },
   {
-    name: 'Corporate Plans',
-    description: 'For teams and organizations',
-    features: ['Bulk access', 'Custom solutions', 'Admin dashboard'],
+    name: 'Team Plan',
+    description: "For offices that want fitter people, fewer sick days, and one very earnest HR email about 'wellness culture.'",
+    features: ['Bulk access', 'Custom setups', 'Admin dashboard'],
     status: 'Coming Later',
   },
 ];
@@ -37,7 +37,7 @@ export default function PricingSection() {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
   const [displayedText, setDisplayedText] = useState('');
-  const fullText = 'Flexible plans designed for every fitness journey';
+  const fullText = 'Straightforward pricing. Zero annual commitment ceremonies. Zero sacrifices required.';
   const reduceMotion = useReducedMotion();
 
   // Typewriter effect when section comes into view
@@ -64,7 +64,7 @@ export default function PricingSection() {
       <div className="container-custom relative z-10">
         <div className="text-center mb-16">
           <h2 className="font-display text-5xl md:text-7xl mb-6">
-            <PosterOutline>Plans &amp;</PosterOutline> <PosterFill color="mustard">What&apos;s Available</PosterFill>
+            <PosterOutline>Plans &amp;</PosterOutline> <PosterFill color="mustard">Not Memberships</PosterFill>
           </h2>
 
           {/* Typewriter text */}
@@ -164,7 +164,7 @@ export default function PricingSection() {
 
         <div className="mt-16 text-center">
           <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto">
-            Pricing details and exact launch dates will be announced soon. Early supporters get exclusive benefits. 🎉
+            Exact pricing dropping soon. Early supporters get first dibs, bragging rights, and Gobhi&apos;s eternal gratitude — it&apos;s all he has to give, he&apos;s a vegetable. 🥦
           </p>
         </div>
       </div>

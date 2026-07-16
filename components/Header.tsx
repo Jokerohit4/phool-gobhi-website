@@ -44,15 +44,17 @@ export default function Header() {
 
           {/* Right Section */}
           <div className="flex items-center gap-4">
-            <ThemeSwitch />
-            
+            <div className="hidden sm:block">
+              <ThemeSwitch />
+            </div>
+
             <a
               href="https://wa.me/919354859197"
               target="_blank"
               rel="noopener noreferrer"
               className="hidden md:block px-6 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold text-sm hover:shadow-lg transition-all"
             >
-              Contact
+              Message Gobhi 🥦
             </a>
 
             {/* Mobile Menu Button */}
@@ -80,13 +82,16 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+            <div className="sm:hidden py-2">
+              <ThemeSwitch />
+            </div>
             <a
               href="https://wa.me/919354859197"
               target="_blank"
               rel="noopener noreferrer"
               className="block w-full px-6 py-3 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold text-center mt-4 transition-all duration-300"
             >
-              Contact on WhatsApp
+              Message Gobhi on WhatsApp 🥦
             </a>
           </nav>
         )}

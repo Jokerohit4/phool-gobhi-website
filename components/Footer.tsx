@@ -53,7 +53,7 @@ export default function Footer() {
               </span>
             </motion.div>
             <p className="text-sm leading-relaxed font-medium text-gray-600 dark:text-gray-500">
-              The world's most flexible gym membership platform. Premium fitness, your terms.
+              Pay-per-session gym access. No annual membership. No shame about skipping leg day. Gobhi remembers, but he doesn&apos;t judge. (He judges a little.)
             </p>
           </motion.div>
 
@@ -141,7 +141,7 @@ export default function Footer() {
           className="border-t border-gray-300 dark:border-gray-800 pt-8 origin-left"
         >
           <p className="text-center text-sm font-medium text-gray-500 dark:text-gray-600">
-            © 2024 Phool Gobhi. Premium fitness, your terms. All rights reserved.
+            © 2026 Phool Gobhi. No membership. No shame. All rights reserved, even the florets.
           </p>
         </motion.div>
       </div>
