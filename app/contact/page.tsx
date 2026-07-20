@@ -7,6 +7,8 @@ import { PosterFill, PosterOutline, StickerBadge } from '@/components/Poster';
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -14,17 +16,29 @@ export default function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setSubmitError(null);
+    setSubmitting(true);
     try {
-      await fetch('https://formspree.io/f/mwpeyqzv', {
+      // First-party: stored via auth-service's ContactMessage table, viewed
+      // in the admin portal. Replaces the previous Formspree integration,
+      // whose form id had gone stale (every submission 404'd silently).
+      const res = await fetch('/api/contact', {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: { 'Content-Type': 'application/json' },
       });
+      if (!res.ok) {
+        setSubmitError("Couldn't send that — please email us directly at hello@phoolgobhi.com instead.");
+        return;
+      }
       setSubmitted(true);
       setFormData({ name: '', email: '', message: '' });
       setTimeout(() => setSubmitted(false), 3000);
     } catch (error) {
       console.error('Error submitting form:', error);
+      setSubmitError("Couldn't send that — please email us directly at hello@phoolgobhi.com instead.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -42,54 +56,55 @@ export default function ContactPage() {
 
         <div className="grid md:grid-cols-2 gap-12">
           <motion.form initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} onSubmit={handleSubmit} className="space-y-6">
-            {submitted && <div className="p-4 bg-green-100 text-green-800 rounded-lg">Thanks for reaching out! Gobhi&apos;s typing back — he&apos;s got florets for hands, give him a minute.</div>}
+            {submitted && <div className="p-4 bg-green-100 dark:bg-green-950 text-green-800 dark:text-green-300 rounded-lg">Thanks for reaching out! Gobhi&apos;s typing back — he&apos;s got florets for hands, give him a minute.</div>}
+            {submitError && <div className="p-4 bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-300 rounded-lg">{submitError}</div>}
             <div>
-              <label className="block text-sm font-semibold mb-2">Name</label>
-              <input type="text" name="name" value={formData.name} onChange={handleChange} required className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-emerald-600" />
+              <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">Name</label>
+              <input type="text" name="name" value={formData.name} onChange={handleChange} required className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-500" />
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-2">Email</label>
-              <input type="email" name="email" value={formData.email} onChange={handleChange} required className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-emerald-600" />
+              <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">Email</label>
+              <input type="email" name="email" value={formData.email} onChange={handleChange} required className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-500" />
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-2">Message</label>
-              <textarea name="message" value={formData.message} onChange={handleChange} required rows={6} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-emerald-600" />
+              <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">Message</label>
+              <textarea name="message" value={formData.message} onChange={handleChange} required rows={6} className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-500" />
             </div>
-            <button type="submit" className="btn-primary w-full">
-              Send Message
+            <button type="submit" disabled={submitting} className="btn-primary w-full disabled:opacity-60">
+              {submitting ? 'Sending…' : 'Send Message'}
             </button>
           </motion.form>
 
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} className="space-y-8">
             <div>
-              <h3 className="text-xl font-bold mb-4">Fastest Ways To Bother Gobhi</h3>
+              <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Fastest Ways To Bother Gobhi</h3>
               <div className="space-y-3">
-                <a href="https://wa.me/919354859197" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-700 hover:text-emerald-600">
+                <a href="https://wa.me/919354859197" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">
                   <span className="text-2xl">💬</span>
                   <div>
                     <p className="font-semibold">WhatsApp</p>
-                    <p className="text-sm text-gray-600">+91 9354859197</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">+91 9354859197</p>
                   </div>
                 </a>
-                <a href="mailto:hello@phoolGobhi.in" className="flex items-center gap-3 text-gray-700 hover:text-emerald-600">
+                <a href="mailto:hello@phoolgobhi.com" className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">
                   <span className="text-2xl">📧</span>
                   <div>
                     <p className="font-semibold">Email</p>
-                    <p className="text-sm text-gray-600">hello@phoolGobhi.in</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">hello@phoolgobhi.com</p>
                   </div>
                 </a>
-                <div className="flex items-center gap-3 text-gray-700">
+                <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
                   <span className="text-2xl">📍</span>
                   <div>
                     <p className="font-semibold">Location</p>
-                    <p className="text-sm text-gray-600">Gurugram, India</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Gurugram, India</p>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-emerald-50 to-green-50 p-8 rounded-xl">
-              <h3 className="text-xl font-bold mb-4">Response Time (Ish)</h3>
-              <p className="text-gray-700">We reply within 24 hours. If it&apos;s urgent — like, your-gym-is-on-fire urgent — message us on WhatsApp instead.</p>
+            <div className="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-gray-900 dark:to-gray-800 p-8 rounded-xl">
+              <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Response Time (Ish)</h3>
+              <p className="text-gray-700 dark:text-gray-300">We reply within 24 hours. If it&apos;s urgent — like, your-gym-is-on-fire urgent — message us on WhatsApp instead.</p>
             </div>
           </motion.div>
         </div>

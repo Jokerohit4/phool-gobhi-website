@@ -6,17 +6,9 @@ export default function ThemeSwitch() {
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem('theme') as 'light' | 'dark' | 'system' | null;
-    const initialTheme = saved || 'system';
-    setTheme(initialTheme);
-    applyTheme(initialTheme);
-  }, []);
-
   const applyTheme = (newTheme: 'light' | 'dark' | 'system') => {
     const root = document.documentElement;
-    
+
     if (newTheme === 'system') {
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       if (isDark) {
@@ -30,6 +22,25 @@ export default function ThemeSwitch() {
       root.classList.remove('dark');
     }
   };
+
+  useEffect(() => {
+    setMounted(true);
+    const saved = localStorage.getItem('theme') as 'light' | 'dark' | 'system' | null;
+    const initialTheme = saved || 'system';
+    setTheme(initialTheme);
+    applyTheme(initialTheme);
+  }, []);
+
+  // While on "system", follow the OS theme live instead of only checking it
+  // once at selection time — otherwise a mid-session OS theme change is
+  // silently ignored until the user reloads or reselects "system".
+  useEffect(() => {
+    if (theme !== 'system') return;
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = () => applyTheme('system');
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, [theme]);
 
   const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
     setTheme(newTheme);

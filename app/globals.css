@@ -27,27 +27,27 @@
   --color-terracotta-500: #c85a3d;
   --color-terracotta-600: #a8432a;
 
+  --color-mustard-100: #faf0d6;
+  --color-mustard-300: #ecce7a;
+  --color-mustard-700: #8f6b0c;
+  --color-mustard-800: #6b5109;
+  --color-mustard-950: #2e2204;
+
   /* Warm cream light theme, matching the investor pitch deck */
   --color-cream-50: #fbf8f1;
   --color-cream-100: #f1ecdd;
   --color-cream-200: #ded5be;
-
-  --font-display: var(--font-bebas-neue), Impact, sans-serif;
 }
 
 @layer base {
   :root {
-    --background: 255 255 255;
-    --foreground: 9 9 9;
-    --primary: 16 185 129;
-    --primary-dark: 5 150 105;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --background: 3 7 18;
-      --foreground: 243 244 246;
-    }
+    /* Plain custom property, deliberately NOT under Tailwind's `--font-*`
+       theme namespace — that would auto-generate a `font-display` utility
+       (`font-family: var(--font-display)` only, no dark-mode variance) that
+       would collide with the real `.font-display`/`.dark .font-display`
+       rules below (same specificity, order-dependent winner). Keeping it
+       here means those rules are the only definition of `.font-display`. */
+    --font-display: var(--font-bebas-neue), Impact, sans-serif;
   }
 
   html.dark {

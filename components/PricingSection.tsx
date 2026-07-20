@@ -92,7 +92,7 @@ export default function PricingSection() {
               className={`group relative p-8 rounded-2xl border overflow-hidden ${
                 plan.highlighted
                   ? 'bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-2xl border-transparent hover:shadow-2xl hover:shadow-emerald-500/50'
-                  : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-emerald-400 dark:hover:border-emerald-500 hover:shadow-2xl dark:hover:shadow-emerald-500/40'
+                  : 'bg-cream-100 dark:bg-gray-900 border-cream-200 dark:border-gray-800 hover:border-emerald-400 dark:hover:border-emerald-500 hover:shadow-2xl dark:hover:shadow-emerald-500/40'
               } transition-[border-color,box-shadow] duration-300`}
             >
               {/* Hover gradient background */}
@@ -141,14 +141,14 @@ export default function PricingSection() {
                 </ul>
 
                 <Link
-                  href="/contact"
+                  href={plan.status === 'Available Now' ? '/gyms' : '/contact'}
                   className={`block w-full py-3 rounded-lg font-bold transition-shadow duration-300 hover:shadow-2xl relative overflow-hidden group/btn text-center ${
                     plan.highlighted
                       ? 'bg-white text-emerald-600 hover:shadow-emerald-500/40'
                       : 'bg-emerald-600 dark:bg-emerald-600 text-white hover:shadow-emerald-500/50'
                   }`}
                 >
-                  <span className="relative z-10">{plan.status === 'Available Now' ? 'Learn More' : 'Get Notified'}</span>
+                  <span className="relative z-10">{plan.status === 'Available Now' ? 'Book a Session' : 'Get Notified'}</span>
                   <div
                     className={`absolute inset-0 transition-all duration-500 opacity-0 group-hover/btn:opacity-100 ${
                       plan.highlighted

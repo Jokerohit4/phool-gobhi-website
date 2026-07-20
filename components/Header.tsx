@@ -4,15 +4,17 @@ import Link from 'next/link';
 import { useState } from 'react';
 import PhoolGobhiLogo from './PhoolGobhiLogo';
 import ThemeSwitch from './ThemeSwitch';
+import { useSession } from './auth/SessionProvider';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, loading, logout } = useSession();
 
   const links = [
     { href: '/', label: 'Home' },
     { href: '/about', label: 'About' },
+    { href: '/gyms', label: 'Find Gyms' },
     // TODO: Re-enable when pages are ready to go live
-    // { href: '/gyms', label: 'Find Gyms' },
     // { href: '/how-it-works', label: 'How It Works' },
     // { href: '/pricing', label: 'Pricing' },
     // { href: '/blog', label: 'Blog' },
@@ -47,6 +49,26 @@ export default function Header() {
             <div className="hidden sm:block">
               <ThemeSwitch />
             </div>
+
+            {!loading && (
+              user ? (
+                <div className="hidden md:flex items-center gap-3">
+                  <Link href="/account/bookings" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">
+                    {user.name || 'My account'}
+                  </Link>
+                  <Link href="/account/wallet" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">
+                    Wallet
+                  </Link>
+                  <button onClick={() => logout()} className="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400">
+                    Log out
+                  </button>
+                </div>
+              ) : (
+                <Link href="/login" className="hidden md:block text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">
+                  Log in
+                </Link>
+              )
+            )}
 
             <a
               href="https://wa.me/919354859197"
@@ -85,6 +107,31 @@ export default function Header() {
             <div className="sm:hidden py-2">
               <ThemeSwitch />
             </div>
+            {!loading && (
+              user ? (
+                <div className="flex items-center justify-between pt-2">
+                  <Link href="/account/bookings" className="text-gray-700 dark:text-gray-300 font-medium" onClick={() => setIsOpen(false)}>
+                    {user.name || 'My account'}
+                  </Link>
+                  <Link href="/account/wallet" className="text-gray-700 dark:text-gray-300 font-medium" onClick={() => setIsOpen(false)}>
+                    Wallet
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setIsOpen(false);
+                    }}
+                    className="text-gray-500 dark:text-gray-400 font-medium"
+                  >
+                    Log out
+                  </button>
+                </div>
+              ) : (
+                <Link href="/login" className="block text-gray-700 dark:text-gray-300 font-medium pt-2" onClick={() => setIsOpen(false)}>
+                  Log in
+                </Link>
+              )
+            )}
             <a
               href="https://wa.me/919354859197"
               target="_blank"

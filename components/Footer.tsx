@@ -87,8 +87,8 @@ export default function Footer() {
             <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-4 text-lg">Company</h4>
             <ul className="space-y-3 text-sm">
               {[
-                { href: '/team', label: 'Team' },
-                { href: '/blog', label: 'Blog' },
+                { href: '/careers', label: 'Careers' },
+                { href: '/partnerships', label: 'Partnerships' },
                 { href: '/contact', label: 'Contact' },
               ].map((link) => (
                 <motion.li
@@ -123,10 +123,10 @@ export default function Footer() {
               </motion.li>
               <motion.li whileHover={{ x: 4 }} transition={{ type: 'spring', stiffness: 300 }}>
                 <a
-                  href="mailto:hello@phoolGobhi.in"
+                  href="mailto:hello@phoolgobhi.com"
                   className="hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors font-medium"
                 >
-                  Email: hello@phoolGobhi.in
+                  Email: hello@phoolgobhi.com
                 </a>
               </motion.li>
             </ul>

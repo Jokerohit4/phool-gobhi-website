@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 import { PosterFill, PosterOutline, StickerBadge } from './Poster';
 
@@ -79,6 +80,20 @@ export default function FeaturesSection() {
             </motion.div>
           ))}
         </div>
+
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="text-center mt-14"
+        >
+          <motion.span whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} className="inline-block">
+            <Link href="/gyms" className="btn-primary inline-block">
+              See Gyms Near You 🏋️
+            </Link>
+          </motion.span>
+        </motion.div>
       </div>
     </section>
   );

@@ -277,7 +277,7 @@ export default function PitchDeckContent() {
               {[
                 { label: 'TAM', pct: 100, val: '₹7.2L Cr', color: 'from-emerald-600 to-emerald-500' },
                 { label: 'SAM', pct: 66, val: '₹7,200 Cr', color: 'from-emerald-500 to-emerald-400' },
-                { label: 'SOM (initial)', pct: 27, val: '₹36 Cr', color: 'from-amber-500 to-amber-400' },
+                { label: 'SOM (initial)', pct: 27, val: '₹36 Cr', color: 'from-mustard-500 to-mustard-400' },
               ].map((b) => (
                 <div key={b.label} className="flex items-center gap-3">
                   <div className="w-32 text-sm text-gray-600 dark:text-gray-400 text-right shrink-0">{b.label}</div>
@@ -477,7 +477,7 @@ export default function PitchDeckContent() {
             <div className="card-gradient p-8">
               <div className="text-5xl font-black mb-2">₹50 Lakhs</div>
               <p className="text-gray-600 dark:text-gray-400 mb-4">for 8% equity · 12–14 month runway</p>
-              <div className="inline-block px-4 py-2 rounded-lg bg-amber-100 dark:bg-amber-950 border border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-400 font-bold text-sm mb-6">
+              <div className="inline-block px-4 py-2 rounded-lg bg-mustard-100 dark:bg-mustard-950 border border-mustard-300 dark:border-mustard-800 text-mustard-700 dark:text-mustard-400 font-bold text-sm mb-6">
                 ₹15L already promised by friends &amp; family — ₹35L open
               </div>
               <div className="flex flex-wrap justify-center gap-3 mb-8">
@@ -488,7 +488,7 @@ export default function PitchDeckContent() {
               <div className="flex justify-center gap-8">
                 {[['40%', 'Product'], ['30%', 'Marketing'], ['20%', 'Gym Onboarding'], ['10%', 'Team']].map(([pct, lbl]) => (
                   <div key={lbl}>
-                    <div className="text-2xl font-black text-amber-600 dark:text-amber-500 tabular-nums">{pct}</div>
+                    <div className="text-2xl font-black text-mustard-600 dark:text-mustard-400 tabular-nums">{pct}</div>
                     <div className="text-[0.65rem] uppercase tracking-wide text-gray-500 dark:text-gray-500">{lbl}</div>
                   </div>
                 ))}
