@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import ScrollProgress from '@/components/ScrollProgress';
 import MotionProvider from '@/components/MotionProvider';
 import { SessionProvider } from '@/components/auth/SessionProvider';
+import LocationBootstrap from '@/components/LocationBootstrap';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -70,6 +71,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-cream-50 dark:bg-gray-950 transition-colors duration-300">
         <SessionProvider>
           <MotionProvider>
+            <LocationBootstrap />
             <ScrollProgress />
             <Header />
             <main className="flex-grow">{children}</main>

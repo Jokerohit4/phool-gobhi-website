@@ -17,7 +17,10 @@ export default function GymCard({ gym }: { gym: Gym }) {
       </div>
       <div>
         <h3 className="font-semibold text-lg">{gym.name}</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400">{gym.city}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          {gym.city}
+          {gym.distanceKm != null && ` · ${gym.distanceKm.toFixed(1)} km away`}
+        </p>
       </div>
       <div className="flex items-center justify-between text-sm">
         <span className="font-semibold text-emerald-600 dark:text-emerald-400">₹{gym.sessionPrice}/session</span>

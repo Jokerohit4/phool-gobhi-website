@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import GymCard from './GymCard';
 import type { Gym } from '@/lib/types';
+import { locationHeaders } from '@/lib/locationHolder';
 
 export default function GymBrowseList() {
   const [gyms, setGyms] = useState<Gym[] | null>(null);
@@ -15,7 +16,10 @@ export default function GymBrowseList() {
       try {
         const params = new URLSearchParams();
         if (search) params.set('search', search);
-        const res = await fetch(`/api/gyms?${params.toString()}`, { signal: controller.signal });
+        const res = await fetch(`/api/gyms?${params.toString()}`, {
+          signal: controller.signal,
+          headers: locationHeaders(),
+        });
         const data = await res.json();
         if (!res.ok) {
           setError(data.error || 'Could not load gyms');

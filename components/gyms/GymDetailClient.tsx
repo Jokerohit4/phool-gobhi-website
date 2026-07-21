@@ -5,13 +5,14 @@ import GymImageGallery from './GymImageGallery';
 import SubscriptionPlans from './SubscriptionPlans';
 import SlotPicker from './SlotPicker';
 import type { Gym } from '@/lib/types';
+import { locationHeaders } from '@/lib/locationHolder';
 
 export default function GymDetailClient({ gymId }: { gymId: string }) {
   const [gym, setGym] = useState<Gym | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`/api/gyms/${gymId}`)
+    fetch(`/api/gyms/${gymId}`, { headers: locationHeaders() })
       .then(async (res) => {
         const data = await res.json();
         if (!res.ok) {
@@ -47,6 +48,7 @@ export default function GymDetailClient({ gymId }: { gymId: string }) {
         <h1 className="text-3xl font-bold">{gym.name}</h1>
         <p className="text-gray-500 dark:text-gray-400">
           {gym.address}, {gym.city}
+          {gym.distanceKm != null && ` · ${gym.distanceKm.toFixed(1)} km away`}
         </p>
         <div className="flex items-center gap-4 mt-2 text-sm">
           <span className="font-semibold text-emerald-600 dark:text-emerald-400">₹{gym.sessionPrice}/session</span>
