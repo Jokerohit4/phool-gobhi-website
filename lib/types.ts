@@ -60,6 +60,33 @@ export interface WalletTransaction {
   createdAt: string;
 }
 
+export interface SubscriptionPlan {
+  planType: 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+  days: number;
+  price: number;
+  comparablePrice: number;
+  discountPercent: number;
+}
+
+export interface GymSubscriptionPlans {
+  gymId: number;
+  priciestSlotPrice: number;
+  plans: SubscriptionPlan[];
+}
+
+export interface GymSubscription {
+  id: number;
+  customerId: number;
+  gymId: number;
+  partnerId: number;
+  planType: string;
+  price: number;
+  startDate: string;
+  endDate: string;
+  status: 'active' | 'cancelled';
+  createdAt: string;
+}
+
 export interface SessionUser {
   id: number;
   phone: string;

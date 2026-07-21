@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import GymImageGallery from './GymImageGallery';
+import SubscriptionPlans from './SubscriptionPlans';
 import SlotPicker from './SlotPicker';
 import type { Gym } from '@/lib/types';
 
@@ -39,6 +41,8 @@ export default function GymDetailClient({ gymId }: { gymId: string }) {
 
   return (
     <div className="section-padding container-custom space-y-8">
+      <GymImageGallery images={gym.images} alt={gym.name} />
+
       <div>
         <h1 className="text-3xl font-bold">{gym.name}</h1>
         <p className="text-gray-500 dark:text-gray-400">
@@ -46,6 +50,7 @@ export default function GymDetailClient({ gymId }: { gymId: string }) {
         </p>
         <div className="flex items-center gap-4 mt-2 text-sm">
           <span className="font-semibold text-emerald-600 dark:text-emerald-400">₹{gym.sessionPrice}/session</span>
+          <span className="text-gray-500 dark:text-gray-400">{gym.openTime} – {gym.closeTime}</span>
           {gym.ratingCount > 0 && (
             <span className="text-gray-500 dark:text-gray-400">★ {gym.rating.toFixed(1)} ({gym.ratingCount} reviews)</span>
           )}
@@ -61,6 +66,8 @@ export default function GymDetailClient({ gymId }: { gymId: string }) {
           </div>
         )}
       </div>
+
+      <SubscriptionPlans gymId={gym.id} />
 
       <SlotPicker gymId={gymId} />
     </div>

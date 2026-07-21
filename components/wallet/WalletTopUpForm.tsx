@@ -26,7 +26,14 @@ export default function WalletTopUpForm({ onTopUpSuccess }: { onTopUpSuccess: ()
           </button>
         ))}
       </div>
-      <RazorpayCheckoutButton amount={amount} label={`Add ₹${amount}`} onSuccess={onTopUpSuccess} />
+      <RazorpayCheckoutButton
+        orderEndpoint="/api/wallet/orders"
+        orderBody={{ amount }}
+        verifyEndpoint="/api/wallet/verify"
+        description="Wallet top-up"
+        label={`Add ₹${amount}`}
+        onSuccess={onTopUpSuccess}
+      />
     </div>
   );
 }

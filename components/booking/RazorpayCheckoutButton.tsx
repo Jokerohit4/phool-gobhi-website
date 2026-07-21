@@ -30,17 +30,31 @@ function loadRazorpayScript(): Promise<void> {
 }
 
 interface RazorpayCheckoutButtonProps {
-  amount: number; // rupees — the user's own chosen top-up amount
+  // Generic order-creation + verification wiring so this one widget serves
+  // both wallet top-up (app/api/wallet/orders + /verify) and gym subscription
+  // purchase (app/api/wallet/subscriptions/orders + /verify) — same Razorpay
+  // flow, different backend endpoints/payloads/descriptions.
+  orderEndpoint: string;
+  orderBody: Record<string, unknown>;
+  verifyEndpoint: string;
+  description: string;
   onSuccess: () => void;
   label?: string;
 }
 
-// Razorpay only funds the wallet, never a specific booking directly — see
-// app/api/wallet/orders and app/api/wallet/verify. Payment itself happens
-// entirely inside Razorpay's own hosted widget; this component never
-// touches card/UPI details, only the order id/key needed to open it and the
-// resulting signature that gets verified server-side afterwards.
-export default function RazorpayCheckoutButton({ amount, onSuccess, label = 'Add money' }: RazorpayCheckoutButtonProps) {
+// Razorpay never funds a booking/subscription directly — see the two order
+// endpoints above. Payment itself happens entirely inside Razorpay's own
+// hosted widget; this component never touches card/UPI details, only the
+// order id/key needed to open it and the resulting signature that gets
+// verified server-side afterwards.
+export default function RazorpayCheckoutButton({
+  orderEndpoint,
+  orderBody,
+  verifyEndpoint,
+  description,
+  onSuccess,
+  label = 'Pay now',
+}: RazorpayCheckoutButtonProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,10 +62,10 @@ export default function RazorpayCheckoutButton({ amount, onSuccess, label = 'Add
     setError(null);
     setLoading(true);
     try {
-      const orderRes = await fetch('/api/wallet/orders', {
+      const orderRes = await fetch(orderEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount }),
+        body: JSON.stringify(orderBody),
       });
       const order = await orderRes.json();
       if (!orderRes.ok) {
@@ -69,10 +83,10 @@ export default function RazorpayCheckoutButton({ amount, onSuccess, label = 'Add
         amount: Math.round(order.amount * 100),
         currency: order.currency,
         name: 'Phool Gobhi',
-        description: 'Wallet top-up',
+        description,
         handler: async (response: RazorpayResponse) => {
           try {
-            const verifyRes = await fetch('/api/wallet/verify', {
+            const verifyRes = await fetch(verifyEndpoint, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
