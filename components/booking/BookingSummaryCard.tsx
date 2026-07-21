@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { Gym } from '@/lib/types';
 
 export default function BookingSummaryCard({
@@ -22,6 +23,13 @@ export default function BookingSummaryCard({
       </p>
       <p className="font-semibold text-emerald-600 dark:text-emerald-400">₹{gym.sessionPrice}</p>
       <p className="text-xs text-gray-400">Final price is confirmed by the gym at checkout and may reflect a slot-specific rate.</p>
+      <p className="text-xs text-gray-400">
+        Cancelling later? Refund depends on notice given —{' '}
+        <Link href="/policies/cancellation" className="underline hover:text-emerald-600 dark:hover:text-emerald-400">
+          see the cancellation policy
+        </Link>
+        .
+      </p>
     </div>
   );
 }

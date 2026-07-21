@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import type { Booking } from '@/lib/types';
+import { hoursUntilSlot, cancellationTier } from '@/lib/cancellationPolicy';
+import CancelBookingModal from './CancelBookingModal';
 
 const STATUS_STYLES: Record<Booking['status'], string> = {
   pending: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
@@ -11,11 +13,15 @@ const STATUS_STYLES: Record<Booking['status'], string> = {
 };
 
 export default function BookingCard({ booking, onCancelled }: { booking: Booking; onCancelled: () => void }) {
+  const [showModal, setShowModal] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const cancel = async () => {
-    if (!window.confirm('Cancel this booking? Your wallet will be refunded if eligible.')) return;
+  const hoursUntil = hoursUntilSlot(booking.date, booking.startTime);
+  const tier = cancellationTier(hoursUntil);
+  const refundAmount = Math.round(booking.amount * tier.refundRate * 100) / 100;
+
+  const confirmCancel = async () => {
     setCancelling(true);
     setError(null);
     try {
@@ -25,6 +31,7 @@ export default function BookingCard({ booking, onCancelled }: { booking: Booking
         setError(data.error || 'Could not cancel booking');
         return;
       }
+      setShowModal(false);
       onCancelled();
     } catch {
       setError('Network error — please try again');
@@ -46,11 +53,29 @@ export default function BookingCard({ booking, onCancelled }: { booking: Booking
         {new Date(booking.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} · {booking.startTime}–{booking.endTime}
       </p>
       <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">₹{booking.amount}</p>
-      {error && <p className="text-sm text-red-500">{error}</p>}
-      {booking.status === 'confirmed' && (
-        <button onClick={cancel} disabled={cancelling} className="self-start text-sm text-red-500 hover:underline disabled:opacity-60">
-          {cancelling ? 'Cancelling…' : 'Cancel booking'}
-        </button>
+      {error && !showModal && <p className="text-sm text-red-500">{error}</p>}
+      {booking.status === 'confirmed' &&
+        (tier.blocked ? (
+          <p className="text-sm text-gray-400">Cannot cancel within 1 hour of the session</p>
+        ) : (
+          <button onClick={() => setShowModal(true)} className="self-start text-sm text-red-500 hover:underline">
+            Cancel booking
+          </button>
+        ))}
+
+      {showModal && (
+        <CancelBookingModal
+          booking={booking}
+          refundRate={tier.refundRate}
+          refundAmount={refundAmount}
+          confirming={cancelling}
+          error={error}
+          onConfirm={confirmCancel}
+          onClose={() => {
+            setShowModal(false);
+            setError(null);
+          }}
+        />
       )}
     </div>
   );

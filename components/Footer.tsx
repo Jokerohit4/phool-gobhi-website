@@ -65,6 +65,7 @@ export default function Footer() {
                 { href: '/gyms', label: 'Find Gyms' },
                 { href: '/pricing', label: 'Pricing' },
                 { href: '/how-it-works', label: 'How It Works' },
+                { href: '/policies/cancellation', label: 'Cancellation Policy' },
               ].map((link) => (
                 <motion.li
                   key={link.href}

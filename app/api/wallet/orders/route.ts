@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { authedGatewayFetch } from '@/lib/session';
 import { GatewayError } from '@/lib/gateway-client';
 import { rejectCrossOrigin } from '@/lib/csrf';
+import { WALLET_TOPUP_AMOUNTS } from '@/lib/walletConstants';
 
 interface CreateOrderResponse {
   id: string;
@@ -11,10 +12,10 @@ interface CreateOrderResponse {
   keyId: string;
 }
 
-// amount here is legitimately client-controlled — it's the user's own
-// wallet top-up amount, charged to them via Razorpay. wallet-service never
-// trusts a client amount again at /verify (lib below) — it re-reads the
-// DB-stored order amount created here.
+// wallet-service's own /orders endpoint would accept any positive amount —
+// the fixed-preset restriction is a website/business policy, not a backend
+// one, so it's enforced here rather than assuming the UI alone is enough
+// (the UI can always be bypassed by calling this route directly).
 export async function POST(req: Request) {
   const blocked = rejectCrossOrigin(req);
   if (blocked) return blocked;
@@ -25,8 +26,8 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
-  if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
-    return NextResponse.json({ error: 'A positive amount is required' }, { status: 400 });
+  if (typeof amount !== 'number' || !WALLET_TOPUP_AMOUNTS.includes(amount as never)) {
+    return NextResponse.json({ error: `Amount must be one of: ${WALLET_TOPUP_AMOUNTS.join(', ')}` }, { status: 400 });
   }
 
   try {
