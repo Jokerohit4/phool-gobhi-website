@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { PosterFill, PosterOutline, StickerBadge } from '@/components/Poster';
 import type { JobOpening } from '@/lib/types';
@@ -12,7 +12,77 @@ const EMPLOYMENT_TYPE_LABELS: Record<JobOpening['employmentType'], string> = {
   contract: 'Contract',
 };
 
+function JobApplyForm({ job }: { job: JobOpening }) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle');
+  const [error, setError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setStatus('submitting');
+    setError(null);
+    try {
+      const res = await fetch(`/api/jobs/${job.id}/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Could not submit your application');
+      setSubmitted(true);
+    } catch (err) {
+      setStatus('error');
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+    }
+  }
+
+  if (submitted) {
+    return (
+      <p className="text-emerald-600 dark:text-emerald-400">
+        Thanks, {name} — we&apos;ve got your application for {job.title} and will reach out if it&apos;s a fit.
+      </p>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2 max-w-md">
+      <input
+        required
+        placeholder="Your name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="rounded-lg border border-cream-200 dark:border-gray-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      />
+      <input
+        required
+        type="email"
+        placeholder="Your email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="rounded-lg border border-cream-200 dark:border-gray-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      />
+      <textarea
+        required
+        rows={4}
+        placeholder="Tell us about yourself — resume link, portfolio, why this role"
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        className="rounded-lg border border-cream-200 dark:border-gray-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      />
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+      <button type="submit" disabled={status === 'submitting'} className="btn-primary w-fit disabled:opacity-50">
+        {status === 'submitting' ? 'Submitting…' : 'Submit application'}
+      </button>
+    </form>
+  );
+}
+
 function JobCard({ job }: { job: JobOpening }) {
+  const [applying, setApplying] = useState(false);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -28,12 +98,13 @@ function JobCard({ job }: { job: JobOpening }) {
         </p>
       </div>
       <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">{job.description}</p>
-      <a
-        href={`mailto:career@phoolgobhi.com?subject=${encodeURIComponent(`Application: ${job.title}`)}`}
-        className="btn-primary inline-block w-fit"
-      >
-        Apply for this role
-      </a>
+      {applying ? (
+        <JobApplyForm job={job} />
+      ) : (
+        <button onClick={() => setApplying(true)} className="btn-primary inline-block w-fit">
+          Apply for this role
+        </button>
+      )}
     </motion.div>
   );
 }
