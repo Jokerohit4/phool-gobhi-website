@@ -33,15 +33,19 @@ interface GatewayFetchOptions {
 export async function gatewayFetch<T = unknown>(path: string, opts: GatewayFetchOptions = {}): Promise<T> {
   if (!GATEWAY_URL) throw new Error('GATEWAY_URL is not configured');
   const { method = 'GET', body, accessToken, headers } = opts;
+  // FormData must be passed through as-is — fetch sets its own
+  // multipart/form-data boundary header, which JSON.stringify (and a
+  // manually-set Content-Type) would break.
+  const isFormData = body instanceof FormData;
 
   const res = await fetch(`${GATEWAY_URL}${path}`, {
     method,
     headers: {
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       ...headers,
     },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body: isFormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
     cache: 'no-store',
   });
 

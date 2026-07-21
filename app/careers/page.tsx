@@ -12,23 +12,30 @@ const EMPLOYMENT_TYPE_LABELS: Record<JobOpening['employmentType'], string> = {
   contract: 'Contract',
 };
 
+const MAX_RESUME_SIZE = 10 * 1024 * 1024; // matches auth-service's uploadResume cap
+const RESUME_ACCEPT = '.pdf,.doc,.docx';
+
 function JobApplyForm({ job }: { job: JobOpening }) {
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
-  async function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setStatus('submitting');
     setError(null);
+
+    const resume = (e.currentTarget.elements.namedItem('resume') as HTMLInputElement | null)?.files?.[0];
+    if (resume && resume.size > MAX_RESUME_SIZE) {
+      setError('Resume is too large (max 10 MB)');
+      return;
+    }
+
+    setStatus('submitting');
     try {
       const res = await fetch(`/api/jobs/${job.id}/apply`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, message }),
+        body: new FormData(e.currentTarget),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || 'Could not submit your application');
@@ -51,6 +58,7 @@ function JobApplyForm({ job }: { job: JobOpening }) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-2 max-w-md">
       <input
         required
+        name="name"
         placeholder="Your name"
         value={name}
         onChange={(e) => setName(e.target.value)}
@@ -59,19 +67,45 @@ function JobApplyForm({ job }: { job: JobOpening }) {
       <input
         required
         type="email"
+        name="email"
         placeholder="Your email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        className="rounded-lg border border-cream-200 dark:border-gray-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      />
+      <input
+        required
+        type="tel"
+        name="phone"
+        placeholder="Your phone number"
+        className="rounded-lg border border-cream-200 dark:border-gray-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      />
+      <input
+        type="url"
+        name="portfolioUrl"
+        placeholder="Portfolio / website link (optional)"
+        className="rounded-lg border border-cream-200 dark:border-gray-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      />
+      <input
+        type="url"
+        name="linkedinUrl"
+        placeholder="LinkedIn link (optional)"
         className="rounded-lg border border-cream-200 dark:border-gray-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
       />
       <textarea
         required
         rows={4}
-        placeholder="Tell us about yourself — resume link, portfolio, why this role"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
+        name="message"
+        placeholder="Tell us about yourself — portfolio, why this role"
         className="rounded-lg border border-cream-200 dark:border-gray-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
       />
+      <label className="text-sm text-gray-600 dark:text-gray-400">
+        Resume (PDF, DOC or DOCX, optional, max 10 MB)
+        <input
+          type="file"
+          name="resume"
+          accept={RESUME_ACCEPT}
+          className="mt-1 block w-full text-sm text-gray-600 dark:text-gray-400 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-600 file:px-3 file:py-1.5 file:text-sm file:text-white file:cursor-pointer"
+        />
+      </label>
       {error && <p className="text-red-500 text-sm">{error}</p>}
       <button type="submit" disabled={status === 'submitting'} className="btn-primary w-fit disabled:opacity-50">
         {status === 'submitting' ? 'Submitting…' : 'Submit application'}
