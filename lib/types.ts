@@ -21,6 +21,18 @@ export interface Gym {
   distanceKm?: number;
 }
 
+// Mirrors auth-service's JobOpening model — see /careers and app/api/jobs.
+export interface JobOpening {
+  id: number;
+  title: string;
+  department: string;
+  location: string;
+  employmentType: 'full_time' | 'part_time' | 'internship' | 'contract';
+  description: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
 export interface Slot {
   startTime: string;
   endTime: string;
