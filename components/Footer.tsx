@@ -88,6 +88,7 @@ export default function Footer() {
             <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-4 text-lg">Company</h4>
             <ul className="space-y-3 text-sm">
               {[
+                { href: '/blog', label: 'Blog' },
                 { href: '/careers', label: 'Careers' },
                 { href: '/partnerships', label: 'Partnerships' },
                 { href: '/contact', label: 'Contact' },

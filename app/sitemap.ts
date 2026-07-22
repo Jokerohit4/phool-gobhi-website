@@ -1,10 +1,11 @@
 import type { MetadataRoute } from 'next';
 import { gatewayFetch } from '@/lib/gateway-client';
 import type { Gym } from '@/lib/types';
+import { blogPosts } from '@/lib/blogPosts';
 
 const BASE_URL = 'https://www.phoolgobhi.com';
 
-const STATIC_ROUTES = ['', '/about', '/gyms', '/contact', '/careers', '/partnerships', '/policies/cancellation'];
+const STATIC_ROUTES = ['', '/about', '/gyms', '/contact', '/careers', '/partnerships', '/policies/cancellation', '/blog'];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = STATIC_ROUTES.map((path) => ({
@@ -12,6 +13,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
     changeFrequency: path === '' ? 'daily' : 'weekly',
     priority: path === '' ? 1 : 0.7,
+  }));
+
+  const blogEntries: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+    url: `${BASE_URL}/blog/${post.slug}`,
+    lastModified: new Date(post.date),
+    changeFrequency: 'monthly',
+    priority: 0.5,
   }));
 
   let gymEntries: MetadataRoute.Sitemap = [];
@@ -28,5 +36,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // rather than failing the whole sitemap.
   }
 
-  return [...staticEntries, ...gymEntries];
+  return [...staticEntries, ...blogEntries, ...gymEntries];
 }
