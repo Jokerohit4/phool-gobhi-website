@@ -538,7 +538,7 @@ export default function PitchDeckContent() {
             <Eyebrow><span className="mx-auto">For Inquiries</span></Eyebrow>
             <h2 className="text-3xl font-display mb-4">Contact <span className="gradient-text">Us</span></h2>
             <p className="text-gray-600 dark:text-gray-400">
-              <a href="https://phool-gobhi-website.vercel.app/" className="hover:text-emerald-600 dark:hover:text-emerald-400">phool-gobhi-website.vercel.app</a>
+              <a href="https://www.phoolgobhi.com/" className="hover:text-emerald-600 dark:hover:text-emerald-400">www.phoolgobhi.com</a>
               {' · '}
               <a href="mailto:me@rohitashwa.co.in" className="hover:text-emerald-600 dark:hover:text-emerald-400">me@rohitashwa.co.in</a>
               {' · '}
