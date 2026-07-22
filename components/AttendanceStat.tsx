@@ -33,8 +33,13 @@ export default async function AttendanceStat() {
 
   return (
     <div className="flex justify-center px-6">
-      <div className="sticker inline-flex items-center gap-3 px-6 py-3 bg-cream-100 dark:bg-gray-900">
-        <span className="font-display text-3xl text-emerald-600 dark:text-emerald-400">{count.toLocaleString()}</span>
+      {/* flex-col on narrow screens: a nowrap row here (large number + full
+          sentence) can exceed the viewport width, and body has
+          overflow-x:hidden site-wide, so it silently clips instead of
+          wrapping — stacking avoids that instead of fighting it with
+          smaller text. */}
+      <div className="sticker flex flex-col sm:flex-row items-center text-center sm:text-left gap-1 sm:gap-3 px-6 py-3 max-w-full bg-cream-100 dark:bg-gray-900">
+        <span className="font-display text-2xl sm:text-3xl text-emerald-600 dark:text-emerald-400">{count.toLocaleString()}</span>
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">sessions completed this month</span>
       </div>
     </div>
