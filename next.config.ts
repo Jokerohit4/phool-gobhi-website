@@ -17,6 +17,19 @@ const nextConfig: NextConfig = {
         destination: 'https://www.phoolgobhi.com/:path*',
         permanent: true,
       },
+      // .in domain (apex + www) -> canonical .com
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'phoolgobhi.in' }],
+        destination: 'https://www.phoolgobhi.com/:path*',
+        permanent: true,
+      },
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.phoolgobhi.in' }],
+        destination: 'https://www.phoolgobhi.com/:path*',
+        permanent: true,
+      },
     ];
   },
 };
