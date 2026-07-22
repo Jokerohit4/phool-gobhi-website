@@ -23,9 +23,19 @@ const bebasNeue = Bebas_Neue({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.phoolgobhi.com'),
   title: 'Phool Gobhi — Pay-Per-Session Gym Access, No Membership',
   description: 'Book a gym session in Gurugram without signing up for a 12-month membership. Pay per visit, find real gyms nearby, skip the guilt trip. No membership. No shame.',
   keywords: 'pay per session gym, no membership gym, gym booking Gurugram, flexible fitness, gym near me',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'Phool Gobhi — Pay-Per-Session Gym Access, No Membership',
+    description: 'Book a gym session in Gurugram without signing up for a 12-month membership. Pay per visit, find real gyms nearby, skip the guilt trip. No membership. No shame.',
+    url: 'https://www.phoolgobhi.com',
+    siteName: 'Phool Gobhi',
+  },
 };
 
 export default function RootLayout({
