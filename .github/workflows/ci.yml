@@ -1,0 +1,38 @@
+name: CI
+
+# Vercel's own GitHub integration handles building + deploying every push
+# (Preview for any branch, Production for pushes to main) — this workflow is
+# a separate, fast quality gate that runs regardless of Vercel: lint,
+# typecheck, and build must all pass on every push and every PR, whichever
+# branch they target.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
