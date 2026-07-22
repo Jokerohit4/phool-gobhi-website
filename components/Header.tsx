@@ -47,57 +47,59 @@ export default function Header() {
               </Link>
             ))}
 
-            {/* Profile — a dropdown holding account-scoped links
-                (Attendance/Wallet/Log out), rather than each being its own
-                top-level item, to keep the primary nav from growing every
-                time an account feature is added. */}
-            <div
-              className="relative"
-              onMouseEnter={() => setProfileOpen(true)}
-              onMouseLeave={() => setProfileOpen(false)}
-            >
-              <button
-                type="button"
-                onClick={() => (user ? setProfileOpen((o) => !o) : undefined)}
+            {/* Logged out: a plain "Login" link. Logged in: "Profile"
+                (or the user's name) opens a dropdown holding account-scoped
+                links (Attendance/Wallet/Log out), rather than each being
+                its own top-level item, to keep the primary nav from
+                growing every time an account feature is added. */}
+            {!loading && user ? (
+              <div
+                className="relative"
+                onMouseEnter={() => setProfileOpen(true)}
+                onMouseLeave={() => setProfileOpen(false)}
+              >
+                <button
+                  type="button"
+                  onClick={() => setProfileOpen((o) => !o)}
+                  className="text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors font-medium text-sm"
+                >
+                  {user.name || 'Profile'}
+                </button>
+
+                {profileOpen && (
+                  <div className="absolute right-0 top-full pt-2 w-40">
+                    <div className="card-premium py-2 flex flex-col">
+                      {profileLinks.map((link) => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setProfileOpen(false)}
+                          className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400"
+                        >
+                          {link.label}
+                        </Link>
+                      ))}
+                      <button
+                        onClick={() => {
+                          logout();
+                          setProfileOpen(false);
+                        }}
+                        className="px-4 py-2 text-left text-sm text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400"
+                      >
+                        Log out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/login"
                 className="text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors font-medium text-sm"
               >
-                {!loading && user ? (user.name || 'Profile') : 'Profile'}
-              </button>
-
-              {!loading && user && profileOpen && (
-                <div className="absolute right-0 top-full pt-2 w-40">
-                  <div className="card-premium py-2 flex flex-col">
-                    {profileLinks.map((link) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setProfileOpen(false)}
-                        className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400"
-                      >
-                        {link.label}
-                      </Link>
-                    ))}
-                    <button
-                      onClick={() => {
-                        logout();
-                        setProfileOpen(false);
-                      }}
-                      className="px-4 py-2 text-left text-sm text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400"
-                    >
-                      Log out
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {!loading && !user && (
-                <Link
-                  href="/login"
-                  className="absolute inset-0"
-                  aria-label="Log in"
-                />
-              )}
-            </div>
+                Login
+              </Link>
+            )}
           </nav>
 
           {/* Right Section */}
@@ -173,7 +175,7 @@ export default function Header() {
                   className="block text-gray-700 dark:text-gray-300 font-medium py-2"
                   onClick={() => setIsOpen(false)}
                 >
-                  Profile / Log in
+                  Login
                 </Link>
               )
             )}
