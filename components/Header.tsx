@@ -56,6 +56,9 @@ export default function Header() {
                   <Link href="/account/bookings" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">
                     {user.name || 'My account'}
                   </Link>
+                  <Link href="/account/attendance" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">
+                    Attendance
+                  </Link>
                   <Link href="/account/wallet" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">
                     Wallet
                   </Link>
@@ -112,6 +115,9 @@ export default function Header() {
                 <div className="flex items-center justify-between pt-2">
                   <Link href="/account/bookings" className="text-gray-700 dark:text-gray-300 font-medium" onClick={() => setIsOpen(false)}>
                     {user.name || 'My account'}
+                  </Link>
+                  <Link href="/account/attendance" className="text-gray-700 dark:text-gray-300 font-medium" onClick={() => setIsOpen(false)}>
+                    Attendance
                   </Link>
                   <Link href="/account/wallet" className="text-gray-700 dark:text-gray-300 font-medium" onClick={() => setIsOpen(false)}>
                     Wallet

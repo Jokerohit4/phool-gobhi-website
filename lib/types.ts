@@ -99,6 +99,21 @@ export interface GymSubscription {
   createdAt: string;
 }
 
+// Mirrors booking-service's public/authed attendance-stat response envelopes
+// — see app/api/attendance/summary and components/AttendanceStat.
+
+export interface PublicAttendanceStats {
+  sessionsAttendedThisMonth: number;
+  month: string;
+}
+
+export interface AttendanceSummary {
+  totalAttended: number;
+  thisMonthAttended: number;
+  lastAttendedAt: string | null;
+  attendedDates: string[];
+}
+
 export interface SessionUser {
   id: number;
   phone: string;
