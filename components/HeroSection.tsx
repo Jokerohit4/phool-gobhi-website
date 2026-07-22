@@ -94,7 +94,7 @@ export default function HeroSection() {
             </h1>
 
             <motion.p variants={item} className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 max-w-lg leading-relaxed">
-              Pay per session. Skip the 12-month guilt trip. Gobhi&apos;s done the math — he&apos;s a vegetable, math is the only thing he&apos;s sure of. (He&apos;s still working on feelings.)
+              Pay-per-session gym bookings in Gurugram — skip the 12-month guilt trip. Gobhi&apos;s done the math — he&apos;s a vegetable, math is the only thing he&apos;s sure of. (He&apos;s still working on feelings.)
             </motion.p>
 
             <motion.div variants={item} className="flex flex-col sm:flex-row gap-4">

@@ -1,4 +1,10 @@
+import type { Metadata } from 'next';
 import OtpForm from '@/components/auth/OtpForm';
+
+export const metadata: Metadata = {
+  title: 'Log In | Phool Gobhi',
+  robots: { index: false, follow: false },
+};
 
 export default async function LoginPage({
   searchParams,

@@ -1,4 +1,11 @@
+import type { Metadata } from 'next';
 import { PosterFill, PosterOutline, StickerBadge } from '@/components/Poster';
+
+export const metadata: Metadata = {
+  title: 'Booking & Cancellation Policy | Phool Gobhi',
+  description: 'How refunds work when you cancel a gym session on Phool Gobhi — see the refund tiers based on how far ahead of your session you cancel.',
+  alternates: { canonical: '/policies/cancellation' },
+};
 
 const TIERS = [
   { window: 'Less than 1 hour before your session', refund: 'Cannot be cancelled', highlight: false },

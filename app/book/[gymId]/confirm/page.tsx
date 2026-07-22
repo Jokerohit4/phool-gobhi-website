@@ -1,4 +1,10 @@
+import type { Metadata } from 'next';
 import BookingConfirmClient from '@/components/booking/BookingConfirmClient';
+
+export const metadata: Metadata = {
+  title: 'Confirm Booking | Phool Gobhi',
+  robots: { index: false, follow: false },
+};
 
 export default async function BookingConfirmPage({
   params,

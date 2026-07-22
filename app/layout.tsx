@@ -7,6 +7,29 @@ import ScrollProgress from '@/components/ScrollProgress';
 import MotionProvider from '@/components/MotionProvider';
 import { SessionProvider } from '@/components/auth/SessionProvider';
 import LocationBootstrap from '@/components/LocationBootstrap';
+import JsonLd from '@/components/JsonLd';
+
+const ORGANIZATION_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Phool Gobhi',
+  url: 'https://www.phoolgobhi.com',
+  logo: 'https://www.phoolgobhi.com/broc-logo.png',
+  email: 'officialrohitashwa@gmail.com',
+  contactPoint: {
+    '@type': 'ContactPoint',
+    telephone: '+91-9354859197',
+    contactType: 'customer service',
+    areaServed: 'IN',
+  },
+};
+
+const WEBSITE_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Phool Gobhi',
+  url: 'https://www.phoolgobhi.com',
+};
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -52,6 +75,8 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${bebasNeue.variable} h-full antialiased`}
     >
       <head>
+        <JsonLd data={ORGANIZATION_JSON_LD} />
+        <JsonLd data={WEBSITE_JSON_LD} />
         <script
           dangerouslySetInnerHTML={{
             __html: `
