@@ -12,12 +12,16 @@ const REFRESH_MAX_AGE = 7 * 24 * 60 * 60;
 // httpOnly so injected/third-party JS on the site can never read either
 // token; SameSite=Lax so neither is auto-attached on a cross-site request
 // (every mutating route here is POST/PUT, never a plain link) — see
-// lib/csrf.ts for the accompanying Origin check.
+// lib/csrf.ts for the accompanying Origin check. `domain` is scoped to the
+// whole phoolgobhi.com zone (prod only — localhost has no real subdomain to
+// share with) so partner.phoolgobhi.com can read the same session cookie
+// after a partner-role login redirect, without a second login.
 const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax' as const,
   path: '/',
+  domain: process.env.NODE_ENV === 'production' ? '.phoolgobhi.com' : undefined,
 };
 
 export async function writeSession(accessToken: string, refreshToken: string) {
@@ -35,10 +39,15 @@ export async function writeAccessToken(accessToken: string) {
 // stateless (auth-service issues it with no server-side store or revocation
 // list), so it stays valid until its own 7-day expiry regardless. Documented
 // as an accepted, pre-existing gap in the implementation plan.
+//
+// Deleting via `.set(..., maxAge: 0)` with the full cookieOptions (rather
+// than `.delete()`, which sends no `Domain` attribute) — a browser matches
+// a cookie for deletion by name+domain+path, so without `domain` here this
+// would never clear the domain-scoped cookie set by writeSession above.
 export async function clearSession() {
   const store = await cookies();
-  store.delete(ACCESS_COOKIE);
-  store.delete(REFRESH_COOKIE);
+  store.set(ACCESS_COOKIE, '', { ...cookieOptions, maxAge: 0 });
+  store.set(REFRESH_COOKIE, '', { ...cookieOptions, maxAge: 0 });
 }
 
 export async function readSession() {

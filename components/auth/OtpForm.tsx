@@ -54,6 +54,14 @@ export default function OtpForm({ redirectTo = '/gyms' }: { redirectTo?: string 
         setError(data.error || 'Invalid code');
         return;
       }
+      if (data.user?.role === 'partner') {
+        // Full top-level navigation (not router.push) — this session cookie
+        // is shared via Domain=.phoolgobhi.com, so the partner app picks it
+        // up on load with no token ever passed through the URL.
+        window.location.href =
+          process.env.NEXT_PUBLIC_PARTNER_APP_URL ?? 'https://partner.phoolgobhi.com';
+        return;
+      }
       await refresh();
       router.push(redirectTo);
     } catch {
