@@ -1,21 +1,19 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useSession } from './SessionProvider';
 
 type Step = 'phone' | 'otp';
 
-export default function OtpForm({ redirectTo = '/gyms' }: { redirectTo?: string }) {
+const PARTNER_APP_URL = process.env.NEXT_PUBLIC_PARTNER_APP_URL ?? 'https://partner.phoolgobhi.com';
+
+export default function PartnerSignupForm() {
   const [step, setStep] = useState<Step>('phone');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const router = useRouter();
-  const { refresh } = useSession();
 
   const sendOtp = async (e: FormEvent) => {
     e.preventDefault();
@@ -45,7 +43,7 @@ export default function OtpForm({ redirectTo = '/gyms' }: { redirectTo?: string 
     setError(null);
     setSubmitting(true);
     try {
-      const res = await fetch('/api/auth/verify-otp', {
+      const res = await fetch('/api/auth/verify-otp-partner', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, otp }),
@@ -55,16 +53,18 @@ export default function OtpForm({ redirectTo = '/gyms' }: { redirectTo?: string 
         setError(data.error || 'Invalid code');
         return;
       }
-      if (data.user?.role === 'partner') {
-        // Full top-level navigation (not router.push) — this session cookie
-        // is shared via Domain=.phoolgobhi.com, so the partner app picks it
-        // up on load with no token ever passed through the URL.
-        window.location.href =
-          process.env.NEXT_PUBLIC_PARTNER_APP_URL ?? 'https://partner.phoolgobhi.com';
+      if (data.user?.role !== 'partner') {
+        // An existing customer/staff account typed their own number in here —
+        // they're now logged in as themselves (see verify-otp-partner's
+        // comment), just not as a partner, so don't send them to the
+        // partner app where they'd only get bounced straight back.
+        setError('This number is already registered as a different account type. Use the regular login instead.');
         return;
       }
-      await refresh();
-      router.push(redirectTo);
+      // Full top-level navigation (not client-side routing) — the session
+      // cookie is shared via Domain=.phoolgobhi.com, so the partner app
+      // picks it up on load with no token ever passed through the URL.
+      window.location.href = PARTNER_APP_URL;
     } catch {
       setError('Network error — please try again');
     } finally {
@@ -79,7 +79,10 @@ export default function OtpForm({ redirectTo = '/gyms' }: { redirectTo?: string 
       transition={{ duration: 0.5 }}
       className="max-w-md w-full card-premium p-8"
     >
-      <h1 className="text-2xl font-bold mb-6 text-center">Log in</h1>
+      <h1 className="text-2xl font-bold mb-2 text-center">Become a Partner</h1>
+      <p className="mb-6 text-center text-sm text-gray-500 dark:text-gray-400">
+        List your gym on Phool Gobhi and start taking bookings.
+      </p>
 
       {step === 'phone' && (
         <form onSubmit={sendOtp} className="space-y-4">
@@ -145,9 +148,9 @@ export default function OtpForm({ redirectTo = '/gyms' }: { redirectTo?: string 
       )}
 
       <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-        Own a gym?{' '}
-        <Link href="/partner/apply" className="font-medium text-emerald-600 hover:underline dark:text-emerald-400">
-          Sign up as a partner
+        Already have an account?{' '}
+        <Link href="/login" className="font-medium text-emerald-600 hover:underline dark:text-emerald-400">
+          Log in
         </Link>
       </p>
     </motion.div>
