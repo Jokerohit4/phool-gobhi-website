@@ -15,7 +15,7 @@ const ORGANIZATION_JSON_LD = {
   name: 'Phool Gobhi',
   url: 'https://www.phoolgobhi.com',
   logo: 'https://www.phoolgobhi.com/broc-logo.png',
-  email: 'officialrohitashwa@gmail.com',
+  email: 'hello@phoolgobhi.com',
   contactPoint: {
     '@type': 'ContactPoint',
     telephone: '+91-9354859197',

@@ -216,8 +216,8 @@ export default function CareersPage() {
             Send us what you&apos;ve got — a resume, a portfolio, a one-line pitch, whatever gets the point across.
           </p>
           <motion.span whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} className="inline-block">
-            <a href="mailto:career@phoolgobhi.com" className="btn-primary inline-block">
-              career@phoolgobhi.com
+            <a href="mailto:careers@phoolgobhi.com" className="btn-primary inline-block">
+              careers@phoolgobhi.com
             </a>
           </motion.span>
         </motion.div>
