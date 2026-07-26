@@ -8,7 +8,13 @@ import { useSession } from './SessionProvider';
 
 type Step = 'phone' | 'otp';
 
-export default function OtpForm({ redirectTo = '/gyms' }: { redirectTo?: string }) {
+export default function OtpForm({
+  redirectTo = '/gyms',
+  partnerRedirectPath,
+}: {
+  redirectTo?: string;
+  partnerRedirectPath?: string;
+}) {
   const [step, setStep] = useState<Step>('phone');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
@@ -56,11 +62,14 @@ export default function OtpForm({ redirectTo = '/gyms' }: { redirectTo?: string 
         return;
       }
       if (data.user?.role === 'partner') {
+        const partnerAppUrl = process.env.NEXT_PUBLIC_PARTNER_APP_URL ?? 'https://partner.phoolgobhi.com';
         // Full top-level navigation (not router.push) — this session cookie
         // is shared via Domain=.phoolgobhi.com, so the partner app picks it
-        // up on load with no token ever passed through the URL.
-        window.location.href =
-          process.env.NEXT_PUBLIC_PARTNER_APP_URL ?? 'https://partner.phoolgobhi.com';
+        // up on load with no token ever passed through the URL. Appends the
+        // originally-requested partner-app path (set by partner-web's
+        // proxy.ts redirect) so a deep link survives the login round-trip
+        // instead of always dropping the partner at the app root.
+        window.location.href = partnerRedirectPath ? `${partnerAppUrl}${partnerRedirectPath}` : partnerAppUrl;
         return;
       }
       await refresh();

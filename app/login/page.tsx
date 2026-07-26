@@ -15,11 +15,17 @@ export default async function LoginPage({
   // Only ever a same-site path — never follow an absolute/external URL from
   // a query param (open-redirect guard). "//evil.com" is rejected too: a
   // leading double slash is browser-protocol-relative, not a site-relative path.
-  const redirectTo = redirect && redirect.startsWith('/') && !redirect.startsWith('//') ? redirect : '/gyms';
+  const isSafeRelativePath = (p?: string): p is string => !!p && p.startsWith('/') && !p.startsWith('//');
+  const redirectTo = isSafeRelativePath(redirect) ? redirect : '/gyms';
+  // partner-web's proxy.ts sends unauthenticated visitors here with the
+  // path they originally requested (e.g. "/bookings/123") in `redirect` —
+  // same safety check applies, since OtpForm appends it to a fixed, trusted
+  // origin (NEXT_PUBLIC_PARTNER_APP_URL) rather than following it directly.
+  const partnerRedirectPath = isSafeRelativePath(redirect) ? redirect : undefined;
 
   return (
     <div className="min-h-screen flex items-center justify-center section-padding bg-cream-50 dark:bg-gray-950">
-      <OtpForm redirectTo={redirectTo} />
+      <OtpForm redirectTo={redirectTo} partnerRedirectPath={partnerRedirectPath} />
     </div>
   );
 }
