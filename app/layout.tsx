@@ -7,6 +7,7 @@ import ScrollProgress from '@/components/ScrollProgress';
 import MotionProvider from '@/components/MotionProvider';
 import { SessionProvider } from '@/components/auth/SessionProvider';
 import LocationBootstrap from '@/components/LocationBootstrap';
+import AnalyticsBootstrap from '@/components/AnalyticsBootstrap';
 import JsonLd from '@/components/JsonLd';
 
 const ORGANIZATION_JSON_LD = {
@@ -107,6 +108,7 @@ export default function RootLayout({
         <SessionProvider>
           <MotionProvider>
             <LocationBootstrap />
+            <AnalyticsBootstrap />
             <ScrollProgress />
             <Header />
             <main className="flex-grow">{children}</main>

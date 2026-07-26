@@ -5,6 +5,7 @@ import { useState } from 'react';
 import PhoolGobhiLogo from './PhoolGobhiLogo';
 import ThemeSwitch from './ThemeSwitch';
 import { useSession } from './auth/SessionProvider';
+import { trackCta } from '@/lib/analytics';
 
 const primaryLinks = [
   { href: '/', label: 'Home' },
@@ -112,6 +113,7 @@ export default function Header() {
               href="https://wa.me/919354859197"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackCta('whatsapp_header_desktop')}
               className="hidden md:block px-6 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold text-sm hover:shadow-lg transition-all"
             >
               Message Gobhi 🥦
@@ -187,6 +189,7 @@ export default function Header() {
               href="https://wa.me/919354859197"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackCta('whatsapp_header_mobile')}
               className="block w-full px-6 py-3 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold text-center mt-4 transition-all duration-300"
             >
               Message Gobhi on WhatsApp 🥦

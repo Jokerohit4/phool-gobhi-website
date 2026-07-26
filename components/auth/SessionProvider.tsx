@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { SessionUser } from '@/lib/types';
+import { identify, resetAnalyticsIdentity } from '@/lib/analytics';
 
 interface SessionContextValue {
   user: SessionUser | null;
@@ -25,6 +26,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       }
       const data = (await res.json()) as { user: SessionUser };
       setUser(data.user);
+      identify(String(data.user.id), { role: data.user.role, user_type: data.user.type });
 
       // wallet-service only auto-provisions a wallet row on its first read
       // (getMyWallet's try/catch fallback) — nothing creates one at signup.
@@ -50,6 +52,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
     setUser(null);
+    resetAnalyticsIdentity();
   }, []);
 
   return <SessionContext.Provider value={{ user, loading, refresh, logout }}>{children}</SessionContext.Provider>;
