@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { QRCodeSVG } from 'qrcode.react';
 import { useSession } from '@/components/auth/SessionProvider';
 import ProfileCompletionGate from './ProfileCompletionGate';
 import BookingSummaryCard from './BookingSummaryCard';
@@ -87,9 +88,23 @@ export default function BookingConfirmClient({
 
   if (status === 'success') {
     return (
-      <div className="card-premium p-6 max-w-md space-y-3">
+      <div className="card-premium p-6 max-w-md space-y-4">
         <h2 className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">Booking confirmed!</h2>
         {bookingId && <p className="text-sm text-gray-500 dark:text-gray-400">Booking #{bookingId}</p>}
+        {bookingId && (
+          <div className="flex flex-col items-center gap-2 py-2">
+            <QRCodeSVG
+              value={String(bookingId)}
+              size={160}
+              bgColor="transparent"
+              fgColor="currentColor"
+              className="text-gray-900 dark:text-white"
+            />
+            <p className="text-xs text-gray-400 dark:text-gray-500">
+              Show this QR code to the gym partner at check-in
+            </p>
+          </div>
+        )}
         <a
           href="/account/bookings"
           className="inline-block px-6 py-3 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold"

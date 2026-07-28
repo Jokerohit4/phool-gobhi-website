@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import type { Booking } from '@/lib/types';
 import { hoursUntilSlot, cancellationTier } from '@/lib/cancellationPolicy';
 import CancelBookingModal from './CancelBookingModal';
@@ -14,6 +15,7 @@ const STATUS_STYLES: Record<Booking['status'], string> = {
 
 export default function BookingCard({ booking, onCancelled }: { booking: Booking; onCancelled: () => void }) {
   const [showModal, setShowModal] = useState(false);
+  const [showQr, setShowQr] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,6 +55,31 @@ export default function BookingCard({ booking, onCancelled }: { booking: Booking
         {new Date(booking.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} · {booking.startTime}–{booking.endTime}
       </p>
       <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">₹{booking.amount}</p>
+
+      {booking.status === 'confirmed' && (
+        <button
+          onClick={() => setShowQr((v) => !v)}
+          className="self-start text-sm text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
+        >
+          {showQr ? 'Hide QR code' : 'Show QR code'}
+        </button>
+      )}
+
+      {booking.status === 'confirmed' && showQr && (
+        <div className="flex flex-col items-center gap-2 py-3">
+          <QRCodeSVG
+            value={String(booking.id)}
+            size={180}
+            bgColor="transparent"
+            fgColor="currentColor"
+            className="text-gray-900 dark:text-white"
+          />
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            Show this to the gym partner at check-in
+          </p>
+        </div>
+      )}
+
       {error && !showModal && <p className="text-sm text-red-500">{error}</p>}
       {booking.status === 'confirmed' &&
         (tier.blocked ? (
