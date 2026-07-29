@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import type { Booking } from '@/lib/types';
-import { hoursUntilSlot, cancellationTier } from '@/lib/cancellationPolicy';
+import { hoursUntilSlot, cancellationTier, isSlotOver } from '@/lib/cancellationPolicy';
 import CancelBookingModal from './CancelBookingModal';
 
 const STATUS_STYLES: Record<Booking['status'], string> = {
@@ -22,6 +22,7 @@ export default function BookingCard({ booking, onCancelled }: { booking: Booking
   const hoursUntil = hoursUntilSlot(booking.date, booking.startTime);
   const tier = cancellationTier(hoursUntil);
   const refundAmount = Math.round(booking.amount * tier.refundRate * 100) / 100;
+  const canShowQr = booking.status === 'confirmed' && !isSlotOver(booking.date, booking.endTime);
 
   const confirmCancel = async () => {
     setCancelling(true);
@@ -56,7 +57,13 @@ export default function BookingCard({ booking, onCancelled }: { booking: Booking
       </p>
       <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">₹{booking.amount}</p>
 
-      {booking.status === 'confirmed' && (
+      {booking.slotShiftWarning && (
+        <span className="self-start text-xs font-medium px-2 py-1 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+          ⚠ Slot time was adjusted after check-in.
+        </span>
+      )}
+
+      {canShowQr && (
         <button
           onClick={() => setShowQr((v) => !v)}
           className="self-start text-sm text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
@@ -65,7 +72,7 @@ export default function BookingCard({ booking, onCancelled }: { booking: Booking
         </button>
       )}
 
-      {booking.status === 'confirmed' && showQr && (
+      {canShowQr && showQr && (
         <div className="flex flex-col items-center gap-2 py-3">
           {booking.qrToken ? (
             <QRCodeSVG

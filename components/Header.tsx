@@ -16,6 +16,7 @@ const primaryLinks = [
 
 const profileLinks = [
   { href: '/account/attendance', label: 'Attendance' },
+  { href: '/account/warnings', label: 'Warnings' },
   { href: '/account/wallet', label: 'Wallet' },
 ];
 

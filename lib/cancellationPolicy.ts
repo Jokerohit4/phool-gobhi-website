@@ -16,6 +16,10 @@ export function hoursUntilSlot(date: string, startTime: string): number {
   return (slotInstantUTC(date, startTime) - Date.now()) / 3600000;
 }
 
+export function isSlotOver(date: string, endTime: string): boolean {
+  return slotInstantUTC(date, endTime) <= Date.now();
+}
+
 export interface CancellationTier {
   blocked: boolean;
   refundRate: number; // 0-1; meaningless when blocked

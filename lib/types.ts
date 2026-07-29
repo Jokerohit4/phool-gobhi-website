@@ -61,6 +61,7 @@ export interface Booking {
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   createdAt: string;
   qrToken?: string;
+  slotShiftWarning?: boolean;
 }
 
 export interface WalletTransaction {
@@ -113,6 +114,28 @@ export interface AttendanceSummary {
   thisMonthAttended: number;
   lastAttendedAt: string | null;
   attendedDates: string[];
+}
+
+// Mirrors booking-service's attendance-warnings response envelope — see
+// app/api/attendance/warnings and components/attendance/AttendanceWarningsView.
+// Populated when a partner scans a customer's QR too early (>15 min before
+// session start) and confirms proceeding anyway; customer-facing only.
+
+export interface AttendanceWarning {
+  bookingId: number;
+  gymId: number;
+  gymName: string | null;
+  date: string;
+  originalStartTime: string;
+  originalEndTime: string;
+  newStartTime: string;
+  newEndTime: string;
+  createdAt: string;
+}
+
+export interface AttendanceWarningSummary {
+  count: number;
+  warnings: AttendanceWarning[];
 }
 
 export interface SessionUser {
