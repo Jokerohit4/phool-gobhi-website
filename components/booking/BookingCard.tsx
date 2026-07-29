@@ -67,13 +67,17 @@ export default function BookingCard({ booking, onCancelled }: { booking: Booking
 
       {booking.status === 'confirmed' && showQr && (
         <div className="flex flex-col items-center gap-2 py-3">
-          <QRCodeSVG
-            value={String(booking.id)}
-            size={180}
-            bgColor="transparent"
-            fgColor="currentColor"
-            className="text-gray-900 dark:text-white"
-          />
+          {booking.qrToken ? (
+            <QRCodeSVG
+              value={booking.qrToken}
+              size={180}
+              bgColor="transparent"
+              fgColor="currentColor"
+              className="text-gray-900 dark:text-white"
+            />
+          ) : (
+            <p className="text-sm text-red-500">QR code unavailable — please refresh and try again</p>
+          )}
           <p className="text-xs text-gray-400 dark:text-gray-500">
             Show this to the gym partner at check-in
           </p>

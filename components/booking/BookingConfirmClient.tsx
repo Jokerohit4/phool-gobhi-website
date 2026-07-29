@@ -29,6 +29,7 @@ export default function BookingConfirmClient({
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<number | null>(null);
+  const [qrToken, setQrToken] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`/api/gyms/${gymId}`)
@@ -75,6 +76,7 @@ export default function BookingConfirmClient({
         return;
       }
       setBookingId(data.data?.id ?? null);
+      setQrToken(data.data?.qrToken ?? null);
       setStatus('success');
     } catch {
       setError('Network error — please try again');
@@ -93,13 +95,19 @@ export default function BookingConfirmClient({
         {bookingId && <p className="text-sm text-gray-500 dark:text-gray-400">Booking #{bookingId}</p>}
         {bookingId && (
           <div className="flex flex-col items-center gap-2 py-2">
-            <QRCodeSVG
-              value={String(bookingId)}
-              size={160}
-              bgColor="transparent"
-              fgColor="currentColor"
-              className="text-gray-900 dark:text-white"
-            />
+            {qrToken ? (
+              <QRCodeSVG
+                value={qrToken}
+                size={160}
+                bgColor="transparent"
+                fgColor="currentColor"
+                className="text-gray-900 dark:text-white"
+              />
+            ) : (
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                QR code will be available from your bookings page.
+              </p>
+            )}
             <p className="text-xs text-gray-400 dark:text-gray-500">
               Show this QR code to the gym partner at check-in
             </p>

@@ -324,7 +324,7 @@ export default function PitchDeckContent() {
             </p>
             <div className="grid sm:grid-cols-2 gap-4">
               <Card title="Customer Signal">In parallel customer conversations, response has been close to unanimous — the flexibility and independence of pay-per-session access resonates immediately, with no meaningful pushback on the model.</Card>
-              <Card title="Product Readiness">MVP is built and live end-to-end — customer + partner Android apps, Razorpay-powered wallet payments, gym discovery, slot booking, and QR check-in, on a backend already deployed on Railway.</Card>
+              <Card title="Product Readiness">MVP is built and live end-to-end — customer + partner Android apps, Razorpay-powered wallet payments, gym discovery, slot booking, and QR check-in, on a backend already deployed on Google Cloud Run.</Card>
             </div>
           </motion.div>
         </div>
@@ -359,7 +359,7 @@ export default function PitchDeckContent() {
               </Card>
             </div>
             <p className="text-gray-600 dark:text-gray-400">
-              <strong className="text-emerald-600 dark:text-emerald-400">Backend:</strong> 5 microservices, live on Railway. This is a working end-to-end flow today — not a mockup.
+              <strong className="text-emerald-600 dark:text-emerald-400">Backend:</strong> 5 microservices, live on Google Cloud Run. This is a working end-to-end flow today — not a mockup.
             </p>
           </motion.div>
         </div>

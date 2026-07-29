@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { gatewayFetch, GatewayError } from '@/lib/gateway-client';
 
+// Rate-limited at the gateway (authAttemptLimiter covers /api/auth/send-otp
+// specifically, given Fast2SMS costs ₹5/OTP on the non-DLT route) — no
+// separate limiter needed here.
 export async function POST(req: Request) {
   let phone: unknown;
   try {

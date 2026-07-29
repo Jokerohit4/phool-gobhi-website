@@ -60,6 +60,7 @@ export interface Booking {
   amount: number;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   createdAt: string;
+  qrToken?: string;
 }
 
 export interface WalletTransaction {
