@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useSession } from '@/components/auth/SessionProvider';
 
 interface RazorpayResponse {
   razorpay_order_id: string;
@@ -55,6 +56,7 @@ export default function RazorpayCheckoutButton({
   onSuccess,
   label = 'Pay now',
 }: RazorpayCheckoutButtonProps) {
+  const { user } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -84,6 +86,16 @@ export default function RazorpayCheckoutButton({
         currency: order.currency,
         name: 'Phool Gobhi',
         description,
+        // Without this, Razorpay's own checkout widget always runs its own
+        // contact-collection step (asking for + OTP-verifying a phone
+        // number itself) — redundant and confusing right after the user
+        // already logged in with a verified number. Prefilling here either
+        // skips that step entirely or shows it pre-filled.
+        prefill: {
+          contact: user?.phone ? `+${user.phone}` : undefined,
+          email: user?.email ?? undefined,
+          name: user?.name ?? undefined,
+        },
         handler: async (response: RazorpayResponse) => {
           try {
             const verifyRes = await fetch(verifyEndpoint, {
