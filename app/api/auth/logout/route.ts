@@ -1,14 +1,19 @@
 import { NextResponse } from 'next/server';
-import { clearSession } from '@/lib/session';
+import { gatewayFetch } from '@/lib/gateway-client';
+import { readSession, clearSession } from '@/lib/session';
 import { rejectCrossOrigin } from '@/lib/csrf';
 
-// This can only clear the website's own cookies — the refresh JWT itself has
-// no server-side revocation (stateless, 7-day expiry, see lib/session.ts) and
-// stays valid until it naturally expires. Accepted, pre-existing gap shared
-// with the mobile apps; not something this route can fix on its own.
+// Revokes the refresh token's whole rotation family server-side (so it can't
+// be replayed after logout) before clearing local cookies. Best-effort: a
+// failed revoke call must never block the user from logging out locally.
 export async function POST(req: Request) {
   const blocked = rejectCrossOrigin(req);
   if (blocked) return blocked;
+
+  const { refreshToken } = await readSession();
+  if (refreshToken) {
+    await gatewayFetch('/api/auth/logout', { method: 'POST', body: { token: refreshToken } }).catch(() => null);
+  }
 
   await clearSession();
   return NextResponse.json({ ok: true });

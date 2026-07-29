@@ -35,10 +35,14 @@ export async function writeAccessToken(accessToken: string) {
   store.set(ACCESS_COOKIE, accessToken, { ...cookieOptions, maxAge: ACCESS_MAX_AGE });
 }
 
-// Logout can only ever clear these cookies — the refresh JWT itself is
-// stateless (auth-service issues it with no server-side store or revocation
-// list), so it stays valid until its own 7-day expiry regardless. Documented
-// as an accepted, pre-existing gap in the implementation plan.
+export async function writeRefreshToken(refreshToken: string) {
+  const store = await cookies();
+  store.set(REFRESH_COOKIE, refreshToken, { ...cookieOptions, maxAge: REFRESH_MAX_AGE });
+}
+
+// Clears the website's own cookies. Revoking the refresh token server-side
+// (so it can't be replayed after logout) is a separate step — see
+// app/api/auth/logout/route.ts, which calls the gateway before this runs.
 //
 // Deleting via `.set(..., maxAge: 0)` with the full cookieOptions (rather
 // than `.delete()`, which sends no `Domain` attribute) — a browser matches
@@ -58,12 +62,28 @@ export async function readSession() {
   };
 }
 
-// Mirrors the Flutter customer app's Dio interceptor: attach the current
-// access token, and on the gateway's exact 401 "Token expired" response,
-// refresh once and retry the original call once. On a successful refresh we
-// rewrite the pg_at cookie here (not just return the new token) so the
-// browser isn't left holding a stale one and re-paying this round trip on
-// every subsequent request.
+// Backend rotates the refresh token on every use (auth-service
+// refreshTokenService.js) — the response now carries a new refreshToken
+// alongside the new accessToken, and the old one becomes single-use. Both
+// cookies must be rewritten together on every refresh, or the browser is
+// left holding a refresh token the server has already marked used, which
+// looks like replay on its next legitimate use. A short server-side grace
+// window absorbs concurrent requests from multiple tabs racing on the same
+// old token (we can't mutex across separate requests/tabs here the way the
+// Flutter apps can in-process) — see refreshTokenService.js REUSE_GRACE_MS.
+export async function refreshSession(refreshToken: string): Promise<string> {
+  const refreshed = await gatewayFetch<{ accessToken: string; refreshToken: string }>(
+    '/api/auth/refresh-token',
+    { method: 'POST', body: { token: refreshToken } }
+  );
+  await writeAccessToken(refreshed.accessToken);
+  await writeRefreshToken(refreshed.refreshToken);
+  return refreshed.accessToken;
+}
+
+// Mirrors the Flutter apps' Dio interceptor: attach the current access
+// token, and on the gateway's exact 401 "Token expired" response, refresh
+// once and retry the original call once.
 export async function authedGatewayFetch<T = unknown>(
   path: string,
   opts: { method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'; body?: unknown } = {}
@@ -79,18 +99,13 @@ export async function authedGatewayFetch<T = unknown>(
     const expired = err instanceof GatewayError && err.status === 401;
     if (!expired || !refreshToken) throw err;
 
-    const refreshed = await gatewayFetch<{ accessToken: string }>('/api/auth/refresh-token', {
-      method: 'POST',
-      body: { token: refreshToken },
-    }).catch(() => null);
-
-    if (!refreshed?.accessToken) {
+    const newAccessToken = await refreshSession(refreshToken).catch(() => null);
+    if (!newAccessToken) {
       await clearSession();
       throw err;
     }
 
-    await writeAccessToken(refreshed.accessToken);
-    return gatewayFetch<T>(path, { ...opts, accessToken: refreshed.accessToken });
+    return gatewayFetch<T>(path, { ...opts, accessToken: newAccessToken });
   }
 }
 
