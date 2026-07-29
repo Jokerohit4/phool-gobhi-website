@@ -58,7 +58,7 @@ export interface Booking {
   startTime: string;
   endTime: string;
   amount: number;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  status: 'pending' | 'confirmed' | 'started' | 'cancelled' | 'completed';
   createdAt: string;
   qrToken?: string;
   slotShiftWarning?: boolean;
