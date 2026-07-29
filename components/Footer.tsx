@@ -66,6 +66,8 @@ export default function Footer() {
                 { href: '/pricing', label: 'Pricing' },
                 { href: '/how-it-works', label: 'How It Works' },
                 { href: '/policies/cancellation', label: 'Cancellation Policy' },
+                { href: '/policies/terms', label: 'Terms of Service' },
+                { href: '/policies/privacy', label: 'Privacy Policy' },
               ].map((link) => (
                 <motion.li
                   key={link.href}
