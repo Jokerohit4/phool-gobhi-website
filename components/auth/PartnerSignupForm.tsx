@@ -1,12 +1,17 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, useRef, type FormEvent } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { signInWithPhoneNumber, type ConfirmationResult, type RecaptchaVerifier } from 'firebase/auth';
+import { getFirebaseAuth, createRecaptchaVerifier } from '@/lib/firebase-client';
+import { toE164 } from '@/lib/phone';
+import { firebaseAuthErrorMessage } from '@/lib/firebase-error';
 
 type Step = 'phone' | 'otp';
 
 const PARTNER_APP_URL = process.env.NEXT_PUBLIC_PARTNER_APP_URL ?? 'https://partner.phoolgobhi.com';
+const RECAPTCHA_CONTAINER_ID = 'partner-signup-recaptcha';
 
 export default function PartnerSignupForm() {
   const [step, setStep] = useState<Step>('phone');
@@ -14,25 +19,28 @@ export default function PartnerSignupForm() {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
+  const confirmationRef = useRef<ConfirmationResult | null>(null);
 
   const sendOtp = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
+    const e164Phone = toE164(phone);
+    if (!e164Phone) {
+      setError('Enter a valid 10-digit mobile number');
+      return;
+    }
     setSubmitting(true);
     try {
-      const res = await fetch('/api/auth/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || 'Could not send OTP');
-        return;
+      if (!recaptchaRef.current) {
+        recaptchaRef.current = createRecaptchaVerifier(RECAPTCHA_CONTAINER_ID);
       }
+      confirmationRef.current = await signInWithPhoneNumber(getFirebaseAuth(), e164Phone, recaptchaRef.current);
       setStep('otp');
-    } catch {
-      setError('Network error — please try again');
+    } catch (err) {
+      setError(firebaseAuthErrorMessage(err));
+      recaptchaRef.current?.clear();
+      recaptchaRef.current = null;
     } finally {
       setSubmitting(false);
     }
@@ -41,12 +49,19 @@ export default function PartnerSignupForm() {
   const verifyOtp = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
+    if (!confirmationRef.current) {
+      setError('Session expired — please request a new code');
+      setStep('phone');
+      return;
+    }
     setSubmitting(true);
     try {
-      const res = await fetch('/api/auth/verify-otp-partner', {
+      const credential = await confirmationRef.current.confirm(otp);
+      const idToken = await credential.user.getIdToken();
+      const res = await fetch('/api/auth/verify-firebase-partner', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, otp }),
+        body: JSON.stringify({ idToken }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -65,8 +80,8 @@ export default function PartnerSignupForm() {
       // cookie is shared via Domain=.phoolgobhi.com, so the partner app
       // picks it up on load with no token ever passed through the URL.
       window.location.href = PARTNER_APP_URL;
-    } catch {
-      setError('Network error — please try again');
+    } catch (err) {
+      setError(firebaseAuthErrorMessage(err));
     } finally {
       setSubmitting(false);
     }
@@ -136,6 +151,9 @@ export default function PartnerSignupForm() {
           <button
             type="button"
             onClick={() => {
+              recaptchaRef.current?.clear();
+              recaptchaRef.current = null;
+              confirmationRef.current = null;
               setStep('phone');
               setOtp('');
               setError(null);
@@ -146,6 +164,7 @@ export default function PartnerSignupForm() {
           </button>
         </form>
       )}
+      <div id={RECAPTCHA_CONTAINER_ID} />
 
       <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
         Already have an account?{' '}

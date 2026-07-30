@@ -1,12 +1,18 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, useRef, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { signInWithPhoneNumber, type ConfirmationResult, type RecaptchaVerifier } from 'firebase/auth';
 import { useSession } from './SessionProvider';
+import { getFirebaseAuth, createRecaptchaVerifier } from '@/lib/firebase-client';
+import { toE164 } from '@/lib/phone';
+import { firebaseAuthErrorMessage } from '@/lib/firebase-error';
 
 type Step = 'phone' | 'otp';
+
+const RECAPTCHA_CONTAINER_ID = 'otp-form-recaptcha';
 
 export default function OtpForm({
   redirectTo = '/gyms',
@@ -22,25 +28,28 @@ export default function OtpForm({
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
   const { refresh } = useSession();
+  const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
+  const confirmationRef = useRef<ConfirmationResult | null>(null);
 
   const sendOtp = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
+    const e164Phone = toE164(phone);
+    if (!e164Phone) {
+      setError('Enter a valid 10-digit mobile number');
+      return;
+    }
     setSubmitting(true);
     try {
-      const res = await fetch('/api/auth/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || 'Could not send OTP');
-        return;
+      if (!recaptchaRef.current) {
+        recaptchaRef.current = createRecaptchaVerifier(RECAPTCHA_CONTAINER_ID);
       }
+      confirmationRef.current = await signInWithPhoneNumber(getFirebaseAuth(), e164Phone, recaptchaRef.current);
       setStep('otp');
-    } catch {
-      setError('Network error — please try again');
+    } catch (err) {
+      setError(firebaseAuthErrorMessage(err));
+      recaptchaRef.current?.clear();
+      recaptchaRef.current = null;
     } finally {
       setSubmitting(false);
     }
@@ -49,12 +58,19 @@ export default function OtpForm({
   const verifyOtp = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
+    if (!confirmationRef.current) {
+      setError('Session expired — please request a new code');
+      setStep('phone');
+      return;
+    }
     setSubmitting(true);
     try {
-      const res = await fetch('/api/auth/verify-otp', {
+      const credential = await confirmationRef.current.confirm(otp);
+      const idToken = await credential.user.getIdToken();
+      const res = await fetch('/api/auth/verify-firebase', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, otp }),
+        body: JSON.stringify({ idToken }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -74,8 +90,8 @@ export default function OtpForm({
       }
       await refresh();
       router.push(redirectTo);
-    } catch {
-      setError('Network error — please try again');
+    } catch (err) {
+      setError(firebaseAuthErrorMessage(err));
     } finally {
       setSubmitting(false);
     }
@@ -142,6 +158,9 @@ export default function OtpForm({
           <button
             type="button"
             onClick={() => {
+              recaptchaRef.current?.clear();
+              recaptchaRef.current = null;
+              confirmationRef.current = null;
               setStep('phone');
               setOtp('');
               setError(null);
@@ -159,6 +178,7 @@ export default function OtpForm({
           Sign up as a partner
         </Link>
       </p>
+      <div id={RECAPTCHA_CONTAINER_ID} />
     </motion.div>
   );
 }
