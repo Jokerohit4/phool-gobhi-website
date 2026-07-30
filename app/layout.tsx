@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import ScrollProgress from '@/components/ScrollProgress';
 import MotionProvider from '@/components/MotionProvider';
 import { SessionProvider } from '@/components/auth/SessionProvider';
+import NamePromptModal from '@/components/auth/NamePromptModal';
 import LocationBootstrap from '@/components/LocationBootstrap';
 import AnalyticsBootstrap from '@/components/AnalyticsBootstrap';
 import JsonLd from '@/components/JsonLd';
@@ -110,6 +111,7 @@ export default function RootLayout({
             <LocationBootstrap />
             <AnalyticsBootstrap />
             <ScrollProgress />
+            <NamePromptModal />
             <Header />
             <main className="flex-grow">{children}</main>
             <Footer />
