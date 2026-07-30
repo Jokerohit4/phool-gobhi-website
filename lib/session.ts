@@ -21,7 +21,11 @@ const cookieOptions = {
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax' as const,
   path: '/',
-  domain: process.env.NODE_ENV === 'production' ? '.phoolgobhi.com' : undefined,
+  // Explicit env var instead of NODE_ENV — Vercel sets NODE_ENV=production
+  // for every deployed build (Preview/dev-branch deployments included), so
+  // that check can't distinguish dev from prod. COOKIE_DOMAIN is scoped
+  // per-Vercel-environment instead.
+  domain: process.env.COOKIE_DOMAIN || undefined,
 };
 
 export async function writeSession(accessToken: string, refreshToken: string) {
