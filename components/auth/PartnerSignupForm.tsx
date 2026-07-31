@@ -13,6 +13,11 @@ type Step = 'phone' | 'otp';
 const PARTNER_APP_URL = process.env.NEXT_PUBLIC_PARTNER_APP_URL ?? 'https://partner.phoolgobhi.com';
 const RECAPTCHA_CONTAINER_ID = 'partner-signup-recaptcha';
 
+// Dev-only: skip Firebase (and the Blaze billing it requires just to send a
+// real SMS) entirely, in favor of the same 123456 backdoor the backend
+// already uses everywhere else in dev. Never set on the production env.
+const DEV_OTP_BYPASS = process.env.NEXT_PUBLIC_ALLOW_DEV_OTP === 'true';
+
 export default function PartnerSignupForm() {
   const [step, setStep] = useState<Step>('phone');
   const [phone, setPhone] = useState('');
@@ -32,6 +37,20 @@ export default function PartnerSignupForm() {
     }
     setSubmitting(true);
     try {
+      if (DEV_OTP_BYPASS) {
+        const res = await fetch('/api/auth/dev-send-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: e164Phone }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setError(data.error || 'Something went wrong — please try again');
+          return;
+        }
+        setStep('otp');
+        return;
+      }
       if (!recaptchaRef.current) {
         recaptchaRef.current = createRecaptchaVerifier(RECAPTCHA_CONTAINER_ID);
       }
@@ -49,20 +68,29 @@ export default function PartnerSignupForm() {
   const verifyOtp = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!confirmationRef.current) {
+    if (!DEV_OTP_BYPASS && !confirmationRef.current) {
       setError('Session expired — please request a new code');
       setStep('phone');
       return;
     }
     setSubmitting(true);
     try {
-      const credential = await confirmationRef.current.confirm(otp);
-      const idToken = await credential.user.getIdToken();
-      const res = await fetch('/api/auth/verify-firebase-partner', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
-      });
+      let res: Response;
+      if (DEV_OTP_BYPASS) {
+        res = await fetch('/api/auth/dev-verify-otp-partner', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: toE164(phone), otp }),
+        });
+      } else {
+        const credential = await confirmationRef.current!.confirm(otp);
+        const idToken = await credential.user.getIdToken();
+        res = await fetch('/api/auth/verify-firebase-partner', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken }),
+        });
+      }
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || 'Invalid code');
