@@ -18,12 +18,17 @@ export async function POST(req: Request) {
 
   if (typeof body?.event === 'string') {
     try {
+      const userAgent = req.headers.get('user-agent');
+      const properties = typeof body.properties === 'object' && body.properties !== null ? body.properties : {};
       await gatewayFetch('/api/events', {
         method: 'POST',
         body: {
           event: body.event,
           distinct_id: typeof body.distinct_id === 'string' ? body.distinct_id : undefined,
-          properties: typeof body.properties === 'object' && body.properties !== null ? body.properties : {},
+          // Raw UA only — the gateway parses it into os/browser/device_type
+          // fields centrally, so both website and any other future client
+          // surface get identically-shaped enrichment from one place.
+          properties: userAgent ? { ...properties, user_agent: userAgent } : properties,
         },
       });
     } catch {

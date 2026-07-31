@@ -59,7 +59,7 @@ function post(event: string, properties: Record<string, unknown> = {}) {
       body: JSON.stringify({
         event,
         distinct_id: currentDistinctId(),
-        properties: { app: 'website', session_id: getOrCreateSessionId(), ...properties },
+        properties: { app: 'website', platform: 'web', session_id: getOrCreateSessionId(), ...properties },
       }),
       // Lets the request complete even if it's fired right before/during
       // navigation (e.g. a CTA click that also triggers a route change).
