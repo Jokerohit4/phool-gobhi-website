@@ -8,23 +8,16 @@ import { useSession } from './SessionProvider';
 // header then falls back to a bare "Profile" label with nothing pointing
 // them at how to fix that. This prompts for it right after login instead of
 // leaving it undiscoverable until they hit the (separate, booking-only)
-// ProfileCompletionGate.
+// ProfileCompletionGate. Deliberately non-dismissible (no backdrop-click, no
+// skip button) — the user asked for the name to be mandatory up front rather
+// than an optional nudge.
 export default function NamePromptModal() {
   const { user, loading, refresh } = useSession();
-  const [dismissedThisMount, setDismissedThisMount] = useState(false);
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const dismissedInStorage =
-    !!user && typeof window !== 'undefined' && sessionStorage.getItem(`pg_name_prompt_dismissed_${user.id}`) === '1';
-
-  if (loading || !user || user.name || dismissedThisMount || dismissedInStorage) return null;
-
-  const skip = () => {
-    sessionStorage.setItem(`pg_name_prompt_dismissed_${user.id}`, '1');
-    setDismissedThisMount(true);
-  };
+  if (loading || !user || user.name) return null;
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -51,10 +44,9 @@ export default function NamePromptModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={skip}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <form
         onSubmit={submit}
-        onClick={(e) => e.stopPropagation()}
         className="card-premium max-w-sm w-full p-6 space-y-4"
         role="dialog"
         aria-modal="true"
@@ -64,7 +56,7 @@ export default function NamePromptModal() {
           What should we call you?
         </h2>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Add your name so we can personalize your account and bookings.
+          Add your name to continue — we need it to personalize your account and bookings.
         </p>
         <input
           type="text"
@@ -76,23 +68,13 @@ export default function NamePromptModal() {
           className="w-full rounded-lg border border-cream-200 dark:border-gray-700 bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
         {error && <p className="text-sm text-red-500">{error}</p>}
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={skip}
-            disabled={submitting}
-            className="flex-1 px-4 py-2 rounded-lg border border-cream-200 dark:border-gray-700 text-sm font-medium disabled:opacity-60"
-          >
-            Maybe later
-          </button>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white text-sm font-semibold disabled:opacity-60"
-          >
-            {submitting ? 'Saving…' : 'Save'}
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold disabled:opacity-60"
+        >
+          {submitting ? 'Saving…' : 'Save & continue'}
+        </button>
       </form>
     </div>
   );
