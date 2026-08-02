@@ -5,7 +5,7 @@ import { blogPosts } from '@/lib/blogPosts';
 
 const BASE_URL = 'https://www.phoolgobhi.com';
 
-const STATIC_ROUTES = ['', '/about', '/gyms', '/contact', '/careers', '/partnerships', '/policies/cancellation', '/blog'];
+const STATIC_ROUTES = ['', '/about', '/gyms', '/contact', '/careers', '/partnerships', '/policies/cancellation', '/blog', '/testimonials'];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = STATIC_ROUTES.map((path) => ({
