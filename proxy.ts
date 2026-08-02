@@ -49,7 +49,10 @@ export default async function proxy(request: NextRequest) {
   if (isGatedApi) {
     return NextResponse.json({ error: 'Not live yet' }, { status: 403 });
   }
-  return NextResponse.redirect(new URL('/coming-soon', request.url));
+  // The homepage itself renders the same countdown in place of its normal
+  // content while the gate is active (see app/page.tsx) — redirecting here
+  // rather than to a separate /coming-soon route.
+  return NextResponse.redirect(new URL('/', request.url));
 }
 
 export const config = {
