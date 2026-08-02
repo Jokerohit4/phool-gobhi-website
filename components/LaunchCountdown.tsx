@@ -24,9 +24,9 @@ function getRemaining(launchAt: string): Remaining | null {
   };
 }
 
-// Reloads the page once the countdown hits zero so the server-side redirect
-// in app/coming-soon/page.tsx (and proxy.ts on /gyms) picks up the flipped
-// launch-status without the visitor having to refresh manually.
+// Reloads the page once the countdown hits zero so the server-side check in
+// app/page.tsx (and proxy.ts on /gyms) picks up the flipped launch-status
+// without the visitor having to refresh manually.
 export default function LaunchCountdown({ launchAt }: Props) {
   const [remaining, setRemaining] = useState<Remaining | null>(() => (launchAt ? getRemaining(launchAt) : null));
 
