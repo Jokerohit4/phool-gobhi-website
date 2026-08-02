@@ -23,7 +23,7 @@ export default async function TestimonialsPage() {
   return (
     <div className="section-padding container-custom flex flex-col gap-12">
       <div className="text-center flex flex-col gap-3">
-        <h1 className="font-display text-5xl stroke-terracotta">What users say about us</h1>
+        <h1 className="font-display text-5xl text-stroke stroke-terracotta">What users say about us</h1>
         <p className="text-lg text-gray-600 dark:text-gray-400">Real reviews from real Phool Gobhi customers.</p>
       </div>
 
