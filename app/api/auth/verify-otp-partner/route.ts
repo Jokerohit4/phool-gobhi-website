@@ -9,14 +9,13 @@ interface VerifyOtpGatewayResponse {
   user: unknown;
 }
 
-// Counterpart to dev-send-otp — see that route for why this exists. Response
-// shape matches verify-firebase/route.ts on purpose so OtpForm's post-verify
-// handling (session write, partner redirect) works unchanged either way.
+// Partner counterpart to verify-otp, mirroring verify-firebase-partner's
+// route.ts. role: 'partner' is only a request-for-a-new-account; an existing
+// phone still authenticates as its real DB role regardless (see
+// auth-service's issueSessionForUser), which is why PartnerSignupForm checks
+// user.role === 'partner' on the response rather than trusting what it
+// asked for. Supersedes the old ALLOW_DEV_OTP-gated dev-verify-otp-partner route.
 export async function POST(req: Request) {
-  if (process.env.ALLOW_DEV_OTP !== 'true') {
-    return NextResponse.json({ error: 'Not available' }, { status: 404 });
-  }
-
   let body: { phone?: unknown; otp?: unknown };
   try {
     body = await req.json();
@@ -29,12 +28,9 @@ export async function POST(req: Request) {
   }
 
   try {
-    // role/type hardcoded here, never taken from the request body — same
-    // reasoning as verify-firebase/route.ts: the website only ever creates
-    // customer accounts through this endpoint.
     const data = await gatewayFetch<VerifyOtpGatewayResponse>('/api/auth/verify-otp', {
       method: 'POST',
-      body: { phone, otp, role: 'customer', type: 'general' },
+      body: { phone, otp, role: 'partner', type: 'general' },
     });
 
     await writeSession(data.accessToken, data.refreshToken);

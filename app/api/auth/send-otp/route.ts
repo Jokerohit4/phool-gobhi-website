@@ -1,17 +1,13 @@
 import { NextResponse } from 'next/server';
 import { gatewayFetch, GatewayError } from '@/lib/gateway-client';
 
-// Dev-only bypass for Firebase Phone Auth: sending a real SMS through
-// Firebase requires the dev project to be on the paid Blaze plan just to
-// test a login, when the backend already has a free 123456 backdoor
-// (ALLOW_DEV_OTP) used everywhere else in dev. Gated on the server-only
-// (non-NEXT_PUBLIC) flag so this can never activate in prod even if called
-// directly, regardless of what the client sends.
+// Direct (non-Firebase) OTP send, used whenever GET /api/auth/otp-config
+// reports "fast2sms" or "skip" — the backend itself decides whether a given
+// phone gets a real SMS or a skip-mode bypass (see otpProviderService.js),
+// so this route never needs to know which. Supersedes the old
+// ALLOW_DEV_OTP-gated dev-send-otp route: that flag no longer exists on the
+// backend, replaced by the admin-configurable provider.
 export async function POST(req: Request) {
-  if (process.env.ALLOW_DEV_OTP !== 'true') {
-    return NextResponse.json({ error: 'Not available' }, { status: 404 });
-  }
-
   let body: { phone?: unknown };
   try {
     body = await req.json();

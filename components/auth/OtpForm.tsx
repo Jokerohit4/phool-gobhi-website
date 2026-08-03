@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, type FormEvent } from 'react';
+import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -11,13 +11,9 @@ import { toE164 } from '@/lib/phone';
 import { firebaseAuthErrorMessage } from '@/lib/firebase-error';
 
 type Step = 'phone' | 'otp';
+type OtpProvider = 'fast2sms' | 'firebase' | 'skip';
 
 const RECAPTCHA_CONTAINER_ID = 'otp-form-recaptcha';
-
-// Dev-only: skip Firebase (and the Blaze billing it requires just to send a
-// real SMS) entirely, in favor of the same 123456 backdoor the backend
-// already uses everywhere else in dev. Never set on the production env.
-const DEV_OTP_BYPASS = process.env.NEXT_PUBLIC_ALLOW_DEV_OTP === 'true';
 
 export default function OtpForm({
   redirectTo = '/gyms',
@@ -31,10 +27,29 @@ export default function OtpForm({
   const [otp, setOtp] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // Defaults to 'firebase' (today's only behavior) until the fetch below
+  // resolves, so a slow/failed /api/auth/otp-config never regresses existing
+  // Firebase-based login.
+  const [provider, setProvider] = useState<OtpProvider>('firebase');
   const router = useRouter();
   const { refresh } = useSession();
   const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
   const confirmationRef = useRef<ConfirmationResult | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/auth/otp-config')
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled && (data.provider === 'fast2sms' || data.provider === 'firebase' || data.provider === 'skip')) {
+          setProvider(data.provider);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const sendOtp = async (e: FormEvent) => {
     e.preventDefault();
@@ -46,8 +61,8 @@ export default function OtpForm({
     }
     setSubmitting(true);
     try {
-      if (DEV_OTP_BYPASS) {
-        const res = await fetch('/api/auth/dev-send-otp', {
+      if (provider !== 'firebase') {
+        const res = await fetch('/api/auth/send-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phone: e164Phone }),
@@ -77,7 +92,7 @@ export default function OtpForm({
   const verifyOtp = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!DEV_OTP_BYPASS && !confirmationRef.current) {
+    if (provider === 'firebase' && !confirmationRef.current) {
       setError('Session expired — please request a new code');
       setStep('phone');
       return;
@@ -85,8 +100,8 @@ export default function OtpForm({
     setSubmitting(true);
     try {
       let res: Response;
-      if (DEV_OTP_BYPASS) {
-        res = await fetch('/api/auth/dev-verify-otp', {
+      if (provider !== 'firebase') {
+        res = await fetch('/api/auth/verify-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phone: toE164(phone), otp }),
@@ -163,6 +178,9 @@ export default function OtpForm({
       {step === 'otp' && (
         <form onSubmit={verifyOtp} className="space-y-4">
           <p className="text-sm text-gray-500 dark:text-gray-400">Enter the 6-digit code sent to {phone}</p>
+          {provider === 'skip' && (
+            <p className="text-sm text-amber-600 dark:text-amber-400">Test mode — allowlisted numbers can use 123456.</p>
+          )}
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             OTP
             <input
