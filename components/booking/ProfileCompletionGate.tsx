@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { useSession } from '@/components/auth/SessionProvider';
+import { dateOfBirthError, maxDateOfBirth } from '@/lib/age';
 
 // booking-service requires name + dateOfBirth to already be set before it
 // will create a booking (services/booking-service/services/bookingService.js,
@@ -27,6 +28,11 @@ export default function ProfileCompletionGate({ children }: { children: ReactNod
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
+    const dobError = dateOfBirthError(dateOfBirth);
+    if (dobError) {
+      setError(dobError);
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await fetch('/api/profile', {
@@ -66,6 +72,7 @@ export default function ProfileCompletionGate({ children }: { children: ReactNod
         <input
           type="date"
           required
+          max={maxDateOfBirth()}
           value={dateOfBirth}
           onChange={(e) => setDateOfBirth(e.target.value)}
           className="mt-1 w-full rounded-lg border border-cream-200 dark:border-gray-700 bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"

@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { useSession } from '@/components/auth/SessionProvider';
+import { dateOfBirthError, maxDateOfBirth } from '@/lib/age';
 
 const GENDER_OPTIONS: { value: string; label: string }[] = [
   { value: 'male', label: 'Male' },
@@ -52,6 +53,11 @@ export default function ProfileForm() {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+    const dobError = dateOfBirthError(dateOfBirth);
+    if (dobError) {
+      setError(dobError);
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await fetch('/api/profile', {
@@ -99,10 +105,15 @@ export default function ProfileForm() {
           Date of birth
           <input
             type="date"
+            required
+            max={maxDateOfBirth()}
             value={dateOfBirth}
             onChange={(e) => setDateOfBirth(e.target.value)}
             className={inputClass}
           />
+          <span className="mt-1 block text-xs font-normal text-gray-500 dark:text-gray-400">
+            You must be at least 11 years old to use Phool Gobhi.
+          </span>
         </label>
 
         <fieldset className="block text-sm font-medium text-gray-700 dark:text-gray-300">
