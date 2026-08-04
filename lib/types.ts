@@ -17,6 +17,20 @@ export interface Gym {
   capacity: number;
   rating: number;
   ratingCount: number;
+  googleRating: number | null;
+  googleRatingCount: number | null;
+  equipmentRating: number | null;
+  equipmentRatingCount: number;
+  cleanlinessRating: number | null;
+  cleanlinessRatingCount: number;
+  trainerRating: number | null;
+  trainerRatingCount: number;
+  valueForMoneyRating: number | null;
+  valueForMoneyRatingCount: number;
+  staffBehaviourRating: number | null;
+  staffBehaviourRatingCount: number;
+  crowdRating: number | null;
+  crowdRatingCount: number;
   images: { id: number; url: string }[];
   distanceKm?: number;
 }
@@ -147,4 +161,5 @@ export interface SessionUser {
   type: string;
   gender?: string | null;
   dateOfBirth?: string | null;
+  fitnessGoals?: string[];
 }
