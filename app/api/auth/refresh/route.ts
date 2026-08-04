@@ -20,7 +20,11 @@ export async function POST(req: Request) {
     await refreshSession(refreshToken);
     return NextResponse.json({ ok: true });
   } catch (err) {
-    await clearSession();
+    // Mirror lib/session.ts: only an auth rejection (401/403) means the
+    // session is dead — clear it then. A transient gateway/5xx failure must
+    // leave the cookies alone so the user isn't force-logged-out by a blip.
+    const authFailure = err instanceof GatewayError && (err.status === 401 || err.status === 403);
+    if (authFailure) await clearSession();
     if (err instanceof GatewayError) return NextResponse.json(err.body, { status: err.status });
     return NextResponse.json({ error: 'Gateway unreachable' }, { status: 502 });
   }

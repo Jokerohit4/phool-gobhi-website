@@ -103,9 +103,19 @@ export async function authedGatewayFetch<T = unknown>(
     const expired = err instanceof GatewayError && err.status === 401;
     if (!expired || !refreshToken) throw err;
 
-    const newAccessToken = await refreshSession(refreshToken).catch(() => null);
-    if (!newAccessToken) {
-      await clearSession();
+    let newAccessToken: string;
+    try {
+      newAccessToken = await refreshSession(refreshToken);
+    } catch (refreshErr) {
+      // Only a gateway auth rejection (invalid/revoked/expired refresh token)
+      // means the session is genuinely dead and worth clearing. A transient
+      // failure (5xx/502/network — a deploy warm-up, a DB blip) must NOT
+      // destroy the session: clearing both cookies here is what turns a
+      // brief backend outage into a permanent force-logout. Leave the
+      // cookies in place so the next request can retry the refresh.
+      if (refreshErr instanceof GatewayError && (refreshErr.status === 401 || refreshErr.status === 403)) {
+        await clearSession();
+      }
       throw err;
     }
 
