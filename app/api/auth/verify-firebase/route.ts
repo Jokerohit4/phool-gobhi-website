@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { gatewayFetch, GatewayError } from '@/lib/gateway-client';
 import { writeSession } from '@/lib/session';
+import { rejectCrossOrigin } from '@/lib/csrf';
 
 interface VerifyFirebaseGatewayResponse {
   accessToken: string;
@@ -10,6 +11,9 @@ interface VerifyFirebaseGatewayResponse {
 }
 
 export async function POST(req: Request) {
+  const blocked = rejectCrossOrigin(req);
+  if (blocked) return blocked;
+
   let body: { idToken?: unknown; name?: unknown; email?: unknown };
   try {
     body = await req.json();

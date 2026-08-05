@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { gatewayFetch, GatewayError } from '@/lib/gateway-client';
 import { writeSession } from '@/lib/session';
+import { rejectCrossOrigin } from '@/lib/csrf';
 
 interface VerifyOtpGatewayResponse {
   accessToken: string;
@@ -16,6 +17,9 @@ interface VerifyOtpGatewayResponse {
 // user.role === 'partner' on the response rather than trusting what it
 // asked for. Supersedes the old ALLOW_DEV_OTP-gated dev-verify-otp-partner route.
 export async function POST(req: Request) {
+  const blocked = rejectCrossOrigin(req);
+  if (blocked) return blocked;
+
   let body: { phone?: unknown; otp?: unknown };
   try {
     body = await req.json();
