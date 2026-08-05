@@ -10,6 +10,9 @@ import { firebaseAuthErrorMessage } from '@/lib/firebase-error';
 
 type Step = 'phone' | 'otp';
 type OtpProvider = 'fast2sms' | 'firebase' | 'skip';
+// Which flow THIS attempt is actually using — see OtpForm.tsx's identical
+// type/comment for the full explanation.
+type ActiveFlow = 'backend' | 'firebase';
 
 const PARTNER_APP_URL = process.env.NEXT_PUBLIC_PARTNER_APP_URL ?? 'https://partner.phoolgobhi.com';
 const RECAPTCHA_CONTAINER_ID = 'partner-signup-recaptcha';
@@ -24,6 +27,7 @@ export default function PartnerSignupForm() {
   // resolves, so a slow/failed /api/auth/otp-config never regresses existing
   // Firebase-based login.
   const [provider, setProvider] = useState<OtpProvider>('firebase');
+  const [activeFlow, setActiveFlow] = useState<ActiveFlow>('firebase');
   const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
   const confirmationRef = useRef<ConfirmationResult | null>(null);
 
@@ -42,6 +46,15 @@ export default function PartnerSignupForm() {
     };
   }, []);
 
+  const sendViaFirebase = async (e164Phone: string) => {
+    if (!recaptchaRef.current) {
+      recaptchaRef.current = createRecaptchaVerifier(RECAPTCHA_CONTAINER_ID);
+    }
+    confirmationRef.current = await signInWithPhoneNumber(getFirebaseAuth(), e164Phone, recaptchaRef.current);
+    setActiveFlow('firebase');
+    setStep('otp');
+  };
+
   const sendOtp = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -59,18 +72,23 @@ export default function PartnerSignupForm() {
           body: JSON.stringify({ phone: e164Phone }),
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          setError(data.error || 'Something went wrong — please try again');
+        if (res.ok) {
+          setActiveFlow('backend');
+          setStep('otp');
           return;
         }
-        setStep('otp');
+        // Skip mode falls back to the real Firebase flow for any number not
+        // on the admin's test allowlist — the backend refuses to send a real
+        // Fast2SMS/WhatsApp OTP in that case (see sendOtpService), so Fast2SMS
+        // is never active unless the admin has explicitly selected it.
+        if (data.errorCode === 'FIREBASE_OTP_ONLY') {
+          await sendViaFirebase(e164Phone);
+          return;
+        }
+        setError(data.error || 'Something went wrong — please try again');
         return;
       }
-      if (!recaptchaRef.current) {
-        recaptchaRef.current = createRecaptchaVerifier(RECAPTCHA_CONTAINER_ID);
-      }
-      confirmationRef.current = await signInWithPhoneNumber(getFirebaseAuth(), e164Phone, recaptchaRef.current);
-      setStep('otp');
+      await sendViaFirebase(e164Phone);
     } catch (err) {
       setError(firebaseAuthErrorMessage(err));
       recaptchaRef.current?.clear();
@@ -83,7 +101,7 @@ export default function PartnerSignupForm() {
   const verifyOtp = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (provider === 'firebase' && !confirmationRef.current) {
+    if (activeFlow === 'firebase' && !confirmationRef.current) {
       setError('Session expired — please request a new code');
       setStep('phone');
       return;
@@ -91,7 +109,7 @@ export default function PartnerSignupForm() {
     setSubmitting(true);
     try {
       let res: Response;
-      if (provider !== 'firebase') {
+      if (activeFlow !== 'firebase') {
         res = await fetch('/api/auth/verify-otp-partner', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -171,7 +189,7 @@ export default function PartnerSignupForm() {
       {step === 'otp' && (
         <form onSubmit={verifyOtp} className="space-y-4">
           <p className="text-sm text-gray-500 dark:text-gray-400">Enter the 6-digit code sent to {phone}</p>
-          {provider === 'skip' && (
+          {provider === 'skip' && activeFlow === 'backend' && (
             <p className="text-sm text-amber-600 dark:text-amber-400">Test mode — allowlisted numbers can use 123456.</p>
           )}
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">

@@ -12,6 +12,12 @@ import { firebaseAuthErrorMessage } from '@/lib/firebase-error';
 
 type Step = 'phone' | 'otp';
 type OtpProvider = 'fast2sms' | 'firebase' | 'skip';
+// Which flow THIS attempt is actually using — normally mirrors `provider`,
+// but flips to 'firebase' if skip mode's allowlist check comes back
+// negative (see sendOtp): that phone still needs the real Firebase flow
+// even though the admin setting itself stays 'skip'. verifyOtp reads this,
+// not `provider`, so it doesn't call the wrong verification endpoint.
+type ActiveFlow = 'backend' | 'firebase';
 
 const RECAPTCHA_CONTAINER_ID = 'otp-form-recaptcha';
 
@@ -31,6 +37,7 @@ export default function OtpForm({
   // resolves, so a slow/failed /api/auth/otp-config never regresses existing
   // Firebase-based login.
   const [provider, setProvider] = useState<OtpProvider>('firebase');
+  const [activeFlow, setActiveFlow] = useState<ActiveFlow>('firebase');
   const router = useRouter();
   const { refresh } = useSession();
   const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
@@ -51,6 +58,15 @@ export default function OtpForm({
     };
   }, []);
 
+  const sendViaFirebase = async (e164Phone: string) => {
+    if (!recaptchaRef.current) {
+      recaptchaRef.current = createRecaptchaVerifier(RECAPTCHA_CONTAINER_ID);
+    }
+    confirmationRef.current = await signInWithPhoneNumber(getFirebaseAuth(), e164Phone, recaptchaRef.current);
+    setActiveFlow('firebase');
+    setStep('otp');
+  };
+
   const sendOtp = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -68,18 +84,23 @@ export default function OtpForm({
           body: JSON.stringify({ phone: e164Phone }),
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          setError(data.error || 'Something went wrong — please try again');
+        if (res.ok) {
+          setActiveFlow('backend');
+          setStep('otp');
           return;
         }
-        setStep('otp');
+        // Skip mode falls back to the real Firebase flow for any number not
+        // on the admin's test allowlist — the backend refuses to send a real
+        // Fast2SMS/WhatsApp OTP in that case (see sendOtpService), so Fast2SMS
+        // is never active unless the admin has explicitly selected it.
+        if (data.errorCode === 'FIREBASE_OTP_ONLY') {
+          await sendViaFirebase(e164Phone);
+          return;
+        }
+        setError(data.error || 'Something went wrong — please try again');
         return;
       }
-      if (!recaptchaRef.current) {
-        recaptchaRef.current = createRecaptchaVerifier(RECAPTCHA_CONTAINER_ID);
-      }
-      confirmationRef.current = await signInWithPhoneNumber(getFirebaseAuth(), e164Phone, recaptchaRef.current);
-      setStep('otp');
+      await sendViaFirebase(e164Phone);
     } catch (err) {
       setError(firebaseAuthErrorMessage(err));
       recaptchaRef.current?.clear();
@@ -92,7 +113,7 @@ export default function OtpForm({
   const verifyOtp = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (provider === 'firebase' && !confirmationRef.current) {
+    if (activeFlow === 'firebase' && !confirmationRef.current) {
       setError('Session expired — please request a new code');
       setStep('phone');
       return;
@@ -100,7 +121,7 @@ export default function OtpForm({
     setSubmitting(true);
     try {
       let res: Response;
-      if (provider !== 'firebase') {
+      if (activeFlow !== 'firebase') {
         res = await fetch('/api/auth/verify-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -178,7 +199,7 @@ export default function OtpForm({
       {step === 'otp' && (
         <form onSubmit={verifyOtp} className="space-y-4">
           <p className="text-sm text-gray-500 dark:text-gray-400">Enter the 6-digit code sent to {phone}</p>
-          {provider === 'skip' && (
+          {provider === 'skip' && activeFlow === 'backend' && (
             <p className="text-sm text-amber-600 dark:text-amber-400">Test mode — allowlisted numbers can use 123456.</p>
           )}
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
