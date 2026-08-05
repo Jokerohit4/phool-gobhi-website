@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import GymImageGallery from './GymImageGallery';
+import RatingBreakdown from './RatingBreakdown';
 import SubscriptionPlans from './SubscriptionPlans';
 import SlotPicker from './SlotPicker';
 import type { Gym } from '@/lib/types';
@@ -68,6 +69,8 @@ export default function GymDetailClient({ gymId }: { gymId: string }) {
           </div>
         )}
       </div>
+
+      <RatingBreakdown gym={gym} />
 
       <SubscriptionPlans gymId={gym.id} />
 

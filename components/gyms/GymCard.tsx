@@ -24,9 +24,12 @@ export default function GymCard({ gym }: { gym: Gym }) {
       </div>
       <div className="flex items-center justify-between text-sm">
         <span className="font-semibold text-emerald-600 dark:text-emerald-400">₹{gym.sessionPrice}/session</span>
-        {gym.ratingCount > 0 && (
-          <span className="text-gray-500 dark:text-gray-400">★ {gym.rating.toFixed(1)} ({gym.ratingCount})</span>
-        )}
+        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+          {gym.ratingCount > 0 && <span>★ {gym.rating.toFixed(1)} ({gym.ratingCount})</span>}
+          {gym.googleRatingCount != null && gym.googleRatingCount > 0 && (
+            <span title={`${gym.googleRatingCount} Google ratings`}>G {gym.googleRating?.toFixed(1)}</span>
+          )}
+        </div>
       </div>
     </Link>
   );
