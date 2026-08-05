@@ -93,11 +93,19 @@ export async function authedGatewayFetch<T = unknown>(
   opts: { method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'; body?: unknown } = {}
 ): Promise<T> {
   const { accessToken, refreshToken } = await readSession();
-  if (!accessToken) {
+  if (!accessToken && !refreshToken) {
     throw new GatewayError(401, { error: 'Not authenticated', errorCode: 'NO_SESSION' });
   }
 
   try {
+    // A missing access token (its own 15-minute cookie maxAge already
+    // expired browser-side — the normal case after any 15+ minute gap
+    // between requests, not evidence of a dead session) is treated as
+    // "expired" here rather than thrown immediately, so it falls into the
+    // same refresh-then-retry path below instead of forcing a re-login
+    // whenever a still-valid 7-day refresh token could have handled it
+    // silently.
+    if (!accessToken) throw new GatewayError(401, { error: 'Token expired', errorCode: 'TOKEN_EXPIRED' });
     return await gatewayFetch<T>(path, { ...opts, accessToken });
   } catch (err) {
     const expired = err instanceof GatewayError && err.status === 401;
