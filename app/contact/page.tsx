@@ -47,7 +47,7 @@ export default function ContactPage() {
       <StickerBadge color="terracotta" size={50} rotate={-10} delay={0.3} motion="pulse" className="absolute top-24 left-[6%] hidden lg:flex">💬</StickerBadge>
       <StickerBadge color="emerald" size={44} rotate={14} delay={0.9} motion="wiggle" className="absolute bottom-16 right-[5%] hidden md:flex">📩</StickerBadge>
       <div className="container-custom max-w-4xl relative z-10">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center mb-12">
+        <motion.div initial={{ y: 20 }} animate={{ y: 0 }} transition={{ duration: 0.6 }} className="text-center mb-12">
           <h1 className="font-display text-6xl md:text-7xl mb-4">
             <PosterOutline>Get in</PosterOutline> <PosterFill color="terracotta">Touch</PosterFill>
           </h1>
@@ -55,7 +55,7 @@ export default function ContactPage() {
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-12">
-          <motion.form initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} onSubmit={handleSubmit} className="space-y-6">
+          <motion.form initial={{ x: -20 }} animate={{ x: 0 }} transition={{ duration: 0.6 }} onSubmit={handleSubmit} className="space-y-6">
             {submitted && <div className="p-4 bg-green-100 dark:bg-green-950 text-green-800 dark:text-green-300 rounded-lg">Thanks for reaching out! Gobhi&apos;s typing back — he&apos;s got florets for hands, give him a minute.</div>}
             {submitError && <div className="p-4 bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-300 rounded-lg">{submitError}</div>}
             <div>
@@ -75,7 +75,7 @@ export default function ContactPage() {
             </button>
           </motion.form>
 
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} className="space-y-8">
+          <motion.div initial={{ x: 20 }} animate={{ x: 0 }} transition={{ duration: 0.6 }} className="space-y-8">
             <div>
               <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Fastest Ways To Bother Gobhi</h3>
               <div className="space-y-3">

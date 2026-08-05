@@ -145,7 +145,7 @@ export default function PartnershipsPage() {
         <StickerBadge color="emerald" size={46} rotate={-12} delay={0.5} motion="pulse" className="absolute bottom-20 left-[6%] hidden lg:flex">🏋️</StickerBadge>
 
         <div className="container-custom max-w-3xl relative z-10">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center">
+          <motion.div initial={{ y: 20 }} animate={{ y: 0 }} transition={{ duration: 0.6 }} className="text-center">
             <p className="text-xs font-bold tracking-[0.25em] uppercase text-emerald-600 dark:text-emerald-400 mb-4">
               For Gym Owners &amp; Partners
             </p>

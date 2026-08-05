@@ -162,8 +162,8 @@ export default function CareersPage() {
 
       <div className="container-custom max-w-3xl relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ y: 20 }}
+          animate={{ y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >

@@ -13,8 +13,8 @@ export default function AboutPage() {
 
       <div className="container-custom max-w-4xl relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ y: 20 }}
+          animate={{ y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >

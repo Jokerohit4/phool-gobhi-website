@@ -40,18 +40,16 @@ export default function HeroSection() {
   };
 
   const item: Variants = {
-    hidden: { opacity: 0, y: 22 },
+    hidden: { y: 22 },
     visible: {
-      opacity: 1,
       y: 0,
       transition: { duration: 0.6, ease: EASE },
     },
   };
 
   const word: Variants = {
-    hidden: { opacity: 0, y: 34, scale: 0.92, rotate: -2 },
+    hidden: { y: 34, scale: 0.92, rotate: -2 },
     visible: {
-      opacity: 1,
       y: 0,
       scale: 1,
       rotate: 0,
@@ -60,9 +58,8 @@ export default function HeroSection() {
   };
 
   const card: Variants = {
-    hidden: { opacity: 0, scale: 0.85, y: 40, rotate: -3 },
+    hidden: { scale: 0.85, y: 40, rotate: -3 },
     visible: {
-      opacity: 1,
       scale: 1,
       y: 0,
       rotate: 0,
@@ -148,8 +145,8 @@ export default function HeroSection() {
                 {['Real Gyms, Live Now', 'Zero Guilt (patented)', 'Pay As You Go (revolutionary, we know)'].map((thing, i) => (
                   <motion.li
                     key={thing}
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ x: -12 }}
+                    animate={{ x: 0 }}
                     transition={{ delay: 0.8 + i * 0.12, duration: 0.4, ease: EASE }}
                     className="flex items-center gap-3 text-sm font-medium"
                   >

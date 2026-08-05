@@ -57,7 +57,7 @@ export default function PitchDeckContent() {
       {/* Cover */}
       <section className="min-h-[80vh] flex items-center section-padding dot-grid bg-cream-50 dark:bg-gray-950">
         <div className="container-custom">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+          <motion.div initial={{ y: 20 }} animate={{ y: 0 }} transition={{ duration: 0.6 }}>
             <div className="mb-6"><PhoolGobhiLogo /></div>
             <p className="text-xs font-bold tracking-[0.25em] uppercase text-emerald-600 dark:text-emerald-400 mb-4">
               Phool Gobhi · Pre-Seed Proposal · Updated July 2026
