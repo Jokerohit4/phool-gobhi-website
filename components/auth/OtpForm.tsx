@@ -38,6 +38,14 @@ export default function OtpForm({
   // Firebase-based login.
   const [provider, setProvider] = useState<OtpProvider>('firebase');
   const [activeFlow, setActiveFlow] = useState<ActiveFlow>('firebase');
+  // signInWithPhoneNumber can silently escalate its invisible reCAPTCHA into
+  // a real interactive image challenge (confirmed live — Google serves an
+  // actual "select all bicycles" puzzle for plenty of legitimate attempts,
+  // not just bots). While that's pending, the button just says "Sending…"
+  // forever with zero indication anything needs the user's attention, which
+  // reads as the whole flow being stuck. This flips on after a delay so
+  // there's at least a hint to look for the popup.
+  const [awaitingCaptcha, setAwaitingCaptcha] = useState(false);
   const router = useRouter();
   const { refresh } = useSession();
   const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
@@ -62,7 +70,13 @@ export default function OtpForm({
     if (!recaptchaRef.current) {
       recaptchaRef.current = createRecaptchaVerifier(RECAPTCHA_CONTAINER_ID);
     }
-    confirmationRef.current = await signInWithPhoneNumber(getFirebaseAuth(), e164Phone, recaptchaRef.current);
+    const captchaHintTimer = setTimeout(() => setAwaitingCaptcha(true), 4000);
+    try {
+      confirmationRef.current = await signInWithPhoneNumber(getFirebaseAuth(), e164Phone, recaptchaRef.current);
+    } finally {
+      clearTimeout(captchaHintTimer);
+      setAwaitingCaptcha(false);
+    }
     setActiveFlow('firebase');
     setStep('otp');
   };
@@ -185,6 +199,11 @@ export default function OtpForm({
               className="mt-1 w-full rounded-lg border border-cream-200 dark:border-gray-700 bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </label>
+          {awaitingCaptcha && (
+            <p className="text-sm text-amber-600 dark:text-amber-400">
+              A verification popup may have appeared — please complete it to continue.
+            </p>
+          )}
           {error && <p className="text-sm text-red-500">{error}</p>}
           <button
             type="submit"

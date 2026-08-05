@@ -28,6 +28,10 @@ export default function PartnerSignupForm() {
   // Firebase-based login.
   const [provider, setProvider] = useState<OtpProvider>('firebase');
   const [activeFlow, setActiveFlow] = useState<ActiveFlow>('firebase');
+  // See OtpForm.tsx's identical comment: signInWithPhoneNumber can silently
+  // escalate its invisible reCAPTCHA into a real interactive challenge, with
+  // zero UI feedback while it's pending — this hint is the fix.
+  const [awaitingCaptcha, setAwaitingCaptcha] = useState(false);
   const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
   const confirmationRef = useRef<ConfirmationResult | null>(null);
 
@@ -50,7 +54,13 @@ export default function PartnerSignupForm() {
     if (!recaptchaRef.current) {
       recaptchaRef.current = createRecaptchaVerifier(RECAPTCHA_CONTAINER_ID);
     }
-    confirmationRef.current = await signInWithPhoneNumber(getFirebaseAuth(), e164Phone, recaptchaRef.current);
+    const captchaHintTimer = setTimeout(() => setAwaitingCaptcha(true), 4000);
+    try {
+      confirmationRef.current = await signInWithPhoneNumber(getFirebaseAuth(), e164Phone, recaptchaRef.current);
+    } finally {
+      clearTimeout(captchaHintTimer);
+      setAwaitingCaptcha(false);
+    }
     setActiveFlow('firebase');
     setStep('otp');
   };
@@ -175,6 +185,11 @@ export default function PartnerSignupForm() {
               className="mt-1 w-full rounded-lg border border-cream-200 dark:border-gray-700 bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </label>
+          {awaitingCaptcha && (
+            <p className="text-sm text-amber-600 dark:text-amber-400">
+              A verification popup may have appeared — please complete it to continue.
+            </p>
+          )}
           {error && <p className="text-sm text-red-500">{error}</p>}
           <button
             type="submit"
