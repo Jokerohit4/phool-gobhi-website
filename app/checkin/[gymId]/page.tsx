@@ -14,6 +14,7 @@ type Phase =
   | 'success'
   | 'alreadyVerified'
   | 'noActiveBooking'
+  | 'pendingConfirmation'
   | 'tooFar'
   | 'locationDenied'
   | 'error';
@@ -69,6 +70,7 @@ export default function CheckinRedirectPage() {
             return;
           }
           if (json.code === 'NO_ACTIVE_BOOKING') setPhase('noActiveBooking');
+          else if (json.code === 'BOOKING_PENDING_CONFIRMATION') setPhase('pendingConfirmation');
           else if (json.code === 'TOO_FAR') setPhase('tooFar');
           else {
             setErrorMessage(json.error || 'Check-in failed');
@@ -148,6 +150,19 @@ export default function CheckinRedirectPage() {
               <Link href={`/gyms/${gymId}`} className="btn-primary inline-block">
                 Browse available slots
               </Link>
+            </>
+          )}
+
+          {phase === 'pendingConfirmation' && (
+            <>
+              <h1 className="text-2xl font-bold">Almost there</h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Your booking{gym ? ` at ${gym.name}` : ''} is still awaiting the gym&apos;s confirmation —
+                check back in a moment, or ask the front desk to confirm it.
+              </p>
+              <button type="button" onClick={checkInNow} className="btn-secondary inline-block">
+                Try again
+              </button>
             </>
           )}
 
