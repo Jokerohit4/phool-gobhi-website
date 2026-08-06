@@ -15,12 +15,19 @@ type Phase =
   | 'alreadyVerified'
   | 'noActiveBooking'
   | 'pendingConfirmation'
-  | 'sessionNotStarted'
+  | 'earlyCheckin'
   | 'sessionEnded'
   | 'sessionAlreadyCompleted'
   | 'tooFar'
   | 'locationDenied'
   | 'error';
+
+interface EarlyCheckinConfirmation {
+  currentStartTime: string;
+  currentEndTime: string;
+  newStartTime: string;
+  newEndTime: string;
+}
 
 // The poster QR is a plain https link (no Universal/App Links set up yet —
 // see the comment below), so whatever app scans it decides how to open it.
@@ -66,7 +73,8 @@ export default function CheckinRedirectPage() {
 
   const [phase, setPhase] = useState<Phase>('redirecting');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [sessionStartTime, setSessionStartTime] = useState<string | null>(null);
+  const [earlyConfirmation, setEarlyConfirmation] = useState<EarlyCheckinConfirmation | null>(null);
+  const [slotShifted, setSlotShifted] = useState(false);
   const [gym, setGym] = useState<Gym | null>(null);
   const [escapeLink, setEscapeLink] = useState<{ href: string; label: string } | null>(null);
 
@@ -87,7 +95,7 @@ export default function CheckinRedirectPage() {
       .catch(() => {});
   }, [gymId]);
 
-  const checkInNow = () => {
+  const checkInNow = (confirmEarly = false) => {
     setErrorMessage(null);
     setPhase('geolocating');
     if (!navigator.geolocation) {
@@ -101,18 +109,19 @@ export default function CheckinRedirectPage() {
           const res = await fetch(`/api/checkin/${gymId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+            body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude, confirmEarly }),
           });
           const json = await res.json();
           if (res.ok) {
+            setSlotShifted(!!json.data?.slotShifted);
             setPhase(json.data?.alreadyVerified ? 'alreadyVerified' : 'success');
             return;
           }
           if (json.code === 'NO_ACTIVE_BOOKING') setPhase('noActiveBooking');
           else if (json.code === 'BOOKING_PENDING_CONFIRMATION') setPhase('pendingConfirmation');
-          else if (json.code === 'SESSION_NOT_STARTED') {
-            setSessionStartTime(json.startTime ?? null);
-            setPhase('sessionNotStarted');
+          else if (json.code === 'EARLY_CHECKIN') {
+            setEarlyConfirmation(json.confirmation ?? null);
+            setPhase('earlyCheckin');
           } else if (json.code === 'SESSION_ENDED') setPhase('sessionEnded');
           else if (json.code === 'SESSION_ALREADY_COMPLETED') setPhase('sessionAlreadyCompleted');
           else if (json.code === 'TOO_FAR') setPhase('tooFar');
@@ -161,7 +170,7 @@ export default function CheckinRedirectPage() {
               <p className="text-gray-600 dark:text-gray-400">
                 Don&apos;t have the app? Check in here instead — we&apos;ll use your location to confirm you&apos;re at the gym.
               </p>
-              <button type="button" onClick={checkInNow} className="btn-primary inline-block">
+              <button type="button" onClick={() => checkInNow()} className="btn-primary inline-block">
                 Check in now
               </button>
             </>
@@ -182,6 +191,11 @@ export default function CheckinRedirectPage() {
               <p className="text-gray-600 dark:text-gray-400">
                 {phase === 'alreadyVerified' ? 'Looks like you already checked in for this session.' : 'Enjoy your session!'}
               </p>
+              {phase === 'success' && slotShifted && (
+                <p className="text-sm text-amber-600 dark:text-amber-400">
+                  Your slot time was adjusted since you checked in early — a warning was added to your account.
+                </p>
+              )}
             </>
           )}
 
@@ -204,22 +218,30 @@ export default function CheckinRedirectPage() {
                 Your booking{gym ? ` at ${gym.name}` : ''} is still awaiting the gym&apos;s confirmation —
                 check back in a moment, or ask the front desk to confirm it.
               </p>
-              <button type="button" onClick={checkInNow} className="btn-secondary inline-block">
+              <button type="button" onClick={() => checkInNow()} className="btn-secondary inline-block">
                 Try again
               </button>
             </>
           )}
 
-          {phase === 'sessionNotStarted' && (
+          {phase === 'earlyCheckin' && (
             <>
               <h1 className="text-2xl font-bold">A little early</h1>
               <p className="text-gray-600 dark:text-gray-400">
-                Check-in opens 15 minutes before your{sessionStartTime ? ` ${sessionStartTime}` : ''} session
-                {gym ? ` at ${gym.name}` : ''} — come back shortly.
+                Check-in opens 15 minutes before your
+                {earlyConfirmation ? ` ${earlyConfirmation.currentStartTime}–${earlyConfirmation.currentEndTime}` : ''} session
+                {gym ? ` at ${gym.name}` : ''}. You can still check in now — this will shift your session to
+                {earlyConfirmation ? ` ${earlyConfirmation.newStartTime}–${earlyConfirmation.newEndTime}` : ' now'} and add a warning to your
+                account for checking in early.
               </p>
-              <button type="button" onClick={checkInNow} className="btn-secondary inline-block">
-                Try again
-              </button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <button type="button" onClick={() => setPhase('idle')} className="btn-secondary inline-block">
+                  Wait a bit longer
+                </button>
+                <button type="button" onClick={() => checkInNow(true)} className="btn-primary inline-block">
+                  Check in now anyway
+                </button>
+              </div>
             </>
           )}
 
@@ -253,7 +275,7 @@ export default function CheckinRedirectPage() {
               <p className="text-gray-600 dark:text-gray-400">
                 You don&apos;t seem to be at the gym yet — try again once you&apos;re inside.
               </p>
-              <button type="button" onClick={checkInNow} className="btn-secondary inline-block">
+              <button type="button" onClick={() => checkInNow()} className="btn-secondary inline-block">
                 Retry
               </button>
             </>
@@ -265,7 +287,7 @@ export default function CheckinRedirectPage() {
               <p className="text-gray-600 dark:text-gray-400">
                 Please allow location access in your browser to check in, then try again.
               </p>
-              <button type="button" onClick={checkInNow} className="btn-secondary inline-block">
+              <button type="button" onClick={() => checkInNow()} className="btn-secondary inline-block">
                 Try again
               </button>
             </>
@@ -275,7 +297,7 @@ export default function CheckinRedirectPage() {
             <>
               <h1 className="text-2xl font-bold">Something went wrong</h1>
               <p className="text-gray-600 dark:text-gray-400">{errorMessage}</p>
-              <button type="button" onClick={checkInNow} className="btn-secondary inline-block">
+              <button type="button" onClick={() => checkInNow()} className="btn-secondary inline-block">
                 Retry
               </button>
             </>

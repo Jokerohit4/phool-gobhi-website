@@ -11,13 +11,13 @@ export async function POST(req: Request, ctx: { params: Promise<{ gymId: string 
 
   const { gymId } = await ctx.params;
 
-  let body: { lat?: unknown; lng?: unknown };
+  let body: { lat?: unknown; lng?: unknown; confirmEarly?: unknown };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
-  const { lat, lng } = body;
+  const { lat, lng, confirmEarly } = body;
   if (typeof lat !== 'number' || typeof lng !== 'number') {
     return NextResponse.json({ error: 'lat and lng are required', code: 'LOCATION_REQUIRED' }, { status: 400 });
   }
@@ -25,7 +25,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ gymId: string 
   try {
     const data = await authedGatewayFetch(`/api/bookings/gym/${gymId}/self-checkin`, {
       method: 'POST',
-      body: { lat, lng },
+      body: { lat, lng, confirmEarly: !!confirmEarly },
     });
     return NextResponse.json(data);
   } catch (err) {
