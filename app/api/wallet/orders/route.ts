@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { authedGatewayFetch } from '@/lib/session';
 import { GatewayError } from '@/lib/gateway-client';
 import { rejectCrossOrigin } from '@/lib/csrf';
-import { WALLET_TOPUP_AMOUNTS } from '@/lib/walletConstants';
 
 interface CreateOrderResponse {
   id: string;
@@ -12,10 +11,11 @@ interface CreateOrderResponse {
   keyId: string;
 }
 
-// wallet-service's own /orders endpoint would accept any positive amount —
-// the fixed-preset restriction is a website/business policy, not a backend
-// one, so it's enforced here rather than assuming the UI alone is enough
-// (the UI can always be bypassed by calling this route directly).
+// The preset/custom-amount restriction is DB-backed (wallet-service's
+// WalletTopupConfig, admin-editable), so it's not duplicated here —
+// wallet-service's own createTopUpOrder is the sole enforcement point, and
+// its (dynamic, config-driven) error message is forwarded verbatim below.
+// This route only guards against obviously-invalid input.
 export async function POST(req: Request) {
   const blocked = rejectCrossOrigin(req);
   if (blocked) return blocked;
@@ -26,8 +26,8 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
-  if (typeof amount !== 'number' || !WALLET_TOPUP_AMOUNTS.includes(amount as never)) {
-    return NextResponse.json({ error: `Amount must be one of: ${WALLET_TOPUP_AMOUNTS.join(', ')}` }, { status: 400 });
+  if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
+    return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
   }
 
   try {

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import RazorpayCheckoutButton from './RazorpayCheckoutButton';
-import { WALLET_TOPUP_AMOUNTS } from '@/lib/walletConstants';
+import { useWalletTopupConfig } from '@/lib/useWalletTopupConfig';
+import type { WalletTopupConfig } from '@/lib/walletConstants';
 import type { SubscriptionPlan, GymSubscription } from '@/lib/types';
 
 const PLAN_LABELS: Record<SubscriptionPlan['planType'], string> = {
@@ -12,14 +13,28 @@ const PLAN_LABELS: Record<SubscriptionPlan['planType'], string> = {
   yearly: 'Yearly',
 };
 
-// Smallest preset that covers the shortfall — wallet top-ups are restricted
-// to a fixed list (WALLET_TOPUP_AMOUNTS), so this is the "nearest amount"
-// that gets the wallet to (at least) the plan price in one top-up. Falls
-// back to the largest preset if the shortfall exceeds all of them; the
-// purchase retry after that top-up will just re-report INSUFFICIENT_BALANCE
-// (with the new, smaller shortfall) if one top-up genuinely isn't enough.
-function nearestTopUpAmount(shortfall: number): number {
-  return WALLET_TOPUP_AMOUNTS.find((a) => a >= shortfall) ?? WALLET_TOPUP_AMOUNTS[WALLET_TOPUP_AMOUNTS.length - 1];
+// Prefers topping up the EXACT shortfall via a custom amount (no overshoot)
+// when the admin allows it and the shortfall is in the configured range;
+// otherwise falls back to the smallest preset that covers the shortfall, or
+// the largest preset, or the custom-amount max if there are no presets at
+// all. Falling short of covering the plan price entirely is fine either
+// way — the purchase retry after top-up just re-reports
+// INSUFFICIENT_BALANCE (with the new, smaller shortfall).
+function nearestTopUpAmount(shortfall: number, config: WalletTopupConfig): number {
+  const exact = Math.ceil(shortfall);
+  if (
+    config.allowCustomAmount &&
+    config.minCustomAmount != null &&
+    config.maxCustomAmount != null &&
+    exact >= config.minCustomAmount &&
+    exact <= config.maxCustomAmount
+  ) {
+    return exact;
+  }
+  const preset = config.presets.find((a) => a >= shortfall);
+  if (preset != null) return preset;
+  if (config.presets.length) return config.presets[config.presets.length - 1];
+  return config.maxCustomAmount ?? exact;
 }
 
 type Phase = 'loading' | 'ready' | 'insufficient' | 'purchasing' | 'success' | 'error';
@@ -36,6 +51,7 @@ export default function SubscribeConfirmModal({
   onClose: () => void;
 }) {
   const label = PLAN_LABELS[plan.planType];
+  const topupConfig = useWalletTopupConfig();
   const [phase, setPhase] = useState<Phase>('loading');
   const [balance, setBalance] = useState<number>(0);
   const [subscription, setSubscription] = useState<GymSubscription | null>(null);
@@ -94,7 +110,7 @@ export default function SubscribeConfirmModal({
   };
 
   const shortfall = Math.max(0, plan.price - balance);
-  const topUpAmount = nearestTopUpAmount(shortfall);
+  const topUpAmount = nearestTopUpAmount(shortfall, topupConfig);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={phase === 'purchasing' ? undefined : onClose}>
