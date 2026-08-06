@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { Slot } from '@/lib/types';
+import { useSession } from '@/components/auth/SessionProvider';
+import type { GymSubscription, Slot } from '@/lib/types';
 
 function todayIso() {
   const d = new Date();
@@ -24,6 +25,8 @@ export default function SlotPicker({ gymId }: { gymId: string }) {
   const [date, setDate] = useState(todayIso());
   const [slots, setSlots] = useState<Slot[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [activeSub, setActiveSub] = useState<GymSubscription | null>(null);
+  const { user } = useSession();
   const router = useRouter();
 
   useEffect(() => {
@@ -40,6 +43,34 @@ export default function SlotPicker({ gymId }: { gymId: string }) {
       })
       .catch(() => setError('Network error — please try again'));
   }, [gymId, date]);
+
+  // Same active-subscription lookup SubscriptionPlans uses, fetched
+  // independently here since it drives per-slot pricing rather than the
+  // "Subscribe & Save" section above. Logged-out visitors just never have
+  // one to show.
+  useEffect(() => {
+    if (!user) {
+      setActiveSub(null);
+      return;
+    }
+    fetch(`/api/wallet/subscriptions/mine?gymId=${gymId}`, { cache: 'no-store' })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const data = await res.json();
+        const now = Date.now();
+        const active = ((data.data ?? []) as GymSubscription[]).find(
+          (s) => s.status === 'active' && new Date(s.endDate).getTime() > now
+        );
+        setActiveSub(active ?? null);
+      })
+      .catch(() => {});
+  }, [gymId, user]);
+
+  // The subscription covers one session per gym per day (reserveBookingSlot's
+  // usedToday check) — lastVisitDate matching the currently-picked date means
+  // today's (or that day's) covered session is already spent, so every slot
+  // shown for that date would actually be charged, same as no subscription.
+  const coveredForDate = !!activeSub && activeSub.lastVisitDate !== date;
 
   const pickSlot = (slot: Slot) => {
     const params = new URLSearchParams({ date, startTime: slot.startTime, endTime: slot.endTime });
@@ -66,6 +97,15 @@ export default function SlotPicker({ gymId }: { gymId: string }) {
       </div>
 
       <h2 className="text-xl font-semibold mb-3">Pick a slot</h2>
+
+      {activeSub && (
+        <p className="text-sm mb-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 p-3 text-emerald-700 dark:text-emerald-300">
+          {coveredForDate
+            ? 'You have an active subscription — any slot below on this date is included, no wallet debit.'
+            : "You've already used this subscription's included session for this date — booking another slot today will be charged normally."}
+        </p>
+      )}
+
       {error && <p className="text-red-500">{error}</p>}
       {!slots && !error && <p className="text-gray-500 dark:text-gray-400">Loading slots…</p>}
       {slots && slots.length === 0 && <p className="text-gray-500 dark:text-gray-400">No slots available on this date.</p>}
@@ -80,7 +120,15 @@ export default function SlotPicker({ gymId }: { gymId: string }) {
               {slot.startTime}–{slot.endTime}
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              ₹{slot.price} · {slot.available} left
+              {coveredForDate ? (
+                <>
+                  <span className="line-through">₹{slot.price}</span>{' '}
+                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Included</span>
+                </>
+              ) : (
+                <>₹{slot.price}</>
+              )}{' '}
+              · {slot.available} left
             </div>
           </button>
         ))}

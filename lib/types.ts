@@ -89,7 +89,7 @@ export interface WalletTransaction {
 }
 
 export interface SubscriptionPlan {
-  planType: 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+  planType: 'weekly' | 'monthly' | 'quarterly' | 'sixMonthly' | 'yearly';
   days: number;
   price: number;
   comparablePrice: number;
@@ -113,6 +113,12 @@ export interface GymSubscription {
   endDate: string;
   status: 'active' | 'cancelled';
   createdAt: string;
+  // Only present on an active subscription (see wallet-service's
+  // getMySubscriptionsService) — null/undefined means no visit yet, or
+  // booking-service was unreachable when this was fetched. Matching it
+  // against the currently-picked booking date tells the UI whether that
+  // day's covered session has already been used.
+  lastVisitDate?: string | null;
 }
 
 // Mirrors booking-service's public/authed attendance-stat response envelopes

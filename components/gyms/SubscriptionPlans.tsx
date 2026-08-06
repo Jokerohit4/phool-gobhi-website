@@ -10,6 +10,7 @@ const PLAN_LABELS: Record<SubscriptionPlan['planType'], string> = {
   weekly: 'Weekly',
   monthly: 'Monthly',
   quarterly: 'Quarterly',
+  sixMonthly: 'Six-monthly',
   yearly: 'Yearly',
 };
 

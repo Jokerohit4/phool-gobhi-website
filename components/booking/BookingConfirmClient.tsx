@@ -7,7 +7,7 @@ import { useSession } from '@/components/auth/SessionProvider';
 import ProfileCompletionGate from './ProfileCompletionGate';
 import BookingSummaryCard from './BookingSummaryCard';
 import WalletTopUpForm from '@/components/wallet/WalletTopUpForm';
-import type { Gym } from '@/lib/types';
+import type { Gym, GymSubscription } from '@/lib/types';
 
 type Status = 'idle' | 'booking' | 'needs-topup' | 'success' | 'error';
 
@@ -30,6 +30,7 @@ export default function BookingConfirmClient({
   const [error, setError] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<number | null>(null);
   const [qrToken, setQrToken] = useState<string | null>(null);
+  const [activeSub, setActiveSub] = useState<GymSubscription | null>(null);
 
   useEffect(() => {
     fetch(`/api/gyms/${gymId}`)
@@ -43,6 +44,30 @@ export default function BookingConfirmClient({
       })
       .catch(() => setLoadError('Network error — please try again'));
   }, [gymId]);
+
+  // Same lookup as SlotPicker's — the picker already showed this as
+  // included, but re-fetching here means the confirm page still tells the
+  // truth even if reached directly (e.g. a back-button navigation) rather
+  // than trusting stale state passed from the previous screen.
+  useEffect(() => {
+    if (!user) {
+      setActiveSub(null);
+      return;
+    }
+    fetch(`/api/wallet/subscriptions/mine?gymId=${gymId}`, { cache: 'no-store' })
+      .then(async (res) => {
+        if (!res.ok) return;
+        const data = await res.json();
+        const now = Date.now();
+        const active = ((data.data ?? []) as GymSubscription[]).find(
+          (s) => s.status === 'active' && new Date(s.endDate).getTime() > now
+        );
+        setActiveSub(active ?? null);
+      })
+      .catch(() => {});
+  }, [gymId, user]);
+
+  const coveredForDate = !!activeSub && activeSub.lastVisitDate !== date;
 
   useEffect(() => {
     if (!sessionLoading && !user) {
@@ -125,7 +150,7 @@ export default function BookingConfirmClient({
 
   return (
     <div className="space-y-6 max-w-md">
-      <BookingSummaryCard gym={gym} date={date} startTime={startTime} endTime={endTime} />
+      <BookingSummaryCard gym={gym} date={date} startTime={startTime} endTime={endTime} isCovered={coveredForDate} />
 
       <ProfileCompletionGate>
         {status === 'needs-topup' ? (
