@@ -15,9 +15,42 @@ type Phase =
   | 'alreadyVerified'
   | 'noActiveBooking'
   | 'pendingConfirmation'
+  | 'sessionNotStarted'
+  | 'sessionEnded'
+  | 'sessionAlreadyCompleted'
   | 'tooFar'
   | 'locationDenied'
   | 'error';
+
+// The poster QR is a plain https link (no Universal/App Links set up yet —
+// see the comment below), so whatever app scans it decides how to open it.
+// Many QR-scanner and camera apps open it in their own embedded in-app
+// browser instead of the real system browser — an isolated (often
+// throwaway) cookie jar that never sees the user's actual logged-in Safari/
+// Chrome session, hence a login prompt on every single scan. Both mobile
+// OSes expose an escape hatch a plain link tap can trigger from inside most
+// embedded WebViews: iOS resolves an `x-safari-https://` URL by handing it
+// to real Safari; Android resolves an `intent://` URL by handing it to
+// Chrome (falling back to the plain link via browser_fallback_url if Chrome
+// isn't installed). Neither is guaranteed — a small number of in-app
+// browsers (e.g. Facebook/Instagram in some versions) intercept and block
+// exactly this — but it recovers the common case for free.
+function getBrowserEscapeLink(): { href: string; label: string } | null {
+  const ua = navigator.userAgent;
+  const currentUrl = window.location.href;
+  if (/iPhone|iPad|iPod/i.test(ua)) {
+    return { href: currentUrl.replace(/^https?:\/\//, 'x-safari-https://'), label: 'Open in Safari' };
+  }
+  if (/Android/i.test(ua)) {
+    const url = new URL(currentUrl);
+    const fallback = encodeURIComponent(currentUrl);
+    return {
+      href: `intent://${url.host}${url.pathname}${url.search}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${fallback};end`,
+      label: 'Open in Chrome',
+    };
+  }
+  return null;
+}
 
 // The URL printed on a gym's physical check-in poster. Tries the native app
 // first (phoolgobhi://checkin — no App Links/Universal Links domain
@@ -33,13 +66,19 @@ export default function CheckinRedirectPage() {
 
   const [phase, setPhase] = useState<Phase>('redirecting');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [sessionStartTime, setSessionStartTime] = useState<string | null>(null);
   const [gym, setGym] = useState<Gym | null>(null);
+  const [escapeLink, setEscapeLink] = useState<{ href: string; label: string } | null>(null);
 
   useEffect(() => {
     window.location.href = appLink;
     const timer = setTimeout(() => setPhase('idle'), 1200);
     return () => clearTimeout(timer);
   }, [appLink]);
+
+  useEffect(() => {
+    setEscapeLink(getBrowserEscapeLink());
+  }, []);
 
   useEffect(() => {
     fetch(`/api/gyms/${gymId}`)
@@ -71,6 +110,11 @@ export default function CheckinRedirectPage() {
           }
           if (json.code === 'NO_ACTIVE_BOOKING') setPhase('noActiveBooking');
           else if (json.code === 'BOOKING_PENDING_CONFIRMATION') setPhase('pendingConfirmation');
+          else if (json.code === 'SESSION_NOT_STARTED') {
+            setSessionStartTime(json.startTime ?? null);
+            setPhase('sessionNotStarted');
+          } else if (json.code === 'SESSION_ENDED') setPhase('sessionEnded');
+          else if (json.code === 'SESSION_ALREADY_COMPLETED') setPhase('sessionAlreadyCompleted');
           else if (json.code === 'TOO_FAR') setPhase('tooFar');
           else {
             setErrorMessage(json.error || 'Check-in failed');
@@ -166,6 +210,43 @@ export default function CheckinRedirectPage() {
             </>
           )}
 
+          {phase === 'sessionNotStarted' && (
+            <>
+              <h1 className="text-2xl font-bold">A little early</h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Check-in opens 15 minutes before your{sessionStartTime ? ` ${sessionStartTime}` : ''} session
+                {gym ? ` at ${gym.name}` : ''} — come back shortly.
+              </p>
+              <button type="button" onClick={checkInNow} className="btn-secondary inline-block">
+                Try again
+              </button>
+            </>
+          )}
+
+          {phase === 'sessionEnded' && (
+            <>
+              <h1 className="text-2xl font-bold">Session ended</h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Today&apos;s session{gym ? ` at ${gym.name}` : ''} has already ended.
+              </p>
+              <Link href="/account/bookings" className="btn-primary inline-block">
+                View my bookings
+              </Link>
+            </>
+          )}
+
+          {phase === 'sessionAlreadyCompleted' && (
+            <>
+              <h1 className="text-2xl font-bold">Already done! 🎉</h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                You&apos;ve already completed today&apos;s session{gym ? ` at ${gym.name}` : ''}.
+              </p>
+              <Link href="/account/bookings" className="btn-primary inline-block">
+                View my bookings
+              </Link>
+            </>
+          )}
+
           {phase === 'tooFar' && (
             <>
               <h1 className="text-2xl font-bold">Move a bit closer</h1>
@@ -200,6 +281,22 @@ export default function CheckinRedirectPage() {
             </>
           )}
         </div>
+
+        {/* Shown from 'idle' onward, not during the initial app-link
+            attempt — if this loaded inside an in-app browser (a QR-scanner
+            or camera app's own embedded WebView rather than the real
+            system browser), that WebView usually doesn't share cookies with
+            the browser the user is actually logged in on, so every scan
+            re-prompts a login. One tap here hands the same URL to the real
+            browser, which does have that session. */}
+        {phase !== 'redirecting' && escapeLink && (
+          <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+            Stuck in an app browser?{' '}
+            <a href={escapeLink.href} className="text-emerald-600 dark:text-emerald-400 underline">
+              {escapeLink.label}
+            </a>
+          </p>
+        )}
 
         {/* App-install upsell — a secondary path alongside web check-in
             (not the only option), since faster QR-scan check-ins and
