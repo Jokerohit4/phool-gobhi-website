@@ -20,7 +20,7 @@ function gymJsonLd(gym: Gym, id: string) {
     name: gym.name,
     description: gym.description || undefined,
     url: `https://www.phoolgobhi.com/gyms/${id}`,
-    image: gym.images?.[0]?.url,
+    image: gym.images?.find((img) => img.mediaType !== 'video')?.url,
     telephone: gym.phone || undefined,
     priceRange: `₹${gym.sessionPrice}`,
     address: {

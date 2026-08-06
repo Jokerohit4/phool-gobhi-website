@@ -31,7 +31,7 @@ export interface Gym {
   staffBehaviourRatingCount: number;
   crowdRating: number | null;
   crowdRatingCount: number;
-  images: { id: number; url: string }[];
+  images: { id: number; url: string; mediaType?: 'image' | 'video' }[];
   distanceKm?: number;
 }
 

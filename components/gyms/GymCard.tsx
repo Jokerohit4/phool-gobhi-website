@@ -2,15 +2,20 @@ import Link from 'next/link';
 import type { Gym } from '@/lib/types';
 
 export default function GymCard({ gym }: { gym: Gym }) {
+  // A card thumbnail needs a static image — pick the first actual photo,
+  // skipping past any video, rather than always using images[0] (which
+  // would try to render a video file through an <img> tag and just show a
+  // broken-image icon).
+  const thumbnail = gym.images?.find((img) => img.mediaType !== 'video');
   return (
     <Link
       href={`/gyms/${gym.id}`}
       className="card-premium p-5 flex flex-col gap-3 hover:shadow-lg transition-all"
     >
       <div className="aspect-video rounded-lg bg-cream-100 dark:bg-gray-800 overflow-hidden flex items-center justify-center text-4xl">
-        {gym.images?.[0]?.url ? (
+        {thumbnail?.url ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={gym.images[0].url} alt={gym.name} className="w-full h-full object-cover" />
+          <img src={thumbnail.url} alt={gym.name} className="w-full h-full object-cover" />
         ) : (
           '🏋️'
         )}
