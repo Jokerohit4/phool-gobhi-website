@@ -6,25 +6,31 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useSession } from '@/components/auth/SessionProvider';
 import ProfileCompletionGate from './ProfileCompletionGate';
 import BookingSummaryCard from './BookingSummaryCard';
+import ClassBookingSummaryCard from './ClassBookingSummaryCard';
 import WalletTopUpForm from '@/components/wallet/WalletTopUpForm';
-import type { Gym, GymSubscription } from '@/lib/types';
+import type { Gym, GymClass, GymSubscription } from '@/lib/types';
 
-type Status = 'idle' | 'booking' | 'needs-topup' | 'success' | 'error';
+type Status = 'idle' | 'booking' | 'needs-topup' | 'needs-subscription' | 'success' | 'error';
 
 export default function BookingConfirmClient({
   gymId,
   date,
   startTime,
   endTime,
+  classId,
 }: {
   gymId: string;
   date: string;
-  startTime: string;
-  endTime: string;
+  startTime?: string;
+  endTime?: string;
+  classId?: string;
 }) {
   const { user, loading: sessionLoading } = useSession();
   const router = useRouter();
   const [gym, setGym] = useState<Gym | null>(null);
+  // Only populated for a class booking (classId set) — the matching entry
+  // from the gym's class list, since there's no single-class fetch endpoint.
+  const [gymClass, setGymClass] = useState<GymClass | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -44,6 +50,25 @@ export default function BookingConfirmClient({
       })
       .catch(() => setLoadError('Network error — please try again'));
   }, [gymId]);
+
+  useEffect(() => {
+    if (!classId) return;
+    fetch(`/api/gyms/${gymId}/classes`)
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) {
+          setLoadError(data.error || 'Could not load class details');
+          return;
+        }
+        const found = ((data.data ?? []) as GymClass[]).find((c) => c.id === Number(classId));
+        if (!found) {
+          setLoadError('This class could not be found');
+          return;
+        }
+        setGymClass(found);
+      })
+      .catch(() => setLoadError('Network error — please try again'));
+  }, [gymId, classId]);
 
   // Same lookup as SlotPicker's — the picker already showed this as
   // included, but re-fetching here means the confirm page still tells the
@@ -71,23 +96,38 @@ export default function BookingConfirmClient({
 
   useEffect(() => {
     if (!sessionLoading && !user) {
-      const redirect = encodeURIComponent(`/book/${gymId}/confirm?date=${date}&startTime=${startTime}&endTime=${endTime}`);
+      const params = new URLSearchParams({ date });
+      if (classId) params.set('classId', classId);
+      if (startTime) params.set('startTime', startTime);
+      if (endTime) params.set('endTime', endTime);
+      const redirect = encodeURIComponent(`/book/${gymId}/confirm?${params.toString()}`);
       router.push(`/login?redirect=${redirect}`);
     }
-  }, [sessionLoading, user, router, gymId, date, startTime, endTime]);
+  }, [sessionLoading, user, router, gymId, date, startTime, endTime, classId]);
 
   const attemptBooking = async () => {
     setStatus('booking');
     setError(null);
     try {
+      const body = classId
+        ? { gymId: Number(gymId), date, classId: Number(classId) }
+        : { gymId: Number(gymId), date, startTime, endTime };
       const res = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gymId: Number(gymId), date, startTime, endTime }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       if (!res.ok) {
         const message: string = data.error || 'Could not create booking';
+        // A class with no standalone price requires an active subscription
+        // — booking-service rejects with this message (no fallback paid
+        // path, unlike a plain session) — see createBooking's classId
+        // branch. Distinct from "top up your wallet".
+        if (/subscription.*required/i.test(message)) {
+          setStatus('needs-subscription');
+          return;
+        }
         // "Wallet not found" happens for a customer who has never had a
         // wallet auto-provisioned (that only happens on a wallet read, e.g.
         // visiting /account/wallet) — functionally the same as insufficient
@@ -112,6 +152,7 @@ export default function BookingConfirmClient({
   if (sessionLoading || !user) return <p className="text-gray-500 dark:text-gray-400">Loading…</p>;
   if (loadError) return <p className="text-red-500">{loadError}</p>;
   if (!gym) return <p className="text-gray-500 dark:text-gray-400">Loading…</p>;
+  if (classId && !gymClass) return <p className="text-gray-500 dark:text-gray-400">Loading…</p>;
 
   if (status === 'success') {
     return (
@@ -150,10 +191,19 @@ export default function BookingConfirmClient({
 
   return (
     <div className="space-y-6 max-w-md">
-      <BookingSummaryCard gym={gym} date={date} startTime={startTime} endTime={endTime} isCovered={coveredForDate} />
+      {gymClass ? (
+        <ClassBookingSummaryCard gym={gym} gymClass={gymClass} date={date} isCovered={coveredForDate} />
+      ) : (
+        <BookingSummaryCard gym={gym} date={date} startTime={startTime!} endTime={endTime!} isCovered={coveredForDate} />
+      )}
 
       <ProfileCompletionGate>
-        {status === 'needs-topup' ? (
+        {status === 'needs-subscription' ? (
+          <p className="text-sm text-amber-600 dark:text-amber-400">
+            This class is included with an active subscription at this gym, and doesn&apos;t have a pay-per-session
+            option. Purchase a subscription above to book it.
+          </p>
+        ) : status === 'needs-topup' ? (
           <div className="space-y-4">
             <p className="text-sm text-amber-600 dark:text-amber-400">
               Your wallet balance is too low for this booking. Add money below and we&apos;ll retry the booking automatically.

@@ -11,12 +11,12 @@ export default async function BookingConfirmPage({
   searchParams,
 }: {
   params: Promise<{ gymId: string }>;
-  searchParams: Promise<{ date?: string; startTime?: string; endTime?: string }>;
+  searchParams: Promise<{ date?: string; startTime?: string; endTime?: string; classId?: string }>;
 }) {
   const { gymId } = await params;
-  const { date, startTime, endTime } = await searchParams;
+  const { date, startTime, endTime, classId } = await searchParams;
 
-  if (!date || !startTime || !endTime) {
+  if (!date || (!classId && (!startTime || !endTime))) {
     return (
       <div className="section-padding container-custom">
         <p className="text-red-500">Missing slot selection — go back and pick a date and time.</p>
@@ -26,7 +26,7 @@ export default async function BookingConfirmPage({
 
   return (
     <div className="section-padding container-custom">
-      <BookingConfirmClient gymId={gymId} date={date} startTime={startTime} endTime={endTime} />
+      <BookingConfirmClient gymId={gymId} date={date} startTime={startTime} endTime={endTime} classId={classId} />
     </div>
   );
 }

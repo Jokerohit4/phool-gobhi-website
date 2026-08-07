@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import GymImageGallery from './GymImageGallery';
 import RatingBreakdown from './RatingBreakdown';
 import SubscriptionPlans from './SubscriptionPlans';
+import ClassesSection from './ClassesSection';
 import SlotPicker from './SlotPicker';
 import type { Gym } from '@/lib/types';
 import { locationHeaders } from '@/lib/locationHolder';
@@ -73,6 +74,8 @@ export default function GymDetailClient({ gymId }: { gymId: string }) {
       <RatingBreakdown gym={gym} />
 
       <SubscriptionPlans gymId={gym.id} />
+
+      <ClassesSection gymId={gymId} />
 
       <SlotPicker gymId={gymId} />
     </div>

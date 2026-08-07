@@ -51,7 +51,14 @@ export default function BookingCard({ booking, onCancelled }: { booking: Booking
           <h3 className="font-semibold">{booking.gym?.name || `Gym #${booking.gymId}`}</h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">{booking.gym?.address}</p>
         </div>
-        <span className={`text-xs font-medium px-2 py-1 rounded-full ${STATUS_STYLES[booking.status]}`}>{booking.status}</span>
+        <div className="flex flex-col items-end gap-1">
+          {booking.classId != null && (
+            <span className="text-xs font-medium px-2 py-1 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
+              Class
+            </span>
+          )}
+          <span className={`text-xs font-medium px-2 py-1 rounded-full ${STATUS_STYLES[booking.status]}`}>{booking.status}</span>
+        </div>
       </div>
       <p className="text-sm">
         {new Date(booking.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} · {booking.startTime}–{booking.endTime}

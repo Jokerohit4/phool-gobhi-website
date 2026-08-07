@@ -55,6 +55,34 @@ export interface Slot {
   available: number;
 }
 
+// Mirrors gym-service's GymClass — a recurring bookable class (e.g. "Yoga",
+// held every Monday 7-8am). price null = included with an active
+// subscription at this gym; price set = always charged that amount
+// regardless of subscription status.
+export interface GymClass {
+  id: number;
+  gymId: number;
+  name: string;
+  description: string | null;
+  instructor: string | null;
+  dayOfWeek: number; // 0=Sunday..6=Saturday
+  startTime: string;
+  endTime: string;
+  capacity: number;
+  price: number | null;
+  isActive: boolean;
+}
+
+// One upcoming bookable occurrence of a GymClass — see gym-service's
+// GET /:id/classes/:classId/occurrences.
+export interface ClassOccurrence {
+  date: string;
+  startTime: string;
+  endTime: string;
+  booked: number;
+  available: number;
+}
+
 export interface GymReview {
   id: number;
   gymId: number;
@@ -76,6 +104,9 @@ export interface Booking {
   createdAt: string;
   qrToken?: string;
   slotShiftWarning?: boolean;
+  // Set for a recurring-class booking instead of a plain session — see
+  // gym-service's GymClass. No class-name enrichment yet, just the id.
+  classId?: number | null;
 }
 
 export interface WalletTransaction {

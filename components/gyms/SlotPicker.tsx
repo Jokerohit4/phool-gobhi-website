@@ -109,30 +109,56 @@ export default function SlotPicker({ gymId }: { gymId: string }) {
       {error && <p className="text-red-500">{error}</p>}
       {!slots && !error && <p className="text-gray-500 dark:text-gray-400">Loading slots…</p>}
       {slots && slots.length === 0 && <p className="text-gray-500 dark:text-gray-400">No slots available on this date.</p>}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        {slots?.map((slot) => (
-          <button
-            key={slot.startTime}
-            onClick={() => pickSlot(slot)}
-            className="card-premium p-3 text-left hover:shadow-md transition-all"
-          >
-            <div className="font-medium">
-              {slot.startTime}–{slot.endTime}
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              {coveredForDate ? (
-                <>
-                  <span className="line-through">₹{slot.price}</span>{' '}
-                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Included</span>
-                </>
-              ) : (
-                <>₹{slot.price}</>
-              )}{' '}
-              · {slot.available} left
-            </div>
-          </button>
-        ))}
-      </div>
+
+      {/* Gyms often run a morning + evening shift with a midday closure —
+          grouping by time-of-day makes that gap legible instead of the grid
+          just jumping from (say) 11:00 to 17:00 with no explanation. */}
+      {slots && slots.length > 0 && (
+        <div className="space-y-6">
+          {(() => {
+            const morning = slots.filter((s) => s.startTime < '12:00');
+            const evening = slots.filter((s) => s.startTime >= '12:00');
+            const groups = [
+              { label: 'Morning', items: morning },
+              { label: 'Evening', items: evening },
+            ].filter((g) => g.items.length > 0);
+            // Only one non-empty group (no real gap that day) — skip the
+            // label, same flat grid as before.
+            const showLabels = groups.length > 1;
+            return groups.map((group) => (
+              <div key={group.label}>
+                {showLabels && (
+                  <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">{group.label}</h3>
+                )}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {group.items.map((slot) => (
+                    <button
+                      key={slot.startTime}
+                      onClick={() => pickSlot(slot)}
+                      className="card-premium p-3 text-left hover:shadow-md transition-all"
+                    >
+                      <div className="font-medium">
+                        {slot.startTime}–{slot.endTime}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {coveredForDate ? (
+                          <>
+                            <span className="line-through">₹{slot.price}</span>{' '}
+                            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Included</span>
+                          </>
+                        ) : (
+                          <>₹{slot.price}</>
+                        )}{' '}
+                        · {slot.available} left
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ));
+          })()}
+        </div>
+      )}
     </div>
   );
 }
