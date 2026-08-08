@@ -12,6 +12,29 @@
 const ANON_ID_KEY = 'pg_analytics_anon_id';
 const SESSION_ID_KEY = 'pg_analytics_session_id';
 const SESSION_STARTED_KEY = 'pg_analytics_session_started';
+const EXCLUDED_KEY = 'pg_analytics_excluded';
+
+// Internal-traffic opt-out for staff testing devices — visit ?notrack=1 once
+// and every future post() on this browser (pre- or post-login, this session
+// or any later one) no-ops before it ever reaches /api/events. ?notrack=0
+// clears it. Checked from post() itself (not a one-time bootstrap call) so
+// it takes effect immediately even mid-session, and covers every entry point
+// (track/trackScreen/trackCta/identify all funnel through post()).
+function syncExcludedFromQueryParam() {
+  if (typeof window === 'undefined') return;
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has('notrack')) return;
+  if (params.get('notrack') === '0') {
+    localStorage.removeItem(EXCLUDED_KEY);
+  } else {
+    localStorage.setItem(EXCLUDED_KEY, '1');
+  }
+}
+
+function isExcluded(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem(EXCLUDED_KEY) === '1';
+}
 
 function newId(prefix: string): string {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
@@ -52,6 +75,8 @@ function currentDistinctId(): string {
 
 function post(event: string, properties: Record<string, unknown> = {}) {
   if (typeof window === 'undefined') return;
+  syncExcludedFromQueryParam();
+  if (isExcluded()) return;
   try {
     fetch('/api/events', {
       method: 'POST',
