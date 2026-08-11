@@ -9,6 +9,7 @@ import { SessionProvider } from '@/components/auth/SessionProvider';
 import NamePromptModal from '@/components/auth/NamePromptModal';
 import LocationBootstrap from '@/components/LocationBootstrap';
 import AnalyticsBootstrap from '@/components/AnalyticsBootstrap';
+import MaintenanceBanner from '@/components/MaintenanceBanner';
 import JsonLd from '@/components/JsonLd';
 
 const ORGANIZATION_JSON_LD = {
@@ -113,6 +114,7 @@ export default function RootLayout({
             <ScrollProgress />
             <NamePromptModal />
             <Header />
+            <MaintenanceBanner />
             <main className="flex-grow">{children}</main>
             <Footer />
           </MotionProvider>

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import OtpForm from '@/components/auth/OtpForm';
+import AppDownloadCard from '@/components/AppDownloadCard';
 
 export const metadata: Metadata = {
   title: 'Log In | Phool Gobhi',
@@ -25,7 +26,10 @@ export default async function LoginPage({
 
   return (
     <div className="min-h-screen flex items-center justify-center section-padding bg-cream-50 dark:bg-gray-950">
-      <OtpForm redirectTo={redirectTo} partnerRedirectPath={partnerRedirectPath} />
+      <div className="max-w-md w-full space-y-5">
+        <OtpForm redirectTo={redirectTo} partnerRedirectPath={partnerRedirectPath} />
+        <AppDownloadCard />
+      </div>
     </div>
   );
 }
