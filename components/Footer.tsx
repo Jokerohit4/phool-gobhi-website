@@ -68,6 +68,7 @@ export default function Footer() {
                 { href: '/policies/cancellation', label: 'Cancellation Policy' },
                 { href: '/policies/terms', label: 'Terms of Service' },
                 { href: '/policies/privacy', label: 'Privacy Policy' },
+                { href: '/policies/delete-account', label: 'Delete Account' },
               ].map((link) => (
                 <motion.li
                   key={link.href}

@@ -74,10 +74,13 @@ export default function PrivacyPage() {
             <p>
               We keep account and transaction data for as long as your account is active, and for a reasonable
               period afterward as needed for accounting, dispute resolution, and legal compliance. You can
-              request deletion of your account and associated personal data at any time from inside the app
-              (Profile &rarr; Delete Account) or by emailing us — this removes your profile, buddy profile,
-              bookings, wallet balance and referrals. Some transaction records may be retained where required
-              by law (e.g. financial record-keeping obligations).
+              request deletion of your account and associated personal data at any time — see{' '}
+              <Link href="/policies/delete-account" className="text-emerald-600 dark:text-emerald-400 underline">
+                how to delete your account
+              </Link>{' '}
+              for the in-app and without-the-app options. This removes your profile, buddy profile, bookings,
+              wallet balance and referrals. Some transaction records may be retained where required by law
+              (e.g. financial record-keeping obligations).
             </p>
           </div>
 
