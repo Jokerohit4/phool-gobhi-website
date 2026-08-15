@@ -107,12 +107,58 @@ export function trackCta(cta: string) {
   post('cta_clicked', { cta });
 }
 
+// Coarse channel buckets, same idea as GA's default channel grouping — good
+// enough to answer "organic search vs. social vs. someone else's link"
+// without a full attribution service. utm_source always wins (an explicit
+// campaign tag is a stronger signal than guessing from the referrer host).
+const SOCIAL_REFERRER_PATTERN = /facebook|instagram|twitter|x\.com|t\.co|linkedin|whatsapp|reddit|pinterest/i;
+const SEARCH_REFERRER_PATTERN = /google|bing|duckduckgo|yahoo|baidu/i;
+
+function classifyChannel(utmSource: string | null, referrerHost: string | null): string {
+  if (utmSource) return `campaign:${utmSource}`;
+  if (!referrerHost) return 'direct';
+  if (SEARCH_REFERRER_PATTERN.test(referrerHost)) return 'organic_search';
+  if (SOCIAL_REFERRER_PATTERN.test(referrerHost)) return 'social';
+  return 'referral';
+}
+
+// Only meaningful captured once, at the very first paint of a tab session —
+// document.referrer and the landing URL's query string are both still the
+// original values ensureSessionStarted sees them at (before any client-side
+// navigation strips or rewrites them), which is why this lives inside
+// ensureSessionStarted itself rather than being computed lazily elsewhere.
+function getLandingContext(): Record<string, string> {
+  if (typeof window === 'undefined') return {};
+  const params = new URLSearchParams(window.location.search);
+  const context: Record<string, string> = {};
+
+  let referrerHost: string | null = null;
+  if (document.referrer) {
+    try {
+      referrerHost = new URL(document.referrer).hostname;
+    } catch {
+      // malformed/unparseable referrer — treat as no referrer
+    }
+  }
+  if (referrerHost) context.referrer_host = referrerHost;
+
+  const utmSource = params.get('utm_source');
+  for (const key of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content']) {
+    const value = params.get(key);
+    if (value) context[key] = value;
+  }
+
+  context.channel = classifyChannel(utmSource, referrerHost);
+  context.landing_path = window.location.pathname;
+  return context;
+}
+
 /** Call once per tab session, e.g. from AnalyticsBootstrap on mount. */
 export function ensureSessionStarted() {
   if (typeof window === 'undefined') return;
   if (sessionStorage.getItem(SESSION_STARTED_KEY)) return;
   sessionStorage.setItem(SESSION_STARTED_KEY, '1');
-  post('session_started');
+  post('session_started', getLandingContext());
 }
 
 /** Call from SessionProvider once a logged-in user resolves. */
