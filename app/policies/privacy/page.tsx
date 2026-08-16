@@ -19,7 +19,7 @@ export default function PrivacyPage() {
             <PosterOutline>Privacy</PosterOutline> <PosterFill color="emerald">Policy</PosterFill>
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
-            Last updated 11 August 2026.
+            Last updated 17 August 2026.
           </p>
         </div>
 
@@ -42,7 +42,8 @@ export default function PrivacyPage() {
               <li><strong>Location:</strong> used to show gyms near you, and at check-in time to confirm you&apos;re actually at the gym you booked (geofence check). With your consent, your location is also used to rank Buddy discovery candidates. It is not tracked continuously or stored as a location history.</li>
               <li><strong>Referral data:</strong> a referral code if you redeem one, so the person who invited you can be credited.</li>
               <li><strong>Usage data:</strong> app and website interactions (screens viewed, buttons tapped, searches, bookings, top-ups, check-ins) via our own first-party analytics — no third party receives this data.</li>
-              <li><strong>Device data:</strong> app version, device model and OS, and a push-notification token (Firebase Cloud Messaging) so we can notify you about your bookings.</li>
+              <li><strong>IP address:</strong> captured automatically alongside the usage data above, to support aggregate, approximate location reporting (e.g. by city or country). We do not use it to pinpoint your exact location, and it is never shared with a third party.</li>
+              <li><strong>Device data:</strong> app version, device model and OS, language and theme settings, and a push-notification token (Firebase Cloud Messaging) so we can notify you about your bookings.</li>
             </ul>
           </div>
 
