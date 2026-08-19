@@ -18,16 +18,22 @@ export async function POST(req: Request) {
   const blocked = rejectCrossOrigin(req);
   if (blocked) return blocked;
 
-  let body: { phone?: unknown; otp?: unknown };
+  let body: { phone?: unknown; otp?: unknown; linkedGymId?: unknown };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
-  const { phone, otp } = body ?? {};
+  const { phone, otp, linkedGymId } = body ?? {};
   if (typeof phone !== 'string' || typeof otp !== 'string') {
     return NextResponse.json({ error: 'phone and otp are required' }, { status: 400 });
   }
+  // Only meaningful for a brand-new account (the backend ignores it for an
+  // existing user — see issueSessionForUser) — attendance-SaaS wedge, set
+  // once at signup from the /join/[gymId] page.
+  const resolvedLinkedGymId = typeof linkedGymId === 'number' && Number.isInteger(linkedGymId) && linkedGymId > 0
+    ? linkedGymId
+    : undefined;
 
   try {
     // role/type hardcoded here, never taken from the request body — same
@@ -35,7 +41,7 @@ export async function POST(req: Request) {
     // customer accounts through this endpoint.
     const data = await gatewayFetch<VerifyOtpGatewayResponse>('/api/auth/verify-otp', {
       method: 'POST',
-      body: { phone, otp, role: 'customer', type: 'general' },
+      body: { phone, otp, role: 'customer', type: 'general', linkedGymId: resolvedLinkedGymId },
     });
 
     await writeSession(data.accessToken, data.refreshToken);

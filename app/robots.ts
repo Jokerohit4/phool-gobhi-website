@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/account/', '/app', '/book/', '/checkin/', '/login', '/pitch-deck'],
+      disallow: ['/account/', '/app', '/book/', '/checkin/', '/join/', '/login', '/pitch-deck'],
     },
     sitemap: 'https://www.phoolgobhi.com/sitemap.xml',
   };

@@ -14,16 +14,22 @@ export async function POST(req: Request) {
   const blocked = rejectCrossOrigin(req);
   if (blocked) return blocked;
 
-  let body: { idToken?: unknown; name?: unknown; email?: unknown };
+  let body: { idToken?: unknown; name?: unknown; email?: unknown; linkedGymId?: unknown };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
-  const { idToken, name, email } = body ?? {};
+  const { idToken, name, email, linkedGymId } = body ?? {};
   if (typeof idToken !== 'string') {
     return NextResponse.json({ error: 'idToken is required' }, { status: 400 });
   }
+  // Only meaningful for a brand-new account (the backend ignores it for an
+  // existing user — see issueSessionForUser) — attendance-SaaS wedge, set
+  // once at signup from the /join/[gymId] page.
+  const resolvedLinkedGymId = typeof linkedGymId === 'number' && Number.isInteger(linkedGymId) && linkedGymId > 0
+    ? linkedGymId
+    : undefined;
 
   try {
     // role/type hardcoded here, never taken from the request body — same
@@ -31,7 +37,7 @@ export async function POST(req: Request) {
     // customer accounts through this endpoint.
     const data = await gatewayFetch<VerifyFirebaseGatewayResponse>('/api/auth/verify-firebase-token', {
       method: 'POST',
-      body: { idToken, name, email, role: 'customer', type: 'general' },
+      body: { idToken, name, email, role: 'customer', type: 'general', linkedGymId: resolvedLinkedGymId },
     });
 
     await writeSession(data.accessToken, data.refreshToken);

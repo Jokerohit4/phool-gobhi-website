@@ -24,9 +24,15 @@ const RECAPTCHA_CONTAINER_ID = 'otp-form-recaptcha';
 export default function OtpForm({
   redirectTo = '/gyms',
   partnerRedirectPath,
+  linkedGymId,
 }: {
   redirectTo?: string;
   partnerRedirectPath?: string;
+  // Attendance-SaaS wedge: passed by /join/[gymId] when this signup
+  // originated from a gym-specific QR/link. Ignored server-side for an
+  // existing account (see issueSessionForUser) — only ever applies once, at
+  // creation.
+  linkedGymId?: number;
 }) {
   const [step, setStep] = useState<Step>('phone');
   const [phone, setPhone] = useState('');
@@ -139,7 +145,7 @@ export default function OtpForm({
         res = await fetch('/api/auth/verify-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone: toE164(phone), otp }),
+          body: JSON.stringify({ phone: toE164(phone), otp, linkedGymId }),
         });
       } else {
         const credential = await confirmationRef.current!.confirm(otp);
@@ -147,7 +153,7 @@ export default function OtpForm({
         res = await fetch('/api/auth/verify-firebase', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken }),
+          body: JSON.stringify({ idToken, linkedGymId }),
         });
       }
       const data = await res.json();
