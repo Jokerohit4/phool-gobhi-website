@@ -19,7 +19,7 @@ export default function TermsPage() {
             <PosterOutline>Terms of</PosterOutline> <PosterFill color="terracotta">Service</PosterFill>
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
-            Last updated 15 August 2026.
+            Last updated 20 August 2026.
           </p>
         </div>
 
@@ -43,6 +43,17 @@ export default function TermsPage() {
               verification. You are responsible for keeping your account credentials secure and for all activity
               under your account. Gym partner accounts are subject to our approval and may be rejected or removed at
               our discretion (e.g. for incomplete verification documents or policy violations).
+            </p>
+            <p>
+              Some accounts are created through a specific partner gym&apos;s registration link or QR code
+              (&quot;gym-linked registration&quot;) — for existing members of that gym signing up for attendance
+              tracking through Phool Gobhi. Registering this way links your account to that gym, and by doing so
+              you consent to your check-in and attendance history at that gym being visible to it, as described in
+              our{' '}
+              <Link href="/policies/privacy" className="text-emerald-600 dark:text-emerald-400 underline">
+                Privacy Policy
+              </Link>
+              .
             </p>
           </div>
 

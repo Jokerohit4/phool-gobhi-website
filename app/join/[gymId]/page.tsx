@@ -114,15 +114,19 @@ export default function JoinGymPage() {
             not the only option. Buttons go live the moment the store env
             vars are set (same convention as /app's AppLanding), and stay
             disabled placeholders until then — same as /checkin/[gymId].
-            The Play Store link additionally carries this gym's id via the
-            Play Install Referrer mechanism (Android-only — see
-            GymJoinAttributionService in the app): a deferred deep link, so
-            someone who installs from THIS link still lands linked to this
-            gym on first launch, without ever tapping phoolgobhi://join.
-            There's no equivalent free mechanism for iOS (no Universal
-            Links/App Links domain verification set up yet, same as
-            checkin), so the App Store link carries no gym context — an iOS
-            installer just registers as an unlinked marketplace customer. */}
+            The Play Store link carries this gym's id via the Play Install
+            Referrer mechanism (Android-only — see GymJoinAttributionService
+            in the app): a deferred deep link, so someone who installs from
+            THIS link still lands linked to this gym on first launch,
+            without ever tapping phoolgobhi://join. iOS has no free
+            equivalent (no Universal Links domain verification set up), so
+            the App Store button instead copies the same phoolgobhi://join
+            URI to the clipboard before opening the store — the app reads it
+            back once, right after a fresh install (see
+            GymJoinAttributionService.captureFromClipboard). iOS shows a
+            one-time "pasted from Safari" notice the first time the app
+            reads it back — expected, not a bug, and only ever fires once
+            per install. */}
         <div className="card-premium p-6 text-center space-y-3">
           <p className="font-medium">📱 Get the app for faster check-ins and attendance tracking</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -144,9 +148,25 @@ export default function JoinGymPage() {
               </span>
             )}
             {APP_STORE_URL ? (
-              <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="btn-secondary inline-block text-center">
+              <button
+                type="button"
+                onClick={async () => {
+                  // Best-effort — clipboard write can fail (permissions,
+                  // non-secure context) and must never block the store
+                  // redirect that actually matters.
+                  try {
+                    await navigator.clipboard.writeText(appLink);
+                  } catch {
+                    // Nothing to carry over; the installer just lands as an
+                    // unlinked marketplace customer, same as before this
+                    // existed.
+                  }
+                  window.open(APP_STORE_URL, '_blank', 'noopener,noreferrer');
+                }}
+                className="btn-secondary inline-block text-center"
+              >
                 Download on the App Store
-              </a>
+              </button>
             ) : (
               <span className="btn-secondary opacity-60 cursor-not-allowed text-center" title="Coming soon">
                 Download on the App Store
