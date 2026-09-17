@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import type { Booking } from '@/lib/types';
 import { hoursUntilSlot, cancellationTier, isSlotOver } from '@/lib/cancellationPolicy';
-import CancelBookingModal from './CancelBookingModal';
+import CancelBookingModal, { type CancelFeedback } from './CancelBookingModal';
 
 const STATUS_STYLES: Record<Booking['status'], string> = {
   pending: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
@@ -25,11 +25,18 @@ export default function BookingCard({ booking, onCancelled }: { booking: Booking
   const refundAmount = Math.round(booking.amount * tier.refundRate * 100) / 100;
   const canShowQr = booking.status === 'confirmed' && !isSlotOver(booking.date, booking.endTime);
 
-  const confirmCancel = async () => {
+  // FR-14: the feedback rides along with the cancellation, so there is
+  // exactly one write and no way to end up with a reason recorded against a
+  // booking that never actually cancelled.
+  const confirmCancel = async (feedback: CancelFeedback) => {
     setCancelling(true);
     setError(null);
     try {
-      const res = await fetch(`/api/bookings/${booking.id}/cancel`, { method: 'POST' });
+      const res = await fetch(`/api/bookings/${booking.id}/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(feedback),
+      });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || 'Could not cancel booking');
