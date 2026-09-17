@@ -65,6 +65,7 @@ export default function Footer() {
                 { href: '/gyms', label: 'Find Gyms' },
                 { href: '/pricing', label: 'Pricing' },
                 { href: '/how-it-works', label: 'How It Works' },
+                { href: '/team', label: 'About Us' },
                 { href: '/policies/cancellation', label: 'Cancellation Policy' },
                 { href: '/policies/terms', label: 'Terms of Service' },
                 { href: '/policies/privacy', label: 'Privacy Policy' },

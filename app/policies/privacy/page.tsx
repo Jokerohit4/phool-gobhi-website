@@ -19,7 +19,7 @@ export default function PrivacyPage() {
             <PosterOutline>Privacy</PosterOutline> <PosterFill color="emerald">Policy</PosterFill>
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
-            Last updated 17 August 2026.
+            Last updated 20 August 2026.
           </p>
         </div>
 
@@ -40,6 +40,7 @@ export default function PrivacyPage() {
               <li><strong>Profile content:</strong> a profile photo you choose to add, and — if you use Buddy matching — your buddy bio, buddy photos, social media link, and chat messages.</li>
               <li><strong>Booking &amp; payment data:</strong> booking history, wallet balance and transaction history, and subscription purchases. Card/UPI details are handled entirely by our payment processor, Razorpay — we never see or store your card number, CVV, or UPI PIN.</li>
               <li><strong>Location:</strong> used to show gyms near you, and at check-in time to confirm you&apos;re actually at the gym you booked (geofence check). With your consent, your location is also used to rank Buddy discovery candidates. It is not tracked continuously or stored as a location history.</li>
+              <li><strong>Gym-linked attendance data:</strong> if you sign up through a specific gym&apos;s QR code or join link (for example, an existing gym member registering for attendance tracking), we record which gym you&apos;re linked to and your check-in history there, in addition to the booking data above.</li>
               <li><strong>Referral data:</strong> a referral code if you redeem one, so the person who invited you can be credited.</li>
               <li><strong>Usage data:</strong> app and website interactions (screens viewed, buttons tapped, searches, bookings, top-ups, check-ins) via our own first-party analytics — no third party receives this data.</li>
               <li><strong>IP address:</strong> captured automatically alongside the usage data above, to support aggregate, approximate location reporting (e.g. by city or country). We do not use it to pinpoint your exact location, and it is never shared with a third party.</li>
@@ -53,16 +54,19 @@ export default function PrivacyPage() {
               To operate the core service: creating your account, showing nearby gyms, processing bookings,
               payments and top-ups, verifying check-ins, running Buddy matching and chat, showing your
               booking/wallet history, and sending transactional notifications (booking confirmed, cancelled,
-              completed). We also use aggregated, non-identifying usage data to understand and improve the
-              product, and we review user reports of other users&apos; profiles or chat messages to keep the
-              community safe.
+              completed). If you registered through a specific gym&apos;s join link, we also use your attendance
+              data to show that gym its own members&apos; check-in records, and, in aggregate, to measure and
+              improve this feature. We also use aggregated, non-identifying usage data to understand and improve
+              the product, and we review user reports of other users&apos; profiles or chat messages to keep the
+              community safe. We do not use your attendance data for advertising or third-party marketing, and
+              will not do so in future without asking for your separate, explicit consent first.
             </p>
           </div>
 
           <div className="card-premium p-6 space-y-3">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">4. Who we share it with</h2>
             <ul className="list-disc list-inside space-y-1">
-              <li><strong>Partner gyms</strong> see your name and profile photo for bookings at their gym, so they can recognize you at check-in — they never see your phone number or email.</li>
+              <li><strong>Partner gyms</strong> see your name and profile photo for bookings at their gym, so they can recognize you at check-in — they never see your phone number or email. If you registered directly with a gym through its join link, that gym can also see your check-in/attendance history with them specifically (not with any other gym).</li>
               <li><strong>Other Buddy users</strong> see the buddy profile and chat content you choose to share. Please do not share personal contact details with people you have just met.</li>
               <li><strong>Razorpay</strong> processes payments directly; we share only what&apos;s needed to complete a transaction.</li>
               <li><strong>Firebase (Google)</strong> delivers push notifications; Fast2SMS delivers OTPs.</li>
