@@ -16,6 +16,11 @@ const primaryLinks = [
 
 const profileLinks = [
   { href: '/account/profile', label: 'Profile' },
+  // /coach, not /account/coach: for someone training on their own this is the
+  // product rather than a settings page. It sits here anyway because the
+  // profile dropdown is where every signed-in destination lives — see the
+  // comment below on keeping primary nav from growing per feature.
+  { href: '/coach', label: 'Coach' },
   { href: '/account/attendance', label: 'Attendance' },
   { href: '/account/warnings', label: 'Warnings' },
   { href: '/account/wallet', label: 'Wallet' },
