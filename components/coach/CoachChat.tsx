@@ -21,6 +21,9 @@ interface ConversationSummary {
 interface ConsentState {
   granted: boolean;
   needsReconsent: boolean;
+  /** False when no model provider is configured behind the feature. The flag
+   *  being on and the assistant being usable are different facts. */
+  available: boolean;
   disclaimer: { title: string; body: string[]; acceptLabel: string };
 }
 
@@ -146,7 +149,11 @@ export default function CoachChat() {
           setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
           setDraft(text); // hand their words back rather than discarding them
         }
-        if (body?.code === 'CONSENT_REQUIRED' || body?.code === 'CONSENT_STALE') {
+        if (
+          body?.code === 'CONSENT_REQUIRED' ||
+          body?.code === 'CONSENT_STALE' ||
+          body?.code === 'ASSISTANT_NOT_CONFIGURED'
+        ) {
           await loadConsent();
         }
         throw new Error(body?.error || 'Could not send that');
@@ -166,6 +173,22 @@ export default function CoachChat() {
     return (
       <div className="section-padding container-custom">
         {error ? <p className="text-red-500">{error}</p> : 'Loading…'}
+      </div>
+    );
+  }
+
+  // Checked BEFORE the consent gate: asking someone to accept terms for a
+  // thing that cannot answer them is worse than saying so plainly.
+  if (!consent.available) {
+    return (
+      <div className="section-padding container-custom">
+        <h1 className="text-3xl font-bold">Your coach</h1>
+        <div className="card-premium mt-6 p-6">
+          <p className="font-semibold">Not quite ready yet</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+            We&apos;re still switching this on. Nothing to do on your side — check back shortly.
+          </p>
+        </div>
       </div>
     );
   }
@@ -227,6 +250,11 @@ export default function CoachChat() {
               )}
               {errorCode === 'ASSISTANT_UNAVAILABLE' && (
                 <p className="text-gray-500">Your message was saved. Try sending again.</p>
+              )}
+              {errorCode === 'ASSISTANT_NOT_CONFIGURED' && (
+                <p className="text-gray-500">
+                  This isn&apos;t switched on yet — nothing you typed was lost.
+                </p>
               )}
             </div>
           )}
