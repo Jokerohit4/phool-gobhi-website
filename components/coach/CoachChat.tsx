@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import DisclaimerGate from './DisclaimerGate';
 import ConversationSidebar from './ConversationSidebar';
+import MemoryPanel from './MemoryPanel';
 import MessageBubble from './MessageBubble';
 
 interface Message {
@@ -222,12 +223,17 @@ export default function CoachChat() {
       </p>
 
       <div className="mt-6 grid gap-6 md:grid-cols-[220px_1fr]">
-        <ConversationSidebar
-          conversations={conversations}
-          activeId={conversationId}
-          onSelect={openConversation}
-          onNew={startNewConversation}
-        />
+        <div>
+          <ConversationSidebar
+            conversations={conversations}
+            activeId={conversationId}
+            onSelect={openConversation}
+            onNew={startNewConversation}
+          />
+          {/* Renders nothing until the coach has actually learned something,
+              so a first-time user sees no empty scaffolding. */}
+          <MemoryPanel />
+        </div>
 
         <div className="card-premium flex min-h-[60vh] flex-col p-4">
           <div className="flex-1 space-y-3 overflow-y-auto">
