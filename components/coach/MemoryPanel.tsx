@@ -21,6 +21,21 @@ const KEY_LABELS: Record<string, string> = {
   preference: 'Preference',
 };
 
+/// Groups rows by category while preserving the server's ordering, which is
+/// safety-tier first. A plain object would not guarantee that — integer-like
+/// keys aside, relying on insertion order for display ordering is the kind of
+/// thing that works until someone renames a key — so this walks the array once
+/// and keeps first-seen order explicitly.
+function groupByKey(rows: Memory[]): [string, Memory[]][] {
+  const groups = new Map<string, Memory[]>();
+  for (const row of rows) {
+    const existing = groups.get(row.key);
+    if (existing) existing.push(row);
+    else groups.set(row.key, [row]);
+  }
+  return [...groups.entries()];
+}
+
 /// What the coach has learned about you, and the controls to fix it.
 ///
 /// These facts are written by a model from things you said, and they are
@@ -80,29 +95,42 @@ export default function MemoryPanel() {
         that&apos;s wrong.
       </p>
 
-      <ul className="mt-3 space-y-2">
-        {memories.map((m) => (
-          <li key={m.id} className="flex items-start justify-between gap-3 text-sm">
-            <span className="min-w-0">
-              <span className="text-gray-500">{KEY_LABELS[m.key] ?? m.key}: </span>
-              <span className="break-words">{m.value}</span>
-              {/* An inferred fact and a stated one carry different weight, and
-                  the person should be able to tell which is which. */}
-              {m.source === 'extracted' && (
-                <span className="ml-1 text-xs text-gray-400">(inferred)</span>
-              )}
-            </span>
-            <button
-              type="button"
-              onClick={() => forget(m.id)}
-              disabled={busyId === m.id}
-              className="shrink-0 text-xs text-gray-500 underline hover:text-red-500 disabled:opacity-50"
-            >
-              {busyId === m.id ? 'Removing…' : 'Forget'}
-            </button>
-          </li>
+      {/* Grouped, because a category now holds many facts — twelve rows each
+          prefixed "Allergy:" is a list nobody reads. The server already
+          returns them safety-tier first, so preserving its order here keeps
+          the panel and the prompt agreeing about what matters. */}
+      <div className="mt-3 space-y-3">
+        {groupByKey(memories).map(([key, rows]) => (
+          <div key={key}>
+            <h3 className="text-xs font-semibold text-gray-500">
+              {KEY_LABELS[key] ?? key}
+            </h3>
+            <ul className="mt-1 space-y-1">
+              {rows.map((m) => (
+                <li key={m.id} className="flex items-start justify-between gap-3 text-sm">
+                  <span className="min-w-0 break-words">
+                    {m.value}
+                    {/* An inferred fact and a stated one carry different
+                        weight, and the person should be able to tell which is
+                        which before deciding whether to trust it. */}
+                    {m.source === 'extracted' && (
+                      <span className="ml-1 text-xs text-gray-400">(inferred)</span>
+                    )}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => forget(m.id)}
+                    disabled={busyId === m.id}
+                    className="shrink-0 text-xs text-gray-500 underline hover:text-red-500 disabled:opacity-50"
+                  >
+                    {busyId === m.id ? 'Removing…' : 'Forget'}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         ))}
-      </ul>
+      </div>
 
       {error && (
         <p className="mt-2 text-xs text-red-500" role="alert">
