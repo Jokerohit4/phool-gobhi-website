@@ -26,8 +26,9 @@ export async function POST(req: Request) {
   } catch (err) {
     // The interesting statuses all come from the gateway and are forwarded
     // intact, because the UI branches on them: 403 CONSENT_REQUIRED /
-    // CONSENT_STALE, 429 RATE_LIMITED (with retryAfterSeconds),
-    // 503 ASSISTANT_UNAVAILABLE.
+    // CONSENT_STALE, 429 RATE_LIMITED (with retryAfterSeconds), and the two
+    // 503s — ASSISTANT_UNAVAILABLE (provider fault) and ASSISTANT_CAPACITY
+    // (provider out of quota). Both mean the message was saved.
     if (err instanceof GatewayError) return NextResponse.json(err.body, { status: err.status });
     return NextResponse.json({ error: 'Gateway unreachable' }, { status: 502 });
   }

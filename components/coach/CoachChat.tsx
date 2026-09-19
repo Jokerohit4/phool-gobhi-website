@@ -31,6 +31,12 @@ interface ConsentState {
 // Negative so they can never collide with a real one.
 let tempId = -1;
 
+// Failures the backend raises only *after* it has already persisted what the
+// user typed. On these the optimistic bubble stays and the composer is not
+// refilled; on anything else the message never landed and we hand their words
+// back. Both are 503 — they differ in whether the cause is quota or a fault.
+const MESSAGE_WAS_SAVED_CODES = ['ASSISTANT_UNAVAILABLE', 'ASSISTANT_CAPACITY'];
+
 export default function CoachChat() {
   const [consent, setConsent] = useState<ConsentState | null>(null);
   const [consentBusy, setConsentBusy] = useState(false);
@@ -142,10 +148,12 @@ export default function CoachChat() {
 
       if (!res.ok) {
         setErrorCode(body?.code ?? null);
-        // The message IS saved server-side on a 503, so the optimistic bubble
-        // is left in place — removing it would suggest the text was lost when
-        // it wasn't. Every other failure means it never landed, so it goes.
-        if (body?.code !== 'ASSISTANT_UNAVAILABLE') {
+        // The message IS saved server-side on either 503, so the optimistic
+        // bubble is left in place — removing it would suggest the text was
+        // lost when it wasn't. Every other failure means it never landed, so
+        // it goes. Keep this list in step with the codes sendMessageService
+        // raises *after* it has persisted the user's message.
+        if (!MESSAGE_WAS_SAVED_CODES.includes(body?.code)) {
           setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
           setDraft(text); // hand their words back rather than discarding them
         }
@@ -250,6 +258,12 @@ export default function CoachChat() {
               )}
               {errorCode === 'ASSISTANT_UNAVAILABLE' && (
                 <p className="text-gray-500">Your message was saved. Try sending again.</p>
+              )}
+              {errorCode === 'ASSISTANT_CAPACITY' && (
+                <p className="text-gray-500">
+                  A lot of people are asking at once. Your message was saved — try
+                  again in a minute.
+                </p>
               )}
               {errorCode === 'ASSISTANT_NOT_CONFIGURED' && (
                 <p className="text-gray-500">
