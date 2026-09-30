@@ -149,7 +149,7 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">Grievances &amp; privacy contact</h2>
             <p>
               If you have a question or complaint about how we handle your personal data, write to our grievance
-              officer at{' '}
+              officer, Rohitashwa Singh (Founder), at{' '}
               <a href="mailto:hello@phoolgobhi.com" className="text-emerald-600 dark:text-emerald-400 underline">
                 hello@phoolgobhi.com
               </a>{' '}

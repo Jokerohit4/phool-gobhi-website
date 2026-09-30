@@ -112,7 +112,7 @@ export default function ProfileForm() {
             className={inputClass}
           />
           <span className="mt-1 block text-xs font-normal text-gray-500 dark:text-gray-400">
-            You must be at least 11 years old to use Phool Gobhi.
+            You must be at least 18 years old to use Phool Gobhi.
           </span>
         </label>
 

@@ -2,10 +2,12 @@
 // collects it (profile page, booking profile-completion gate). Mirrored
 // server-side in auth-service's userProfileController.updateProfile so the
 // API rejects under-age DOBs regardless of client.
-export const MIN_AGE_YEARS = 11;
+// 18+: the product tracks attendance/streaks (behavioural monitoring, which
+// DPDP s.9(3) bars for children), and the privacy policy says 18 and over.
+export const MIN_AGE_YEARS = 18;
 
 // Latest date-of-birth a user may pick while still meeting the minimum age
-// (someone whose 11th birthday is today is still allowed). Built from the
+// (someone whose 18th birthday is today is still allowed). Built from the
 // client's local date so the picker's `max` matches the user's calendar.
 export function maxDateOfBirth(): string {
   const now = new Date();
