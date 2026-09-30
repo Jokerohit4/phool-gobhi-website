@@ -74,6 +74,45 @@ export default function PrivacyPage() {
             </ul>
           </div>
 
+          <div className="card-premium p-6 space-y-3 border-l-4 border-amber-400">
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">
+              Draft — pending legal review
+            </p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Health &amp; fitness data (Health+)</h2>
+            <p>
+              Some features let you record health information: workouts, steps and heart rate from Apple Health or
+              Health Connect, body measurements you type in, food logs, period dates, medical documents you upload,
+              and conversations with our AI fitness coach. We treat all of this as sensitive personal data.
+            </p>
+            <ul className="list-disc list-inside space-y-1">
+              <li>Each of these is switched on separately, with its own consent, and you can switch any of them off again in the app.</li>
+              <li>Health+ features are only available to people aged 18 and over.</li>
+              <li>Phool Gobhi is a general wellness app. It does not diagnose, treat or manage any medical condition, and the AI coach is not a doctor.</li>
+              <li>We never share your health data with gyms, trainers, employers or insurers. If we ever offer a way to share something with them, it will only ever be a summary you choose to send, with a separate consent each time.</li>
+              <li>Data read from Apple Health or Health Connect is never used for advertising, and never used to decide insurance or credit.</li>
+            </ul>
+          </div>
+
+          <div className="card-premium p-6 space-y-3 border-l-4 border-amber-400">
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">
+              Draft — pending legal review
+            </p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Where your data is processed</h2>
+            <p>
+              Our servers run in India (Google Cloud, Mumbai). Some of your data is stored or processed outside India
+              by the service providers we use:
+            </p>
+            <ul className="list-disc list-inside space-y-1">
+              <li><strong>Database:</strong> your account, booking, wallet and health records are stored with Neon, in Singapore.</li>
+              <li><strong>AI fitness coach:</strong> the messages you send the coach, and the workout context it needs to answer, are processed by our AI model provider, Groq, in the United States. We keep what we send to the minimum needed to answer.</li>
+              <li><strong>Food photos:</strong> if you log a meal by photo, the photo is analysed by Google&apos;s Gemini service.</li>
+              <li><strong>Photos and files:</strong> profile and gym photos are stored with Cloudinary.</li>
+            </ul>
+            <p>
+              These providers process data only to deliver the service to you, under contract with us.
+            </p>
+          </div>
+
           <div className="card-premium p-6 space-y-3">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">5. Data retention &amp; deletion</h2>
             <p>
@@ -103,6 +142,21 @@ export default function PrivacyPage() {
             </p>
           </div>
 
+          <div className="card-premium p-6 space-y-3 border-l-4 border-amber-400">
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">
+              Draft — pending legal review
+            </p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Grievances &amp; privacy contact</h2>
+            <p>
+              If you have a question or complaint about how we handle your personal data, write to our grievance
+              officer at{' '}
+              <a href="mailto:hello@phoolgobhi.com" className="text-emerald-600 dark:text-emerald-400 underline">
+                hello@phoolgobhi.com
+              </a>{' '}
+              with &quot;Privacy&quot; in the subject line. We aim to resolve every complaint within one month.
+            </p>
+          </div>
+
           <div className="card-premium p-6 space-y-3">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">7. Cookies (website)</h2>
             <p>
@@ -118,7 +172,7 @@ export default function PrivacyPage() {
           <div className="card-premium p-6 space-y-3">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">8. Children&apos;s privacy</h2>
             <p>
-              Phool Gobhi is for users aged 18 and over. We do not knowingly collect data from anyone under 13.
+              Phool Gobhi is for users aged 18 and over. We do not knowingly collect data from anyone under 18.
               If you believe a child has provided us personal data, contact us and we will delete it.
             </p>
           </div>
