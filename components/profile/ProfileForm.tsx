@@ -19,7 +19,8 @@ const GOAL_OPTIONS: { value: string; label: string }[] = [
   { value: 'general_fitness', label: 'General fitness' },
   { value: 'flexibility_yoga', label: 'Flexibility & yoga' },
   { value: 'sports_training', label: 'Sports training' },
-  { value: 'rehabilitation', label: 'Rehabilitation' },
+  // Wellness framing, same wire value (onboarding audit P2; matches the app).
+  { value: 'rehabilitation', label: 'Getting back into it' },
 ];
 
 // getMe returns the Date as an ISO string (or "YYYY-MM-DD"); the date input
