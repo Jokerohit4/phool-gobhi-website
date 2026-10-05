@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from '@/components/auth/SessionProvider';
+import { buildAppLaunchHref, getBrowserEscapeLink, subscribeNoop } from '@/lib/appDeepLink';
+import AppStoreButtons from '@/components/AppStoreButtons';
 import type { Gym } from '@/lib/types';
 
 type Phase =
-  | 'redirecting'
   | 'idle'
   | 'geolocating'
   | 'checking'
@@ -29,64 +30,42 @@ interface EarlyCheckinConfirmation {
   newEndTime: string;
 }
 
-// The poster QR is a plain https link (no Universal/App Links set up yet —
-// see the comment below), so whatever app scans it decides how to open it.
-// Many QR-scanner and camera apps open it in their own embedded in-app
-// browser instead of the real system browser — an isolated (often
-// throwaway) cookie jar that never sees the user's actual logged-in Safari/
-// Chrome session, hence a login prompt on every single scan. Both mobile
-// OSes expose an escape hatch a plain link tap can trigger from inside most
-// embedded WebViews: iOS resolves an `x-safari-https://` URL by handing it
-// to real Safari; Android resolves an `intent://` URL by handing it to
-// Chrome (falling back to the plain link via browser_fallback_url if Chrome
-// isn't installed). Neither is guaranteed — a small number of in-app
-// browsers (e.g. Facebook/Instagram in some versions) intercept and block
-// exactly this — but it recovers the common case for free.
-function getBrowserEscapeLink(): { href: string; label: string } | null {
-  const ua = navigator.userAgent;
-  const currentUrl = window.location.href;
-  if (/iPhone|iPad|iPod/i.test(ua)) {
-    return { href: currentUrl.replace(/^https?:\/\//, 'x-safari-https://'), label: 'Open in Safari' };
-  }
-  if (/Android/i.test(ua)) {
-    const url = new URL(currentUrl);
-    const fallback = encodeURIComponent(currentUrl);
-    return {
-      href: `intent://${url.host}${url.pathname}${url.search}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${fallback};end`,
-      label: 'Open in Chrome',
-    };
-  }
-  return null;
-}
-
-// The URL printed on a gym's physical check-in poster. Tries the native app
-// first (phoolgobhi://checkin — no App Links/Universal Links domain
-// verification set up yet, that needs a settled release signing cert we
-// don't have pre-launch), then falls back to a real browser check-in using
-// the same self-checkin endpoint + geolocation, for anyone without the app
-// installed.
+// The URL printed on a gym's physical check-in poster. No App Links /
+// Universal Links domain verification is set up yet (that needs a settled
+// release signing cert), so the poster is a plain https link and the *scanning*
+// app decides how to open it.
+//
+// The web check-in below — same self-checkin endpoint, browser geolocation —
+// is the primary path, not a fallback, and stays that way even now that iOS is
+// on the App Store. Universal Links aren't verified, so a poster scan is still
+// just an https link and iOS has no way to open the app automatically from it.
+// The app is offered as progressive enhancement from an explicit tap via
+// `buildAppLaunchHref`; see lib/appDeepLink.ts for why auto-launching on mount
+// turned this poster into a dead end for anyone without the app installed.
 export default function CheckinRedirectPage() {
   const params = useParams<{ gymId: string }>();
   const gymId = params.gymId;
-  const appLink = `phoolgobhi://checkin?gymId=${encodeURIComponent(gymId)}`;
   const { user, loading: sessionLoading } = useSession();
 
-  const [phase, setPhase] = useState<Phase>('redirecting');
+  const [phase, setPhase] = useState<Phase>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [earlyConfirmation, setEarlyConfirmation] = useState<EarlyCheckinConfirmation | null>(null);
   const [slotShifted, setSlotShifted] = useState(false);
   const [gym, setGym] = useState<Gym | null>(null);
-  const [escapeLink, setEscapeLink] = useState<{ href: string; label: string } | null>(null);
 
-  useEffect(() => {
-    window.location.href = appLink;
-    const timer = setTimeout(() => setPhase('idle'), 1200);
-    return () => clearTimeout(timer);
-  }, [appLink]);
+  // Render-time, not effect-time: the href must belong to a tap the user
+  // actually made. platform and location are both stable by first paint here.
+  const appLaunchHref = buildAppLaunchHref(`checkin?gymId=${encodeURIComponent(gymId)}`);
 
-  useEffect(() => {
-    setEscapeLink(getBrowserEscapeLink());
-  }, []);
+  // useSyncExternalStore rather than setState-in-an-effect: the embedded-
+  // browser test is a pure read of a value that can never change during the
+  // page's life, and the server snapshot (null) keeps the markup identical
+  // across server and client so hydration can't mismatch.
+  const escapeLink = useSyncExternalStore(
+    subscribeNoop,
+    getBrowserEscapeLink,
+    () => null,
+  );
 
   useEffect(() => {
     fetch(`/api/gyms/${gymId}`)
@@ -143,15 +122,6 @@ export default function CheckinRedirectPage() {
     <div className="section-padding container-custom flex min-h-[60vh] items-center justify-center">
       <div className="w-full max-w-md space-y-6">
         <div className="card-premium p-8 text-center space-y-4">
-          {phase === 'redirecting' && (
-            <>
-              <h1 className="text-2xl font-bold">Opening Phool Gobhi&hellip;</h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                If you have the app installed, it&apos;ll open automatically.
-              </p>
-            </>
-          )}
-
           {phase === 'idle' && !sessionLoading && !user && (
             <>
               <h1 className="text-2xl font-bold">Log in to check in</h1>
@@ -304,14 +274,15 @@ export default function CheckinRedirectPage() {
           )}
         </div>
 
-        {/* Shown from 'idle' onward, not during the initial app-link
-            attempt — if this loaded inside an in-app browser (a QR-scanner
-            or camera app's own embedded WebView rather than the real
-            system browser), that WebView usually doesn't share cookies with
-            the browser the user is actually logged in on, so every scan
-            re-prompts a login. One tap here hands the same URL to the real
-            browser, which does have that session. */}
-        {phase !== 'redirecting' && escapeLink && (
+        {/* Escape hatch when the page loaded inside an in-app browser (a
+            QR-scanner or camera app's own embedded WebView rather than the
+            real system browser) — that WebView usually doesn't share cookies
+            with the browser the user is actually logged in on, so every scan
+            re-prompts a login. One tap hands the same URL to the real browser,
+            which does have that session. Always rendered now that the page
+            survives the scan (previously it was hidden behind an app-link
+            redirect that killed the page before it could show). */}
+        {escapeLink && (
           <p className="text-center text-sm text-gray-500 dark:text-gray-400">
             Stuck in an app browser?{' '}
             <a href={escapeLink.href} className="text-emerald-600 dark:text-emerald-400 underline">
@@ -320,25 +291,19 @@ export default function CheckinRedirectPage() {
           </p>
         )}
 
-        {/* App-install upsell — a secondary path alongside web check-in
-            (not the only option), since faster QR-scan check-ins and
-            push notifications only come with the app. Store links are
-            placeholders: no live store listing yet, pre-launch. */}
+        {/* App-install upsell — a secondary path alongside web check-in (not
+            the only option), since in-app QR check-ins and push reminders
+            only come with the app. iOS is live; the Play listing is not, so
+            that button stays a placeholder until PLAY_STORE_URL is set. */}
         <div className="card-premium p-6 text-center space-y-3">
           <p className="font-medium">
-            📱 Get the app &amp; get <span className="text-emerald-600 dark:text-emerald-400 font-semibold">₹20</span> credited to your wallet!
+            📱 Get the app &amp; get{' '}
+            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">₹20</span> credited to your wallet!
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Faster QR check-ins, booking reminders, and more — coming soon.
+            Faster QR check-ins, booking reminders, and more.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <span className="btn-secondary opacity-60 cursor-not-allowed text-center" title="Coming soon">
-              Get it on Google Play
-            </span>
-            <span className="btn-secondary opacity-60 cursor-not-allowed text-center" title="Coming soon">
-              Download on the App Store
-            </span>
-          </div>
+          <AppStoreButtons launchHref={appLaunchHref} />
         </div>
       </div>
     </div>
