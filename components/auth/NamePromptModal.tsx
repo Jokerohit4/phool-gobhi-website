@@ -12,10 +12,11 @@ import { useSession } from './SessionProvider';
 // skip button) — the user asked for the name to be mandatory up front rather
 // than an optional nudge.
 export default function NamePromptModal() {
-  const { user, loading, refresh } = useSession();
+  const { user, loading, refresh, logout } = useSession();
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   if (loading || !user || user.name) return null;
 
@@ -40,6 +41,20 @@ export default function NamePromptModal() {
       setError('Network error — please try again');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // The modal is deliberately non-dismissible — but a customer who doesn't
+  // want to give a name (or whose name PATCH keeps failing) shouldn't be
+  // trapped behind an unmovable overlay. "Log out" is the one escape that
+  // doesn't weaken the mandatory-name rule: it ends the session instead of
+  // skipping the prompt, and the modal unmounts with `user` becoming null.
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await logout();
+    } finally {
+      setLoggingOut(false);
     }
   };
 
@@ -74,6 +89,14 @@ export default function NamePromptModal() {
           className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold disabled:opacity-60"
         >
           {submitting ? 'Saving…' : 'Save & continue'}
+        </button>
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="w-full text-center text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-60"
+        >
+          {loggingOut ? 'Logging out…' : 'Log out instead'}
         </button>
       </form>
     </div>

@@ -5,6 +5,7 @@ import { useSession } from '@/components/auth/SessionProvider';
 import WalletBalanceBadge from '@/components/wallet/WalletBalanceBadge';
 import WalletTopUpForm from '@/components/wallet/WalletTopUpForm';
 import WalletTransactionList from '@/components/wallet/WalletTransactionList';
+import LoggedOutNotice from '@/components/auth/LoggedOutNotice';
 
 export default function WalletPage() {
   const { user, loading: sessionLoading } = useSession();
@@ -36,7 +37,7 @@ export default function WalletPage() {
   }, [loadBalance]);
 
   if (sessionLoading) return <div className="section-padding container-custom">Loading…</div>;
-  if (!user) return <div className="section-padding container-custom">Please log in to view your wallet.</div>;
+  if (!user) return <LoggedOutNotice what="Please log in to view your wallet." />;
 
   return (
     <div className="section-padding container-custom space-y-6">

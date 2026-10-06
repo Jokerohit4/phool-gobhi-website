@@ -3,7 +3,12 @@ import { authedGatewayFetch } from '@/lib/session';
 import { GatewayError } from '@/lib/gateway-client';
 import { rejectCrossOrigin } from '@/lib/csrf';
 
-const VALID_PLAN_TYPES = ['weekly', 'monthly', 'quarterly', 'yearly'];
+// sixMonthly is deliberately included: gyms can set a six-month plan price
+// (gym-service SUBSCRIPTION_PLANS lists it), the plan row is sellable on the
+// site, and wallet-service accepts it — it was only missing from this
+// allowlist, which made every six-month purchase 400 at the BFF while the
+// price still showed on the gym page.
+const VALID_PLAN_TYPES = ['weekly', 'monthly', 'quarterly', 'sixMonthly', 'yearly'];
 
 // Subscriptions are paid out of wallet balance only, never a direct Razorpay
 // charge — see wallet-service's purchaseSubscriptionWithWallet for why (RBI

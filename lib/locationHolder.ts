@@ -4,6 +4,7 @@
 // outgoing fetches read from, no React state/context involved.
 let lat: number | null = null;
 let lng: number | null = null;
+let outcome: 'granted' | 'denied' | 'unsupported' | 'timeout' | 'error' | null = null;
 
 export const locationHolder = {
   get lat() {
@@ -12,13 +13,23 @@ export const locationHolder = {
   get lng() {
     return lng;
   },
+  get outcome() {
+    return outcome;
+  },
+  get hasFix() {
+    return lat !== null && lng !== null;
+  },
   update(latitude: number, longitude: number) {
     lat = latitude;
     lng = longitude;
   },
+  setOutcome(value: typeof outcome) {
+    outcome = value;
+  },
   clear() {
     lat = null;
     lng = null;
+    outcome = null;
   },
 };
 

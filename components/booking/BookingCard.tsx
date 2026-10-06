@@ -1,9 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import type { Booking } from '@/lib/types';
-import { hoursUntilSlot, cancellationTier, isSlotOver } from '@/lib/cancellationPolicy';
+import {
+  hoursUntilSlot,
+  cancellationTier,
+  isSlotOver,
+  blockedReasonLabel,
+  DEFAULT_CANCELLATION_TIERS,
+  type CancellationPolicyTier,
+} from '@/lib/cancellationPolicy';
 import CancelBookingModal, { type CancelFeedback } from './CancelBookingModal';
 
 const STATUS_STYLES: Record<Booking['status'], string> = {
@@ -19,9 +26,29 @@ export default function BookingCard({ booking, onCancelled }: { booking: Booking
   const [showQr, setShowQr] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // The live admin-editable policy, fetched once on mount; the UI falls back
+  // to the backend's default tiers while it loads or when the fetch fails
+  // (logged-out, gateway down). The real refund is always decided server-side
+  // — this preview can never block or change it.
+  const [tiers, setTiers] = useState<CancellationPolicyTier[]>(DEFAULT_CANCELLATION_TIERS);
+
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/bookings/cancellation-policy')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (alive && Array.isArray(data?.tiers) && data.tiers.length) setTiers(data.tiers);
+      })
+      .catch(() => {
+        /* keep defaults */
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const hoursUntil = hoursUntilSlot(booking.date, booking.startTime);
-  const tier = cancellationTier(hoursUntil);
+  const tier = cancellationTier(hoursUntil, tiers);
   const refundAmount = Math.round(booking.amount * tier.refundRate * 100) / 100;
   const canShowQr = booking.status === 'confirmed' && !isSlotOver(booking.date, booking.endTime);
 
@@ -109,7 +136,7 @@ export default function BookingCard({ booking, onCancelled }: { booking: Booking
       {error && !showModal && <p className="text-sm text-red-500">{error}</p>}
       {booking.status === 'confirmed' &&
         (tier.blocked ? (
-          <p className="text-sm text-gray-400">Cannot cancel within 1 hour of the session</p>
+          <p className="text-sm text-gray-400">{blockedReasonLabel(tiers)}</p>
         ) : (
           <button onClick={() => setShowModal(true)} className="self-start text-sm text-red-500 hover:underline">
             Cancel booking

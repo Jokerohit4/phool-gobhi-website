@@ -2,12 +2,13 @@
 
 import { useSession } from '@/components/auth/SessionProvider';
 import ProfileForm from '@/components/profile/ProfileForm';
+import LoggedOutNotice from '@/components/auth/LoggedOutNotice';
 
 export default function ProfilePage() {
   const { user, loading } = useSession();
 
   if (loading) return <div className="section-padding container-custom">Loading…</div>;
-  if (!user) return <div className="section-padding container-custom">Please log in to view your profile.</div>;
+  if (!user) return <LoggedOutNotice what="Please log in to view your profile." />;
 
   return (
     <div className="section-padding container-custom space-y-6">

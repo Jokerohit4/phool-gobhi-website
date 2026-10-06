@@ -265,7 +265,7 @@ describe('proxy middleware', () => {
       );
     });
 
-    it('PUT /api/bookings/:id/cancel is gated by wallet maintenance', async () => {
+    it('POST /api/bookings/:id/cancel is gated by wallet maintenance', async () => {
       global.fetch = vi.fn().mockImplementation((url: string) => {
         if (url.includes('launch-status')) {
           return Promise.resolve({ ok: true, json: () => Promise.resolve({ isLive: true }) });
@@ -282,7 +282,11 @@ describe('proxy middleware', () => {
         return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
       });
 
-      const req = makeRequest('/api/bookings/bk_123/cancel', 'PUT');
+      // The browser POSTs to the BFF cancel route handler; the BFF then calls
+      // the gateway with the backend's method. The gate keys on the BROWSER
+      // method — a PUT here would be dead code, since no PUT reaches this
+      // proxy.
+      const req = makeRequest('/api/bookings/bk_123/cancel', 'POST');
       await proxy(req);
 
       expect(mockJson).toHaveBeenCalledWith(

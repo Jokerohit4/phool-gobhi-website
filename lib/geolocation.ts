@@ -38,6 +38,7 @@ async function reportLocationResolved(outcome: LocationOutcome, lat?: number, ln
 export function fetchAndStoreLocation(): Promise<void> {
   return new Promise((resolve) => {
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      locationHolder.setOutcome('unsupported');
       reportLocationResolved('unsupported');
       resolve();
       return;
@@ -46,12 +47,16 @@ export function fetchAndStoreLocation(): Promise<void> {
       (position) => {
         const { latitude, longitude } = position.coords;
         locationHolder.update(latitude, longitude);
+        locationHolder.setOutcome('granted');
         reportLocationResolved('granted', latitude, longitude);
         resolve();
       },
       (err) => {
         const outcome: LocationOutcome =
           err.code === err.PERMISSION_DENIED ? 'denied' : err.code === err.TIMEOUT ? 'timeout' : 'error';
+        // Recorded so the gym list can show *why* it's empty ("location is
+        // off, turn it on") instead of a generic no-results message.
+        locationHolder.setOutcome(outcome);
         reportLocationResolved(outcome);
         resolve();
       },

@@ -2,12 +2,13 @@
 
 import { useSession } from '@/components/auth/SessionProvider';
 import AttendanceSummaryView from '@/components/attendance/AttendanceSummaryView';
+import LoggedOutNotice from '@/components/auth/LoggedOutNotice';
 
 export default function AttendancePage() {
   const { user, loading } = useSession();
 
   if (loading) return <div className="section-padding container-custom">Loading…</div>;
-  if (!user) return <div className="section-padding container-custom">Please log in to view your attendance.</div>;
+  if (!user) return <LoggedOutNotice what="Please log in to view your attendance." />;
 
   return (
     <div className="section-padding container-custom space-y-6">

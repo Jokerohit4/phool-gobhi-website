@@ -103,10 +103,15 @@ export default async function proxy(request: NextRequest) {
   const isWalletApi = WALLET_API_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   // Booking creation and cancellation move wallet money server-side, so they
   // are also gated while the wallet is under maintenance even though they
-  // live under /api/bookings (which is otherwise a gyms surface).
+  // live under /api/bookings (which is otherwise a gyms surface). The browser
+  // never calls the gateway directly: it POSTs to the BFF route handlers
+  // below (POST /api/bookings, POST /api/bookings/:id/cancel), and those
+  // translate to the backend's own PUT/PATCH. The gate keys on the method the
+  // BROWSER sends — matching the backend's PUT here meant the cancel gate was
+  // dead code, since no PUT ever arrives at this proxy.
   const isWalletMoneyMover =
     (pathname === '/api/bookings' && method === 'POST') ||
-    (/^\/api\/bookings\/[^/]+\/cancel$/.test(pathname) && method === 'PUT');
+    (/^\/api\/bookings\/[^/]+\/cancel$/.test(pathname) && method === 'POST');
 
   if (!isGymsPage && !isGymsApi && !isWalletPage && !isWalletApi && !isWalletMoneyMover) {
     return NextResponse.next();

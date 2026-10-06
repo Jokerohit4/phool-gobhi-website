@@ -2,12 +2,13 @@
 
 import { useSession } from '@/components/auth/SessionProvider';
 import AttendanceWarningsView from '@/components/attendance/AttendanceWarningsView';
+import LoggedOutNotice from '@/components/auth/LoggedOutNotice';
 
 export default function WarningsPage() {
   const { user, loading } = useSession();
 
   if (loading) return <div className="section-padding container-custom">Loading…</div>;
-  if (!user) return <div className="section-padding container-custom">Please log in to view your warnings.</div>;
+  if (!user) return <LoggedOutNotice what="Please log in to view your warnings." />;
 
   return (
     <div className="section-padding container-custom space-y-6">

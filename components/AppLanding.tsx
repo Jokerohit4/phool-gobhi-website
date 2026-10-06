@@ -38,7 +38,14 @@ export default function AppLanding() {
   // store listings go live, set NEXT_PUBLIC_PLAY_STORE_URL / NEXT_PUBLIC_APP_STORE_URL
   // and phones scanning the shirt get routed to the right store automatically —
   // no QR reprint needed. Until then the landing page below shows "coming soon".
-  const storeUrl = platform === 'android' ? PLAY_STORE_URL : APP_STORE_URL;
+  //
+  // Auto-redirect is phone-only: a desktop visitor on this URL gets the store
+  // buttons as links if they want them, but is NOT bounced to the App Store.
+  // ('other' is desktop/tablet — the old `: APP_STORE_URL` fallback sent every
+  // desktop visitor who scanned an iOS-first QR to the iOS store, which made
+  // no sense with both listings live.)
+  const storeUrl =
+    platform === 'android' ? PLAY_STORE_URL : platform === 'ios' ? APP_STORE_URL : '';
 
   useEffect(() => {
     if (!storeUrl) return;
