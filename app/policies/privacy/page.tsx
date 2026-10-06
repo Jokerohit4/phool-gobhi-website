@@ -82,7 +82,7 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">5. Health &amp; fitness data (Health+)</h2>
             <p>
               Some features let you record health information: workouts, steps and heart rate from Apple Health or
-              Health Connect, body measurements you type in, food logs, period dates, medical documents you upload,
+              Health Connect, body measurements you type in, food logs (including from photos), period dates, medical documents you upload,
               and conversations with our AI fitness coach. We treat all of this as sensitive personal data.
             </p>
             <ul className="list-disc list-inside space-y-1">
@@ -106,7 +106,10 @@ export default function PrivacyPage() {
             <ul className="list-disc list-inside space-y-1">
               <li><strong>Database:</strong> your account, booking, wallet and health records are stored in a managed Postgres database provided by Neon, a third party that hosts data outside India on our behalf under a processor agreement.</li>
               <li><strong>AI fitness coach:</strong> the messages you send the coach, and the workout context it needs to answer, are processed by our AI model provider, Groq, in the United States. We keep what we send to the minimum needed to answer.</li>
-              <li><strong>Food photos:</strong> meal photo logging is currently switched off and not available in the app. If we ever turn it on, the photo will be analysed by a third-party vision model provider and we will tell you before it does anything with your image.</li>
+              <li><strong>Food photos:</strong> when you log a meal with a photo, the photo is sent to our vision model
+              provider (Google Cloud Gemini) to read what is on the plate, and a copy is stored on our cloud storage
+              (Google Cloud Storage) so we can re-check it. A dish the model cannot match is reported back to you and
+              noted for us to add — it is never assigned a made-up nutrition value.</li>
               <li><strong>Photos and files:</strong> profile and gym photos are stored with Cloudinary.</li>
             </ul>
             <p>
