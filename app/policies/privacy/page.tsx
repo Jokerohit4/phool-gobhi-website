@@ -19,7 +19,7 @@ export default function PrivacyPage() {
             <PosterOutline>Privacy</PosterOutline> <PosterFill color="emerald">Policy</PosterFill>
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
-            Last updated 20 August 2026.
+            Last updated 6 October 2026.
           </p>
         </div>
 
@@ -45,6 +45,7 @@ export default function PrivacyPage() {
               <li><strong>Usage data:</strong> app and website interactions (screens viewed, buttons tapped, searches, bookings, top-ups, check-ins) via our own first-party analytics — no third party receives this data.</li>
               <li><strong>IP address:</strong> captured automatically alongside the usage data above, to support aggregate, approximate location reporting (e.g. by city or country). We do not use it to pinpoint your exact location, and it is never shared with a third party.</li>
               <li><strong>Device data:</strong> app version, device model and OS, language and theme settings, and a push-notification token (Firebase Cloud Messaging) so we can notify you about your bookings.</li>
+              <li><strong>Partner business details:</strong> if you run a partner gym, we collect your business name, contact details, and the bank account or UPI details you give us, so we can pay you what you have earned and complete statutory withholding.</li>
             </ul>
           </div>
 
@@ -69,7 +70,7 @@ export default function PrivacyPage() {
               <li><strong>Partner gyms</strong> see your name and profile photo for bookings at their gym, so they can recognize you at check-in — they never see your phone number or email. If you registered directly with a gym through its join link, that gym can also see your check-in/attendance history with them specifically (not with any other gym).</li>
               <li><strong>Other Buddy users</strong> see the buddy profile and chat content you choose to share. Please do not share personal contact details with people you have just met.</li>
               <li><strong>Razorpay</strong> processes payments directly; we share only what&apos;s needed to complete a transaction.</li>
-              <li><strong>Firebase (Google)</strong> delivers push notifications; Fast2SMS delivers OTPs.</li>
+              <li><strong>Firebase (Google)</strong> delivers push notifications and verifies your phone number for sign-in. Sign-in codes are sent over an SMS provider we have contracted for that purpose.</li>
               <li>We do not sell your personal data to anyone, or share it with advertisers.</li>
             </ul>
           </div>
@@ -78,7 +79,7 @@ export default function PrivacyPage() {
             <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">
               Draft — pending legal review
             </p>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Health &amp; fitness data (Health+)</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">5. Health &amp; fitness data (Health+)</h2>
             <p>
               Some features let you record health information: workouts, steps and heart rate from Apple Health or
               Health Connect, body measurements you type in, food logs, period dates, medical documents you upload,
@@ -97,15 +98,15 @@ export default function PrivacyPage() {
             <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">
               Draft — pending legal review
             </p>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Where your data is processed</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">6. Where your data is processed</h2>
             <p>
               Our servers run in India (Google Cloud, Mumbai). Some of your data is stored or processed outside India
               by the service providers we use:
             </p>
             <ul className="list-disc list-inside space-y-1">
-              <li><strong>Database:</strong> your account, booking, wallet and health records are stored with Neon, in Singapore.</li>
+              <li><strong>Database:</strong> your account, booking, wallet and health records are stored in a managed Postgres database provided by Neon, a third party that hosts data outside India on our behalf under a processor agreement.</li>
               <li><strong>AI fitness coach:</strong> the messages you send the coach, and the workout context it needs to answer, are processed by our AI model provider, Groq, in the United States. We keep what we send to the minimum needed to answer.</li>
-              <li><strong>Food photos:</strong> if you log a meal by photo, the photo is analysed by Google&apos;s Gemini service.</li>
+              <li><strong>Food photos:</strong> meal photo logging is currently switched off and not available in the app. If we ever turn it on, the photo will be analysed by a third-party vision model provider and we will tell you before it does anything with your image.</li>
               <li><strong>Photos and files:</strong> profile and gym photos are stored with Cloudinary.</li>
             </ul>
             <p>
@@ -114,7 +115,7 @@ export default function PrivacyPage() {
           </div>
 
           <div className="card-premium p-6 space-y-3">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">5. Data retention &amp; deletion</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">7. Data retention &amp; deletion</h2>
             <p>
               We keep account and transaction data for as long as your account is active, and for a reasonable
               period afterward as needed for accounting, dispute resolution, and legal compliance. You can
@@ -129,7 +130,7 @@ export default function PrivacyPage() {
           </div>
 
           <div className="card-premium p-6 space-y-3">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">6. Your rights</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">8. Your rights</h2>
             <p>
               Under India&apos;s Digital Personal Data Protection Act, you have the right to access, correct, and
               request deletion of your personal data, and to withdraw consent for processing that relies on it. To
@@ -146,7 +147,7 @@ export default function PrivacyPage() {
             <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">
               Draft — pending legal review
             </p>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Grievances &amp; privacy contact</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">9. Grievances &amp; privacy contact</h2>
             <p>
               If you have a question or complaint about how we handle your personal data, write to our grievance
               officer, Rohitashwa Singh (Founder), at{' '}
@@ -158,7 +159,7 @@ export default function PrivacyPage() {
           </div>
 
           <div className="card-premium p-6 space-y-3">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">7. Cookies (website)</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">10. Cookies (website)</h2>
             <p>
               The website uses a session cookie to keep you logged in, and a local preference for light/dark theme.
               We do not use third-party advertising or tracking cookies. See our{' '}
@@ -170,7 +171,7 @@ export default function PrivacyPage() {
           </div>
 
           <div className="card-premium p-6 space-y-3">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">8. Children&apos;s privacy</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">11. Children&apos;s privacy</h2>
             <p>
               Phool Gobhi is for users aged 18 and over. We do not knowingly collect data from anyone under 18.
               If you believe a child has provided us personal data, contact us and we will delete it.
@@ -178,7 +179,7 @@ export default function PrivacyPage() {
           </div>
 
           <div className="card-premium p-6 space-y-3">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">9. Changes to this policy</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">12. Changes to this policy</h2>
             <p>
               We may update this policy as the product evolves. Material changes will be reflected by the
               &quot;last updated&quot; date above.
