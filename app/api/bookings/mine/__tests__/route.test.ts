@@ -17,6 +17,16 @@ describe('GET /api/bookings/mine', () => {
     expect(mockProxyAuthedGet).toHaveBeenCalledWith('/api/bookings/mine');
   });
 
+  it('forwards limit and cursor to the gateway', async () => {
+    await GET(new Request('http://localhost/api/bookings/mine?limit=50&cursor=90'));
+    expect(mockProxyAuthedGet).toHaveBeenCalledWith('/api/bookings/mine?limit=50&cursor=90');
+  });
+
+  it('drops non-numeric and unknown params', async () => {
+    await GET(new Request('http://localhost/api/bookings/mine?limit=abc&cursor=1%26x%3D2&evil=1'));
+    expect(mockProxyAuthedGet).toHaveBeenCalledWith('/api/bookings/mine');
+  });
+
   it('returns the result from proxyAuthedGet', async () => {
     const fakeResponse = { bookings: [{ id: 'b1' }] };
     mockProxyAuthedGet.mockResolvedValue(fakeResponse);

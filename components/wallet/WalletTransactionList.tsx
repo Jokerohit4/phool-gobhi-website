@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import type { WalletTransaction } from '@/lib/types';
+import { appendUnique, readMeta, type PageMeta } from '@/lib/pagination';
+
+const PAGE_SIZE = 50;
 
 const SIGN: Record<WalletTransaction['type'], '+' | '-'> = {
   credit: '+',
@@ -14,11 +17,16 @@ const SIGN: Record<WalletTransaction['type'], '+' | '-'> = {
 export default function WalletTransactionList({ refreshKey }: { refreshKey: number }) {
   const [transactions, setTransactions] = useState<WalletTransaction[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [meta, setMeta] = useState<PageMeta>({ nextCursor: null, hasMore: false });
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [moreError, setMoreError] = useState<string | null>(null);
 
   useEffect(() => {
     setTransactions(null);
     setError(null);
-    fetch('/api/wallet/transactions', { cache: 'no-store' })
+    setMeta({ nextCursor: null, hasMore: false });
+    setMoreError(null);
+    fetch(`/api/wallet/transactions?limit=${PAGE_SIZE}`, { cache: 'no-store' })
       .then(async (res) => {
         const data = await res.json();
         if (!res.ok) {
@@ -26,9 +34,30 @@ export default function WalletTransactionList({ refreshKey }: { refreshKey: numb
           return;
         }
         setTransactions(data.data ?? []);
+        setMeta(readMeta(data));
       })
       .catch(() => setError('Network error — please try again'));
   }, [refreshKey]);
+
+  async function loadMore() {
+    if (loadingMore || !meta.hasMore || meta.nextCursor === null) return;
+    setLoadingMore(true);
+    setMoreError(null);
+    try {
+      const res = await fetch(`/api/wallet/transactions?limit=${PAGE_SIZE}&cursor=${meta.nextCursor}`, { cache: 'no-store' });
+      const data = await res.json();
+      if (!res.ok) {
+        setMoreError(data.error || 'Could not load more transactions');
+        return;
+      }
+      setTransactions((held) => appendUnique(held ?? [], data.data ?? []));
+      setMeta(readMeta(data));
+    } catch {
+      setMoreError('Network error — please try again');
+    } finally {
+      setLoadingMore(false);
+    }
+  }
 
   if (error) return <p className="text-red-500">{error}</p>;
   if (!transactions) return <p className="text-gray-500 dark:text-gray-400">Loading transactions…</p>;
@@ -53,6 +82,17 @@ export default function WalletTransactionList({ refreshKey }: { refreshKey: numb
           </div>
         ))}
       </div>
+      {moreError && <p className="text-center text-sm text-red-500">{moreError}</p>}
+      {meta.hasMore && (
+        <button
+          type="button"
+          onClick={loadMore}
+          disabled={loadingMore}
+          className="w-full rounded-lg border border-cream-200 px-4 py-2 text-sm font-semibold transition hover:bg-cream-100 disabled:opacity-60 dark:border-gray-800 dark:hover:bg-gray-800/50"
+        >
+          {loadingMore ? 'Loading…' : 'Load more'}
+        </button>
+      )}
     </div>
   );
 }

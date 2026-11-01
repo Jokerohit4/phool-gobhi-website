@@ -33,6 +33,22 @@ describe('GET /api/wallet/transactions', () => {
     expect(mockAuthedGatewayFetch).toHaveBeenNthCalledWith(2, '/api/wallet/42/transactions');
   });
 
+  it('forwards limit and cursor to the per-user transactions call', async () => {
+    mockAuthedGatewayFetch.mockResolvedValueOnce({ id: 42 }).mockResolvedValueOnce({ data: [] });
+
+    await GET(new Request('http://localhost/api/wallet/transactions?limit=50&cursor=7'));
+
+    expect(mockAuthedGatewayFetch).toHaveBeenNthCalledWith(2, '/api/wallet/42/transactions?limit=50&cursor=7');
+  });
+
+  it('passes meta through untouched', async () => {
+    const body = { data: [{ id: 6 }], meta: { nextCursor: 6, hasMore: true } };
+    mockAuthedGatewayFetch.mockResolvedValueOnce({ id: 42 }).mockResolvedValueOnce(body);
+
+    await GET(new Request('http://localhost/api/wallet/transactions?limit=1'));
+    expect(mockJson).toHaveBeenCalledWith(body);
+  });
+
   it('returns 200 with transaction data on success', async () => {
     const txData = { transactions: [{ id: 't1', amount: 500 }] };
     mockAuthedGatewayFetch
