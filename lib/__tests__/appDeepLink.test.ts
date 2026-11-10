@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   buildAppLaunchHrefForPlatform,
+  appSchemeForHost,
   buildBrowserEscapeLink,
   detectPlatformFromUserAgent,
   isEmbeddedWebView,
@@ -110,5 +111,14 @@ describe('buildBrowserEscapeLink', () => {
     // A Chrome hand-off from an embedded WebView must still be able to fall
     // back, since some scanners block the intent entirely.
     expect(link?.href).toContain('S.browser_fallback_url=');
+  });
+});
+
+describe('environment-specific app schemes', () => {
+  it('launches the dev app for the dev poster host', () => {
+    expect(appSchemeForHost('dev.phoolgobhi.com')).toBe('phoolgobhidev');
+    expect(appSchemeForHost('localhost')).toBe('phoolgobhidev');
+    expect(appSchemeForHost('www.phoolgobhi.com')).toBe('phoolgobhi');
+    expect(appSchemeForHost('dev.phoolgobhi.com.evil.example')).toBe('phoolgobhi');
   });
 });

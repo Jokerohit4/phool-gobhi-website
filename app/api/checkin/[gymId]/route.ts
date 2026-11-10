@@ -23,7 +23,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ gymId: string 
   }
 
   try {
-    const data = await authedGatewayFetch(`/api/bookings/gym/${gymId}/self-checkin`, {
+    const data = await authedGatewayFetch(`/api/bookings/gym/${gymId}/entrance-checkin`, {
       method: 'POST',
       body: { lat, lng, confirmEarly: !!confirmEarly },
     });

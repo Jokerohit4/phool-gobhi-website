@@ -35,6 +35,11 @@
 
 export const APP_SCHEME = 'phoolgobhi';
 
+export function appSchemeForHost(host: string): 'phoolgobhi' | 'phoolgobhidev' {
+  return host === 'dev.phoolgobhi.com' || host === 'localhost' || host === '127.0.0.1'
+    ? 'phoolgobhidev' : 'phoolgobhi';
+}
+
 export type Platform = 'android' | 'ios' | 'other';
 
 export function detectPlatform(): Platform {
@@ -101,6 +106,7 @@ export function buildAppLaunchHref(appPath: string): string | null {
 /** Pure core of buildAppLaunchHref, split out so the platform matrix is testable. */
 export function buildAppLaunchHrefForPlatform(platform: Platform, appPath: string): string | null {
   if (platform === 'other') return null;
+  const scheme = typeof window === 'undefined' ? APP_SCHEME : appSchemeForHost(window.location.hostname);
 
   if (platform === 'android') {
     // `intent://` hands off to the OS, which resolves the declared scheme
@@ -112,10 +118,10 @@ export function buildAppLaunchHrefForPlatform(platform: Platform, appPath: strin
     // flavor, `in.phoolgobi.partner` vs `in.phoolgobi.partner.dev`).
     const path = appPath.replace(/^\/+/, '');
     const fallback = encodeURIComponent(currentBrowserUrl());
-    return `intent://${path}#Intent;scheme=${APP_SCHEME};S.browser_fallback_url=${fallback};end`;
+    return `intent://${path}#Intent;scheme=${scheme};S.browser_fallback_url=${fallback};end`;
   }
 
-  return `${APP_SCHEME}://${appPath.replace(/^\/+/, '')}`;
+  return `${scheme}://${appPath.replace(/^\/+/, '')}`;
 }
 
 function currentBrowserUrl(): string {

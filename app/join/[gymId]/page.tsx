@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import OtpForm from '@/components/auth/OtpForm';
 import { useSession } from '@/components/auth/SessionProvider';
-import { buildAppLaunchHref, getBrowserEscapeLink, subscribeNoop } from '@/lib/appDeepLink';
+import { appSchemeForHost, APP_SCHEME, buildAppLaunchHref, getBrowserEscapeLink, subscribeNoop } from '@/lib/appDeepLink';
 import AppStoreButtons from '@/components/AppStoreButtons';
 import type { Gym } from '@/lib/types';
 
@@ -22,7 +22,6 @@ export default function JoinGymPage() {
   const params = useParams<{ gymId: string }>();
   const gymId = params.gymId;
   const numericGymId = Number(gymId);
-  const appLink = `phoolgobhi://join?gymId=${encodeURIComponent(gymId)}`;
   const { user, loading: sessionLoading } = useSession();
 
   const [gym, setGym] = useState<Gym | null>(null);
@@ -30,6 +29,9 @@ export default function JoinGymPage() {
   // Render-time, not effect-time: the href must belong to a tap the user
   // actually made. platform and location are both stable by first paint here.
   const appLaunchHref = buildAppLaunchHref(`join?gymId=${encodeURIComponent(gymId)}`);
+
+  const scheme = typeof window === 'undefined' ? APP_SCHEME : appSchemeForHost(window.location.hostname);
+  const appLink = `${scheme}://join?gymId=${encodeURIComponent(gymId)}`;
 
   // useSyncExternalStore rather than setState-in-an-effect: the embedded-
   // browser test is a pure read of a value that can never change during the

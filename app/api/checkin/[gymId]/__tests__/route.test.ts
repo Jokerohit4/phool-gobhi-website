@@ -47,7 +47,7 @@ describe('POST /api/checkin/[gymId]', () => {
   it('calls gateway with lat/lng and returns 200', async () => {
     const res = await POST(makeRequest({ lat: 12.9, lng: 77.5 }), makeCtx());
     expect(res.status).toBe(200);
-    expect(mockAuthedGatewayFetch).toHaveBeenCalledWith('/api/bookings/gym/gym_1/self-checkin', {
+    expect(mockAuthedGatewayFetch).toHaveBeenCalledWith('/api/bookings/gym/gym_1/entrance-checkin', {
       method: 'POST',
       body: { lat: 12.9, lng: 77.5, confirmEarly: false },
     });
@@ -56,7 +56,7 @@ describe('POST /api/checkin/[gymId]', () => {
   it('coerces confirmEarly to boolean', async () => {
     await POST(makeRequest({ lat: 12.9, lng: 77.5, confirmEarly: 1 }), makeCtx());
     expect(mockAuthedGatewayFetch).toHaveBeenCalledWith(
-      '/api/bookings/gym/gym_1/self-checkin',
+      '/api/bookings/gym/gym_1/entrance-checkin',
       expect.objectContaining({ body: expect.objectContaining({ confirmEarly: true }) })
     );
   });

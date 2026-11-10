@@ -15,6 +15,8 @@ type Phase =
   | 'success'
   | 'alreadyVerified'
   | 'noActiveBooking'
+  | 'membershipRequired'
+  | 'membershipPending'
   | 'pendingConfirmation'
   | 'earlyCheckin'
   | 'sessionEnded'
@@ -96,7 +98,9 @@ export default function CheckinRedirectPage() {
             setPhase(json.data?.alreadyVerified ? 'alreadyVerified' : 'success');
             return;
           }
-          if (json.code === 'NO_ACTIVE_BOOKING') setPhase('noActiveBooking');
+          if (json.code === 'MEMBERSHIP_REQUIRED') setPhase('membershipRequired');
+          else if (json.code === 'MEMBERSHIP_PENDING') setPhase('membershipPending');
+          else if (json.code === 'NO_ACTIVE_BOOKING') setPhase('noActiveBooking');
           else if (json.code === 'BOOKING_PENDING_CONFIRMATION') setPhase('pendingConfirmation');
           else if (json.code === 'EARLY_CHECKIN') {
             setEarlyConfirmation(json.confirmation ?? null);
@@ -118,10 +122,35 @@ export default function CheckinRedirectPage() {
     );
   };
 
+  const requestMembership = async () => {
+    setPhase('checking');
+    try {
+      const res = await fetch(`/api/checkin/${gymId}/membership`, { method: 'POST' });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Could not request membership approval');
+      setPhase('membershipPending');
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : 'Could not request membership approval');
+      setPhase('error');
+    }
+  };
+
   return (
     <div className="section-padding container-custom flex min-h-[60vh] items-center justify-center">
       <div className="w-full max-w-md space-y-6">
         <div className="card-premium p-8 text-center space-y-4">
+          {phase === 'membershipRequired' && <>
+            <h1 className="text-2xl font-bold">Are you a gym member?</h1>
+            <p>No eligible booking or approved membership was found. If you are a member, request approval from the gym. A request does not check you in.</p>
+            <button type="button" onClick={requestMembership} className="btn-primary inline-block">Request membership approval</button>
+            <Link href="/account/bookings" className="btn-secondary inline-block">View my bookings</Link>
+            <Link href={`/gyms/${gymId}`} className="btn-secondary inline-block">Book a session</Link>
+          </>}
+          {phase === 'membershipPending' && <>
+            <h1 className="text-2xl font-bold">Waiting for gym approval</h1>
+            <p>Ask the gym owner to review your request in Members on the partner dashboard. Attendance has not been recorded. Once approved, try again.</p>
+            <button type="button" onClick={() => checkInNow()} className="btn-primary inline-block">Check approval and try again</button>
+          </>}
           {phase === 'idle' && !sessionLoading && !user && (
             <>
               <h1 className="text-2xl font-bold">Log in to check in</h1>
