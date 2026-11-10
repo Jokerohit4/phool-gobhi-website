@@ -1,0 +1,24 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "in.phoolgobi.customer",
+      "sha256_cert_fingerprints": [
+        "25:60:25:21:B8:E5:C5:0E:F2:7A:37:BF:ED:E7:93:3A:EB:CC:6F:4C:29:32:A8:1E:FB:A7:E3:B1:98:F8:05:87",
+        "28:9B:CA:D8:C0:DF:5A:FE:4C:E4:FE:6B:22:7D:00:16:73:A8:0F:F9:5A:6A:B4:70:71:44:6E:64:CF:34:C5:25"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "in.phoolgobi.customer.dev",
+      "sha256_cert_fingerprints": [
+        "25:60:25:21:B8:E5:C5:0E:F2:7A:37:BF:ED:E7:93:3A:EB:CC:6F:4C:29:32:A8:1E:FB:A7:E3:B1:98:F8:05:87",
+        "28:9B:CA:D8:C0:DF:5A:FE:4C:E4:FE:6B:22:7D:00:16:73:A8:0F:F9:5A:6A:B4:70:71:44:6E:64:CF:34:C5:25"
+      ]
+    }
+  }
+]
