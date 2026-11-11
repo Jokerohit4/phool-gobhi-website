@@ -19,6 +19,7 @@ type Phase =
   | 'membershipRequired'
   | 'membershipPending'
   | 'membershipBlocked'
+  | 'upcomingBooking'
   | 'alreadyLinked'
   | 'pendingConfirmation'
   | 'earlyCheckin'
@@ -64,6 +65,9 @@ export default function CheckinRedirectPage() {
   // The waiting screen stops polling after a few minutes; this swaps its copy
   // from "we'll check you in automatically" to "we'll notify you".
   const [pollExpired, setPollExpired] = useState(false);
+  // "Your session is tomorrow at 7:00 PM." — said by the server for someone who
+  // has a booking for another time and so is a guest, not a member to be.
+  const [upcomingMessage, setUpcomingMessage] = useState('');
   // Set by the "Join & check in" tap and kept for retries (e.g. "move closer"),
   // so a retry doesn't bounce the customer back to the join prompt.
   const [wantsJoin, setWantsJoin] = useState(false);
@@ -123,7 +127,10 @@ export default function CheckinRedirectPage() {
             setPollExpired(false);
             setPhase('membershipPending');
           }
-          else if (json.code === 'MEMBERSHIP_BLOCKED') setPhase('membershipBlocked');
+          else if (json.code === 'UPCOMING_BOOKING') {
+            setUpcomingMessage(typeof json.error === 'string' ? json.error : '');
+            setPhase('upcomingBooking');
+          } else if (json.code === 'MEMBERSHIP_BLOCKED') setPhase('membershipBlocked');
           else if (json.code === 'ALREADY_LINKED') setPhase('alreadyLinked');
           else if (json.code === 'NO_ACTIVE_BOOKING') setPhase('noActiveBooking');
           else if (json.code === 'BOOKING_PENDING_CONFIRMATION') setPhase('pendingConfirmation');
@@ -209,6 +216,14 @@ export default function CheckinRedirectPage() {
                 : 'We’ve asked the gym. Keep this page open — we’ll check you in the moment they approve. You’ll also get a notification in the Phool Gobhi app.'}
             </p>
             <button type="button" onClick={() => checkInNow(false, true)} className="btn-secondary inline-block">Check again</button>
+          </>}
+          {phase === 'upcomingBooking' && <>
+            <h1 className="text-2xl font-bold">You&apos;re booked in</h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              {upcomingMessage || `You have a session booked${gym ? ` at ${gym.name}` : ''}.`}{' '}
+              Come back then and scan again to check in.
+            </p>
+            <Link href="/account/bookings" className="btn-primary inline-block">View my bookings</Link>
           </>}
           {phase === 'membershipBlocked' && <>
             <h1 className="text-2xl font-bold">Can&apos;t join this gym</h1>
