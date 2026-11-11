@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from '@/components/auth/SessionProvider';
 import { buildAppLaunchHref, getBrowserEscapeLink, subscribeNoop } from '@/lib/appDeepLink';
+import { isApprovedForGym } from '@/lib/checkinApproval';
 import AppStoreButtons from '@/components/AppStoreButtons';
 import type { Gym } from '@/lib/types';
 
@@ -17,6 +18,8 @@ type Phase =
   | 'noActiveBooking'
   | 'membershipRequired'
   | 'membershipPending'
+  | 'membershipBlocked'
+  | 'alreadyLinked'
   | 'pendingConfirmation'
   | 'earlyCheckin'
   | 'sessionEnded'
@@ -24,6 +27,10 @@ type Phase =
   | 'tooFar'
   | 'locationDenied'
   | 'error';
+
+// How often, and for how long, the waiting screen looks for the gym's approval.
+const APPROVAL_POLL_MS = 5000;
+const APPROVAL_POLL_MAX_MS = 5 * 60 * 1000;
 
 interface EarlyCheckinConfirmation {
   currentStartTime: string;
@@ -53,6 +60,13 @@ export default function CheckinRedirectPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [earlyConfirmation, setEarlyConfirmation] = useState<EarlyCheckinConfirmation | null>(null);
   const [slotShifted, setSlotShifted] = useState(false);
+  const [joined, setJoined] = useState(false);
+  // The waiting screen stops polling after a few minutes; this swaps its copy
+  // from "we'll check you in automatically" to "we'll notify you".
+  const [pollExpired, setPollExpired] = useState(false);
+  // Set by the "Join & check in" tap and kept for retries (e.g. "move closer"),
+  // so a retry doesn't bounce the customer back to the join prompt.
+  const [wantsJoin, setWantsJoin] = useState(false);
   const [gym, setGym] = useState<Gym | null>(null);
 
   // Render-time, not effect-time: the href must belong to a tap the user
@@ -76,7 +90,11 @@ export default function CheckinRedirectPage() {
       .catch(() => {});
   }, [gymId]);
 
-  const checkInNow = (confirmEarly = false) => {
+  // One poster, three outcomes, decided by the server: a booking check-in, a
+  // member's attendance, or — only with `join`, after the customer taps "Join &
+  // check in" and the server has verified they are at the gym — becoming a
+  // member and being checked in by the same request.
+  const checkInNow = (confirmEarly = false, join = wantsJoin) => {
     setErrorMessage(null);
     setPhase('geolocating');
     if (!navigator.geolocation) {
@@ -90,16 +108,23 @@ export default function CheckinRedirectPage() {
           const res = await fetch(`/api/checkin/${gymId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude, confirmEarly }),
+            body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude, confirmEarly, join }),
           });
           const json = await res.json();
           if (res.ok) {
             setSlotShifted(!!json.data?.slotShifted);
+            setJoined(!!json.data?.joined);
             setPhase(json.data?.alreadyVerified ? 'alreadyVerified' : 'success');
             return;
           }
+          // REQUIRED: never asked. PENDING: asked, the gym hasn't approved yet.
           if (json.code === 'MEMBERSHIP_REQUIRED') setPhase('membershipRequired');
-          else if (json.code === 'MEMBERSHIP_PENDING') setPhase('membershipPending');
+          else if (json.code === 'MEMBERSHIP_PENDING') {
+            setPollExpired(false);
+            setPhase('membershipPending');
+          }
+          else if (json.code === 'MEMBERSHIP_BLOCKED') setPhase('membershipBlocked');
+          else if (json.code === 'ALREADY_LINKED') setPhase('alreadyLinked');
           else if (json.code === 'NO_ACTIVE_BOOKING') setPhase('noActiveBooking');
           else if (json.code === 'BOOKING_PENDING_CONFIRMATION') setPhase('pendingConfirmation');
           else if (json.code === 'EARLY_CHECKIN') {
@@ -122,34 +147,82 @@ export default function CheckinRedirectPage() {
     );
   };
 
-  const requestMembership = async () => {
-    setPhase('checking');
-    try {
-      const res = await fetch(`/api/checkin/${gymId}/membership`, { method: 'POST' });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'Could not request membership approval');
-      setPhase('membershipPending');
-    } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : 'Could not request membership approval');
-      setPhase('error');
-    }
+  const joinAndCheckIn = () => {
+    setWantsJoin(true);
+    checkInNow(false, true);
   };
+
+  // While the gym hasn't approved yet, watch for the approval and finish the
+  // check-in the moment it lands, so the member doesn't have to scan again. The
+  // ref lets the interval call the latest checkInNow without re-arming it.
+  const checkInRef = useRef(checkInNow);
+  useEffect(() => {
+    checkInRef.current = checkInNow;
+  });
+  useEffect(() => {
+    if (phase !== 'membershipPending') return;
+    const startedAt = Date.now();
+    const timer = setInterval(async () => {
+      if (Date.now() - startedAt > APPROVAL_POLL_MAX_MS) {
+        clearInterval(timer);
+        setPollExpired(true);
+        return;
+      }
+      try {
+        const res = await fetch('/api/auth/me', { cache: 'no-store' });
+        if (!res.ok) return;
+        const me = (await res.json())?.user;
+        if (isApprovedForGym(me, gymId)) {
+          clearInterval(timer);
+          checkInRef.current(false, true);
+        }
+      } catch {
+        // Transient network error: the next tick tries again.
+      }
+    }, APPROVAL_POLL_MS);
+    return () => clearInterval(timer);
+  }, [phase, gymId]);
 
   return (
     <div className="section-padding container-custom flex min-h-[60vh] items-center justify-center">
       <div className="w-full max-w-md space-y-6">
         <div className="card-premium p-8 text-center space-y-4">
           {phase === 'membershipRequired' && <>
-            <h1 className="text-2xl font-bold">Are you a gym member?</h1>
-            <p>No eligible booking or approved membership was found. If you are a member, request approval from the gym. A request does not check you in.</p>
-            <button type="button" onClick={requestMembership} className="btn-primary inline-block">Request membership approval</button>
+            <h1 className="text-2xl font-bold">Are you a member{gym ? ` of ${gym.name}` : ''}?</h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              You don&apos;t have a session booked for right now. If you train here, ask to join. The gym confirms
+              you — straight away if they&apos;re approving joins right now — and then you&apos;re checked in.
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Joining shares your name, photo, gender, age, fitness goals and when you visit with {gym ? gym.name : 'the gym'}.
+              It never shares your phone number or email.
+            </p>
+            <button type="button" onClick={joinAndCheckIn} className="btn-primary inline-block">Request to join</button>
+            <Link href={`/gyms/${gymId}`} className="btn-secondary inline-block">Book a session instead</Link>
             <Link href="/account/bookings" className="btn-secondary inline-block">View my bookings</Link>
-            <Link href={`/gyms/${gymId}`} className="btn-secondary inline-block">Book a session</Link>
           </>}
           {phase === 'membershipPending' && <>
-            <h1 className="text-2xl font-bold">Waiting for gym approval</h1>
-            <p>Ask the gym owner to review your request in Members on the partner dashboard. Attendance has not been recorded. Once approved, try again.</p>
-            <button type="button" onClick={() => checkInNow()} className="btn-primary inline-block">Check approval and try again</button>
+            <h1 className="text-2xl font-bold">Waiting for {gym ? gym.name : 'the gym'} to approve you</h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              {pollExpired
+                ? 'Still waiting. We’ll send a notification in the Phool Gobhi app as soon as they approve, and you can scan the poster again any time.'
+                : 'We’ve asked the gym. Keep this page open — we’ll check you in the moment they approve. You’ll also get a notification in the Phool Gobhi app.'}
+            </p>
+            <button type="button" onClick={() => checkInNow(false, true)} className="btn-secondary inline-block">Check again</button>
+          </>}
+          {phase === 'membershipBlocked' && <>
+            <h1 className="text-2xl font-bold">Can&apos;t join this gym</h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              {gym ? gym.name : 'This gym'} removed your membership. Please speak to the gym owner if you think that&apos;s a mistake.
+            </p>
+            <Link href={`/gyms/${gymId}`} className="btn-secondary inline-block">Book a session instead</Link>
+          </>}
+          {phase === 'alreadyLinked' && <>
+            <h1 className="text-2xl font-bold">You&apos;re a member elsewhere</h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Your account is linked to another gym. Leave it in the Phool Gobhi app before joining {gym ? gym.name : 'this gym'}.
+            </p>
+            <Link href={`/gyms/${gymId}`} className="btn-secondary inline-block">Book a session instead</Link>
           </>}
           {phase === 'idle' && !sessionLoading && !user && (
             <>
@@ -186,9 +259,15 @@ export default function CheckinRedirectPage() {
 
           {(phase === 'success' || phase === 'alreadyVerified') && (
             <>
-              <h1 className="text-2xl font-bold">You&apos;re checked in! 🎉</h1>
+              <h1 className="text-2xl font-bold">
+                {joined ? `Welcome to ${gym ? gym.name : 'the gym'}! 🎉` : 'You’re checked in! 🎉'}
+              </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                {phase === 'alreadyVerified' ? 'Looks like you already checked in for this session.' : 'Enjoy your session!'}
+                {joined
+                  ? 'You’ve joined and you’re checked in. Just scan the poster whenever you train.'
+                  : phase === 'alreadyVerified'
+                    ? 'Looks like you already checked in for this session.'
+                    : 'Enjoy your session!'}
               </p>
               {phase === 'success' && slotShifted && (
                 <p className="text-sm text-amber-600 dark:text-amber-400">

@@ -49,8 +49,21 @@ describe('POST /api/checkin/[gymId]', () => {
     expect(res.status).toBe(200);
     expect(mockAuthedGatewayFetch).toHaveBeenCalledWith('/api/bookings/gym/gym_1/entrance-checkin', {
       method: 'POST',
-      body: { lat: 12.9, lng: 77.5, confirmEarly: false },
+      body: { lat: 12.9, lng: 77.5, confirmEarly: false, join: false },
     });
+  });
+
+  it('forwards an explicit join, and never treats a truthy non-true value as consent', async () => {
+    await POST(makeRequest({ lat: 12.9, lng: 77.5, join: true }), makeCtx());
+    expect(mockAuthedGatewayFetch).toHaveBeenLastCalledWith(
+      '/api/bookings/gym/gym_1/entrance-checkin',
+      expect.objectContaining({ body: expect.objectContaining({ join: true }) })
+    );
+    await POST(makeRequest({ lat: 12.9, lng: 77.5, join: 'yes' }), makeCtx());
+    expect(mockAuthedGatewayFetch).toHaveBeenLastCalledWith(
+      '/api/bookings/gym/gym_1/entrance-checkin',
+      expect.objectContaining({ body: expect.objectContaining({ join: false }) })
+    );
   });
 
   it('coerces confirmEarly to boolean', async () => {

@@ -11,13 +11,13 @@ export async function POST(req: Request, ctx: { params: Promise<{ gymId: string 
 
   const { gymId } = await ctx.params;
 
-  let body: { lat?: unknown; lng?: unknown; confirmEarly?: unknown };
+  let body: { lat?: unknown; lng?: unknown; confirmEarly?: unknown; join?: unknown };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
-  const { lat, lng, confirmEarly } = body;
+  const { lat, lng, confirmEarly, join } = body;
   if (typeof lat !== 'number' || typeof lng !== 'number') {
     return NextResponse.json({ error: 'lat and lng are required', code: 'LOCATION_REQUIRED' }, { status: 400 });
   }
@@ -25,7 +25,9 @@ export async function POST(req: Request, ctx: { params: Promise<{ gymId: string 
   try {
     const data = await authedGatewayFetch(`/api/bookings/gym/${gymId}/entrance-checkin`, {
       method: 'POST',
-      body: { lat, lng, confirmEarly: !!confirmEarly },
+      // `join` is the customer's explicit "I'm a member, add me" tap. The
+      // server only honours it after verifying they are inside the gym.
+      body: { lat, lng, confirmEarly: !!confirmEarly, join: join === true },
     });
     return NextResponse.json(data);
   } catch (err) {
