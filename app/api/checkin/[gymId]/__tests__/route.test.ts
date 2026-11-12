@@ -74,6 +74,37 @@ describe('POST /api/checkin/[gymId]', () => {
     );
   });
 
+  it('forwards checkout: true and passes the checkout response through unchanged', async () => {
+    const payload = { data: { kind: 'checkout', minutesInside: 75, coinsReleased: 5 } };
+    mockAuthedGatewayFetch.mockResolvedValue(payload);
+    const res = await POST(makeRequest({ lat: 12.9, lng: 77.5, checkout: true }), makeCtx());
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual(payload);
+    expect(mockAuthedGatewayFetch).toHaveBeenCalledWith('/api/bookings/gym/gym_1/entrance-checkin', {
+      method: 'POST',
+      body: { lat: 12.9, lng: 77.5, confirmEarly: false, join: false, checkout: true },
+    });
+  });
+
+  it('omits checkout when false or absent', async () => {
+    await POST(makeRequest({ lat: 12.9, lng: 77.5, checkout: false }), makeCtx());
+    expect(mockAuthedGatewayFetch.mock.calls[0][1].body).not.toHaveProperty('checkout');
+  });
+
+  it('rejects a non-boolean checkout with 400 and never calls the gateway', async () => {
+    const res = await POST(makeRequest({ lat: 12.9, lng: 77.5, checkout: 'true' }), makeCtx());
+    expect(res.status).toBe(400);
+    expect(mockAuthedGatewayFetch).not.toHaveBeenCalled();
+  });
+
+  it('passes TOO_FAR / NOT_INSIDE errors through with their code and status', async () => {
+    const { GatewayError } = await import('@/lib/gateway-client');
+    mockAuthedGatewayFetch.mockRejectedValue(new GatewayError(409, { error: 'Not inside', code: 'NOT_INSIDE' }));
+    const res = await POST(makeRequest({ lat: 12.9, lng: 77.5, checkout: true }), makeCtx());
+    expect(res.status).toBe(409);
+    expect((await res.json()).code).toBe('NOT_INSIDE');
+  });
+
   it('returns 400 when lat is missing', async () => {
     const res = await POST(makeRequest({ lng: 77.5 }), makeCtx());
     expect(res.status).toBe(400);

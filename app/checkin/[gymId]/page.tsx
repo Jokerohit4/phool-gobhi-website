@@ -5,7 +5,16 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from '@/components/auth/SessionProvider';
 import { buildAppLaunchHref, getBrowserEscapeLink, subscribeNoop } from '@/lib/appDeepLink';
-import { isApprovedForGym } from '@/lib/checkinApproval';
+import {
+  formatArrivalTime,
+  formatMinutesInside,
+  isApprovedForGym,
+  phaseForCheckinSuccess,
+  phaseForCheckoutError,
+  readCheckoutResult,
+  readPresence,
+  type CheckoutResult,
+} from '@/lib/checkinApproval';
 import AppStoreButtons from '@/components/AppStoreButtons';
 import type { Gym } from '@/lib/types';
 
@@ -15,6 +24,11 @@ type Phase =
   | 'checking'
   | 'success'
   | 'alreadyVerified'
+  | 'inside'
+  | 'confirmCheckout'
+  | 'checkedOut'
+  | 'checkoutTooFar'
+  | 'notInside'
   | 'noActiveBooking'
   | 'membershipRequired'
   | 'membershipPending'
@@ -72,6 +86,8 @@ export default function CheckinRedirectPage() {
   // so a retry doesn't bounce the customer back to the join prompt.
   const [wantsJoin, setWantsJoin] = useState(false);
   const [gym, setGym] = useState<Gym | null>(null);
+  const [insideSince, setInsideSince] = useState<string | null>(null);
+  const [checkoutResult, setCheckoutResult] = useState<CheckoutResult>({ minutesInside: null, coinsReleased: 0 });
 
   // Render-time, not effect-time: the href must belong to a tap the user
   // actually made. platform and location are both stable by first paint here.
@@ -118,7 +134,9 @@ export default function CheckinRedirectPage() {
           if (res.ok) {
             setSlotShifted(!!json.data?.slotShifted);
             setJoined(!!json.data?.joined);
-            setPhase(json.data?.alreadyVerified ? 'alreadyVerified' : 'success');
+            const next = phaseForCheckinSuccess(json.data);
+            if (next === 'inside') setInsideSince(readPresence(json.data)?.since ?? null);
+            setPhase(next);
             return;
           }
           // REQUIRED: never asked. PENDING: asked, the gym hasn't approved yet.
@@ -144,6 +162,43 @@ export default function CheckinRedirectPage() {
             setErrorMessage(json.error || 'Check-in failed');
             setPhase('error');
           }
+        } catch {
+          setErrorMessage('Network error — please try again');
+          setPhase('error');
+        }
+      },
+      () => setPhase('locationDenied'),
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  };
+
+  // Check-out reuses the check-in request with `checkout: true`. It is only
+  // reachable from the explicit confirmation step, never from a bare scan.
+  const checkOutNow = () => {
+    setErrorMessage(null);
+    setPhase('geolocating');
+    if (!navigator.geolocation) {
+      setPhase('locationDenied');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        setPhase('checking');
+        try {
+          const res = await fetch(`/api/checkin/${gymId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude, checkout: true }),
+          });
+          const json = await res.json();
+          if (res.ok) {
+            setCheckoutResult(readCheckoutResult(json.data ?? json));
+            setPhase('checkedOut');
+            return;
+          }
+          const next = phaseForCheckoutError(json.code);
+          if (next === 'error') setErrorMessage(json.error || 'Check-out failed');
+          setPhase(next);
         } catch {
           setErrorMessage('Network error — please try again');
           setPhase('error');
@@ -289,6 +344,76 @@ export default function CheckinRedirectPage() {
                   Your slot time was adjusted since you checked in early — a warning was added to your account.
                 </p>
               )}
+            </>
+          )}
+
+          {phase === 'inside' && (
+            <>
+              <h1 className="text-2xl font-bold">You&apos;re checked in</h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                {insideSince ? `You arrived${gym ? ` at ${gym.name}` : ''} at ${formatArrivalTime(insideSince)}.` : 'You’re already checked in.'}
+              </p>
+              <button type="button" onClick={() => setPhase('confirmCheckout')} className="btn-primary inline-block">
+                Check out
+              </button>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Leaving without scanning is fine, but a workout finished while you&apos;re still checked in earns
+                coins only after you check out by scanning this poster. Coins show up in the app.
+              </p>
+            </>
+          )}
+
+          {phase === 'confirmCheckout' && (
+            <>
+              <h1 className="text-2xl font-bold">Check out{gym ? ` of ${gym.name}` : ''}?</h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                This ends your visit. Only do this if you&apos;re leaving.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <button type="button" onClick={() => setPhase('inside')} className="btn-secondary inline-block">
+                  Stay checked in
+                </button>
+                <button type="button" onClick={checkOutNow} className="btn-primary inline-block">
+                  Yes, check me out
+                </button>
+              </div>
+            </>
+          )}
+
+          {phase === 'checkedOut' && (
+            <>
+              <h1 className="text-2xl font-bold">See you next time</h1>
+              {checkoutResult.minutesInside !== null && (
+                <p className="text-gray-600 dark:text-gray-400">
+                  Time inside: {formatMinutesInside(checkoutResult.minutesInside)}
+                </p>
+              )}
+              {checkoutResult.coinsReleased > 0 && (
+                <p className="font-semibold text-emerald-600 dark:text-emerald-400">
+                  You earned {checkoutResult.coinsReleased} {checkoutResult.coinsReleased === 1 ? 'coin' : 'coins'}
+                </p>
+              )}
+            </>
+          )}
+
+          {phase === 'checkoutTooFar' && (
+            <>
+              <h1 className="text-2xl font-bold">Move a bit closer</h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Move closer to the gym entrance and try again. You need to be within 50 m to check out.
+              </p>
+              <button type="button" onClick={checkOutNow} className="btn-secondary inline-block">
+                Retry
+              </button>
+            </>
+          )}
+
+          {phase === 'notInside' && (
+            <>
+              <h1 className="text-2xl font-bold">You&apos;re not checked in</h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                There&apos;s no active visit to check out of. You may already have checked out.
+              </p>
             </>
           )}
 

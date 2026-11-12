@@ -11,13 +11,16 @@ export async function POST(req: Request, ctx: { params: Promise<{ gymId: string 
 
   const { gymId } = await ctx.params;
 
-  let body: { lat?: unknown; lng?: unknown; confirmEarly?: unknown; join?: unknown };
+  let body: { lat?: unknown; lng?: unknown; confirmEarly?: unknown; join?: unknown; checkout?: unknown };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
-  const { lat, lng, confirmEarly, join } = body;
+  const { lat, lng, confirmEarly, join, checkout } = body;
+  if (checkout !== undefined && typeof checkout !== 'boolean') {
+    return NextResponse.json({ error: 'checkout must be a boolean' }, { status: 400 });
+  }
   if (typeof lat !== 'number' || typeof lng !== 'number') {
     return NextResponse.json({ error: 'lat and lng are required', code: 'LOCATION_REQUIRED' }, { status: 400 });
   }
@@ -27,7 +30,14 @@ export async function POST(req: Request, ctx: { params: Promise<{ gymId: string 
       method: 'POST',
       // `join` is the customer's explicit "I'm a member, add me" tap. The
       // server only honours it after verifying they are inside the gym.
-      body: { lat, lng, confirmEarly: !!confirmEarly, join: join === true },
+      body: {
+        lat,
+        lng,
+        confirmEarly: !!confirmEarly,
+        join: join === true,
+        // Only sent when true so ordinary check-ins keep their exact payload.
+        ...(checkout === true ? { checkout: true } : {}),
+      },
     });
     return NextResponse.json(data);
   } catch (err) {
