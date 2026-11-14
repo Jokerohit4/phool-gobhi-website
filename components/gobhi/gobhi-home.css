@@ -143,3 +143,7 @@ html:has(.gobhi-home)::-webkit-scrollbar-thumb{background:#a7b397;border:2px sol
 .gobhi-home[data-scene="buddies"]{--accent:#813b62;--accent-soft:#f0d4e4}
 
 .gobhi-home .phone-nav-targets button{z-index:8}
+
+.gobhi-home .loading .gobhi-loading-content{gap:10px;max-width:320px}
+.gobhi-home .loading .gobhi-loading-content>p:first-child{color:var(--green);font:400 12px/1.5 GobhiWork,Arial,sans-serif}
+.gobhi-home .loading .gobhi-loading-content>p:last-child{color:var(--muted);font:400 9px/1.5 GobhiWork,Arial,sans-serif}

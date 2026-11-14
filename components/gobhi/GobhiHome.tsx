@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
+import LoadingWithMascot from '@/components/LoadingWithMascot';
 import { trackCta } from '@/lib/analytics';
 import './gobhi-home.css';
 
@@ -60,7 +61,15 @@ export default function GobhiHome({ androidUrl, iosUrl }: { androidUrl: string; 
     <h1 className="sr-only">Hi, I am Gobhi. Your health and fitness buddy.</h1>
     <div className="sr-only"><p>Your training, daily habits and little wins, together with Phool Gobhi.</p><ul><li>Build a weekly plan that fits home, your gym, or wellbeing.</li><li>Ask Gobhi for a sample routine, review it and choose what to save.</li><li>See the same plan and completed habits in Today.</li><li>Find fitness buddies, chat with matches and share your personal records.</li><li>Explore the Map.</li><li>Log your water and food.</li><li>Record workout sets, reps and weights.</li><li>Look back at your history.</li><li>Celebrate your progress with Gobhi coins.</li></ul></div>
     <div className="world"><canvas id="story-canvas" role="img" aria-label="Follow Gobhi from a wave hello into an interactive day with the Phool Gobhi app. Scroll to explore, or use the app controls to try logging."/><div className="vignette"/><div className="app-atmosphere" aria-hidden="true"/></div>
-    <div className="loading" role="status"><span aria-hidden="true">✳</span><p>Gobhi’s coming to say hi…</p><small>Bringing his world together</small></div>
+    <div className="loading" role="status">
+      <LoadingWithMascot
+        audience="customer"
+        minVisibleMs={0}
+        mascotSize={88}
+        message="Gobhi’s coming to say hi…"
+        className="gobhi-loading-content"
+      />
+    </div>
     <div className="no-webgl-message">
       <Image src="/gobhi/gobhi.png" width={100} height={100} alt="Gobhi, your fitness buddy"/>
       <h2>A little better,<br/>together.</h2><p>Your water, food, workouts and little wins. Bring your everyday together with Phool Gobhi.</p>

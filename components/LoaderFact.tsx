@@ -34,7 +34,10 @@ export default function LoaderFact({
 
     const start = setTimeout(async () => {
       if (cancelled) return;
-      await bootstrapLoaderFacts(audience);
+      const bootstrapping = bootstrapLoaderFacts(audience);
+      if (cancelled) return;
+      setFact(nextLoaderFact());
+      await bootstrapping;
       if (cancelled) return;
       setFact(nextLoaderFact());
 

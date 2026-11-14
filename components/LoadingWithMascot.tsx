@@ -35,7 +35,10 @@ export default function LoadingWithMascot({
 
     const start = setTimeout(async () => {
       if (cancelled) return;
-      await bootstrapLoaderFacts(audience);
+      const bootstrapping = bootstrapLoaderFacts(audience);
+      if (cancelled) return;
+      setFact(nextLoaderFact());
+      await bootstrapping;
       if (cancelled) return;
       setFact(nextLoaderFact());
 
