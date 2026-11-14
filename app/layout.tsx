@@ -1,15 +1,10 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Bebas_Neue } from 'next/font/google';
 import './globals.css';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import ScrollProgress from '@/components/ScrollProgress';
+import SiteChrome from '@/components/SiteChrome';
 import MotionProvider from '@/components/MotionProvider';
 import { SessionProvider } from '@/components/auth/SessionProvider';
-import NamePromptModal from '@/components/auth/NamePromptModal';
-import LocationBootstrap from '@/components/LocationBootstrap';
 import AnalyticsBootstrap from '@/components/AnalyticsBootstrap';
-import MaintenanceBanner from '@/components/MaintenanceBanner';
 import JsonLd from '@/components/JsonLd';
 
 const ORGANIZATION_JSON_LD = {
@@ -52,15 +47,15 @@ const bebasNeue = Bebas_Neue({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.phoolgobhi.com'),
-  title: 'Phool Gobhi — Pay-Per-Session Gym Access, No Membership',
-  description: 'Book a gym session in Gurugram without signing up for a 12-month membership. Pay per visit, find real gyms nearby, skip the guilt trip. No membership. No shame.',
-  keywords: 'pay per session gym, no membership gym, gym booking Gurugram, flexible fitness, gym near me',
+  title: 'Phool Gobhi — Your health and fitness buddy',
+  description: 'Meet Gobhi. Bring your water, food, workouts, history and little wins together with Phool Gobhi, your everyday health and fitness buddy.',
+  keywords: 'Phool Gobhi, fitness buddy, water logging, food journal, workout logging, fitness history, Gobhi coins, gym access',
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'Phool Gobhi — Pay-Per-Session Gym Access, No Membership',
-    description: 'Book a gym session in Gurugram without signing up for a 12-month membership. Pay per visit, find real gyms nearby, skip the guilt trip. No membership. No shame.',
+    title: 'Phool Gobhi — Your health and fitness buddy',
+    description: 'Your training, daily habits and little wins. Meet Gobhi and bring your everyday together.',
     url: 'https://www.phoolgobhi.com',
     siteName: 'Phool Gobhi',
   },
@@ -74,6 +69,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${bebasNeue.variable} h-full antialiased`}
     >
@@ -109,14 +105,8 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-cream-50 dark:bg-gray-950 transition-colors duration-300">
         <SessionProvider>
           <MotionProvider>
-            <LocationBootstrap />
             <AnalyticsBootstrap />
-            <ScrollProgress />
-            <NamePromptModal />
-            <Header />
-            <MaintenanceBanner />
-            <main className="flex-grow">{children}</main>
-            <Footer />
+            <SiteChrome>{children}</SiteChrome>
           </MotionProvider>
         </SessionProvider>
       </body>

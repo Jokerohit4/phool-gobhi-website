@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/components/auth/SessionProvider';
+import LoadingWithMascot from '@/components/LoadingWithMascot';
 import type { GymSubscription, Slot } from '@/lib/types';
 
 function todayIso() {
@@ -107,7 +108,9 @@ export default function SlotPicker({ gymId }: { gymId: string }) {
       )}
 
       {error && <p className="text-red-500">{error}</p>}
-      {!slots && !error && <p className="text-gray-500 dark:text-gray-400">Loading slots…</p>}
+      {!slots && !error && (
+        <LoadingWithMascot message="Loading slots…" audience="customer" />
+      )}
       {slots && slots.length === 0 && <p className="text-gray-500 dark:text-gray-400">No slots available on this date.</p>}
 
       {/* Gyms often run a morning + evening shift with a midday closure —

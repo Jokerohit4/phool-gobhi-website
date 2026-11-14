@@ -6,6 +6,7 @@ import RatingBreakdown from './RatingBreakdown';
 import SubscriptionPlans from './SubscriptionPlans';
 import ClassesSection from './ClassesSection';
 import SlotPicker from './SlotPicker';
+import LoadingWithMascot from '@/components/LoadingWithMascot';
 import type { Gym } from '@/lib/types';
 import { locationHeaders } from '@/lib/locationHolder';
 
@@ -37,7 +38,7 @@ export default function GymDetailClient({ gymId }: { gymId: string }) {
   if (!gym) {
     return (
       <div className="section-padding container-custom">
-        <p className="text-gray-500 dark:text-gray-400">Loading…</p>
+        <LoadingWithMascot message="Loading gym…" audience="customer" />
       </div>
     );
   }

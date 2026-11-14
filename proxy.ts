@@ -121,9 +121,8 @@ export default async function proxy(request: NextRequest) {
   if (isGymsPage || isGymsApi) {
     if (!(await isLive())) {
       if (isGymsApi) return NextResponse.json({ error: 'Not live yet' }, { status: 403 });
-      // The homepage itself renders the countdown in place of its normal
-      // content while the gate is active (see app/page.tsx) — redirecting
-      // here rather than to a separate /coming-soon route.
+      // Marketing remains available before gym launch; keep protected gym
+      // and booking pages behind this gate and return visitors to the homepage.
       return NextResponse.redirect(new URL('/', request.url));
     }
   }

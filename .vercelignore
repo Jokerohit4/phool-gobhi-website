@@ -1,0 +1,6 @@
+.prototype-review/
+.claude/
+tools/
+*.log
+*.tsbuildinfo
+.env*

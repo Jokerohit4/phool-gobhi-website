@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import GymCard from './GymCard';
+import LoadingWithMascot from '@/components/LoadingWithMascot';
 import type { Gym } from '@/lib/types';
 import { locationHeaders, locationHolder } from '@/lib/locationHolder';
 
@@ -73,7 +74,9 @@ export default function GymBrowseList() {
         </div>
       )}
 
-      {!gyms && !error && <p className="text-gray-500 dark:text-gray-400">Loading gyms…</p>}
+      {!gyms && !error && (
+        <LoadingWithMascot message="Loading gyms…" audience="customer" />
+      )}
 
       {gyms && gyms.length === 0 && (
         <div className="text-gray-500 dark:text-gray-400">
