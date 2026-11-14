@@ -32,7 +32,7 @@ export default function Header() {
   const { user, loading, logout } = useSession();
 
   return (
-    <header className="sticky top-0 z-50 bg-cream-50 dark:bg-gray-950 border-b border-cream-200 dark:border-gray-800 shadow-sm transition-colors duration-300">
+    <header className="site-header sticky top-0 z-50 bg-cream-50 dark:bg-gray-950 border-b border-cream-200 dark:border-gray-800 transition-colors duration-300">
       {/* Tighter side padding than container-custom (this is the only
           place using it) so the bar uses more of the viewport width, while
           gap-10/py-5 below give the items themselves more breathing room. */}
@@ -69,6 +69,7 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => setProfileOpen((o) => !o)}
+                  aria-expanded={profileOpen}
                   className="text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors font-medium text-sm"
                 >
                   {user.name || 'Profile'}
@@ -123,7 +124,7 @@ export default function Header() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackCta('whatsapp_header_desktop')}
-              className="hidden md:block px-6 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold text-sm hover:shadow-lg transition-all"
+              className="site-header-cta hidden md:block px-6 py-2 rounded-lg bg-emerald-700 text-white font-semibold text-sm transition-all"
             >
               Message Gobhi 🥦
             </a>
@@ -131,6 +132,9 @@ export default function Header() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
+              type="button"
+              aria-label={isOpen ? 'Close navigation' : 'Open navigation'}
+              aria-expanded={isOpen}
               className="lg:hidden flex flex-col gap-1.5 w-6 h-6"
             >
               <div className={`w-full h-0.5 bg-gray-900 dark:bg-white transition-all duration-300 ${isOpen ? 'rotate-45 translate-y-2' : ''}`}></div>
@@ -199,7 +203,7 @@ export default function Header() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackCta('whatsapp_header_mobile')}
-              className="block w-full px-6 py-3 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold text-center mt-4 transition-all duration-300"
+              className="site-header-cta block w-full px-6 py-3 rounded-lg bg-emerald-700 text-white font-semibold text-center mt-4 transition-all duration-300"
             >
               Message Gobhi on WhatsApp 🥦
             </a>

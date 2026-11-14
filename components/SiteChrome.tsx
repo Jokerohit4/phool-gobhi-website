@@ -12,8 +12,9 @@ import MaintenanceBanner from './MaintenanceBanner';
 export default function SiteChrome({ children }: { children: React.ReactNode }) {
   const homepage = usePathname() === '/';
   if (homepage) return <main className="flex-grow">{children}</main>;
-  return <>
+  return <div className="site-experience">
+    <a className="skip-to-main" href="#main-content">Skip to main content</a>
     <LocationBootstrap/><ScrollProgress/><NamePromptModal/><Header/><MaintenanceBanner/>
-    <main className="flex-grow">{children}</main><Footer/>
-  </>;
+    <main id="main-content" className="site-main flex-grow">{children}</main><Footer/>
+  </div>;
 }

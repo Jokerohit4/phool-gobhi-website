@@ -29,7 +29,7 @@ const itemVariants = {
 
 export default function Footer() {
   return (
-    <footer className="bg-cream-200 dark:bg-black text-gray-600 dark:text-gray-400 mt-16 transition-colors overflow-hidden relative border-t border-cream-200 dark:border-transparent">
+    <footer className="site-footer bg-cream-50 dark:bg-gray-950 text-gray-600 dark:text-gray-400 mt-16 transition-colors overflow-hidden relative border-t border-cream-200 dark:border-gray-800">
       {/* Animated background */}
       <div className="absolute top-0 right-1/2 w-96 h-96 bg-emerald-200/40 dark:bg-emerald-900/20 rounded-full filter blur-3xl opacity-40 dark:opacity-20 -z-10"></div>
 

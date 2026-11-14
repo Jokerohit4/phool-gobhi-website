@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: GobhiWork;
+  src: url('/gobhi/WorkSans-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: GobhiWork;
+  src: url('/gobhi/WorkSans-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: GobhiWork;
+  src: url('/gobhi/WorkSans-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-display: swap;
+}
+
 /* Tailwind v4 defaults dark: to @media(prefers-color-scheme:dark). This app
    toggles a .dark class on <html> (see ThemeSwitch.tsx) instead, so dark:
    utilities must key off that class, not the OS preference. Without this,
@@ -472,5 +493,245 @@ html {
 }
 .dark .sticker-hover:hover {
   box-shadow: 5px 5px 0 rgb(243 244 246);
+}
+
+/* The welcome screen is the visual source of truth for every other route. */
+.site-experience {
+  --site-paper: #fbf8f1;
+  --site-ink: #203a29;
+  --site-green: #23643c;
+  --site-muted: #71806d;
+  --site-line: #dce3d7;
+  --site-card: #fffdf8;
+  --color-emerald-50: #edf3e9;
+  --color-emerald-100: #dfead9;
+  --color-emerald-200: #c8dcc0;
+  --color-emerald-300: #aac99f;
+  --color-emerald-400: #83ad7a;
+  --color-emerald-500: #4c8656;
+  --color-emerald-600: #23643c;
+  --color-emerald-700: #1c5633;
+  --color-emerald-800: #18482d;
+  --color-emerald-900: #123a25;
+  --color-green-600: #23643c;
+  --color-green-700: #1c5633;
+  --color-gray-50: #fffdf8;
+  --color-gray-100: #f1f3e9;
+  --color-gray-200: #dce3d7;
+  --color-gray-300: #bec9b9;
+  --color-gray-400: #96a391;
+  --color-gray-500: #71806d;
+  --color-gray-600: #5f705f;
+  --color-gray-700: #465c49;
+  --color-gray-800: #314a38;
+  --color-gray-900: #203a29;
+  --color-gray-950: #15241a;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background: var(--site-paper);
+  color: var(--site-ink);
+  font-family: GobhiWork, var(--font-geist-sans), sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.dark .site-experience {
+  --site-paper: #131d16;
+  --site-ink: #f1f3e9;
+  --site-green: #a8c69b;
+  --site-muted: #b4c1ad;
+  --site-line: #344338;
+  --site-card: #1a271e;
+  --color-emerald-400: #a8c69b;
+  --color-emerald-500: #83ad7a;
+  --color-emerald-600: #6d9d6b;
+  --color-emerald-700: #557f59;
+  --color-gray-50: #fffdf8;
+  --color-gray-100: #f1f3e9;
+  --color-gray-200: #dce3d7;
+  --color-gray-300: #c0cbbd;
+  --color-gray-400: #aab8a7;
+  --color-gray-500: #91a08f;
+  --color-gray-600: #7c8c7a;
+  --color-gray-700: #596c5b;
+  --color-gray-800: #344a39;
+  --color-gray-900: #1a271e;
+  --color-gray-950: #131d16;
+}
+
+.site-experience h1,
+.site-experience h2,
+.site-experience h3,
+.site-experience .font-display {
+  font-family: GobhiWork, var(--font-geist-sans), sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.045em;
+}
+
+.site-experience h1 {
+  line-height: 1.08;
+}
+
+.site-experience .container-custom {
+  max-width: 1160px;
+  padding-inline: clamp(1.25rem, 5vw, 4.5rem);
+}
+
+.site-experience .section-padding {
+  padding-block: clamp(3.5rem, 8vw, 6.5rem);
+}
+
+.site-experience .dot-grid {
+  background-image: none;
+}
+
+.site-experience .card-premium,
+.site-experience .card-gradient {
+  border: 1px solid var(--site-line);
+  border-radius: 1.35rem;
+  background: var(--site-card);
+  box-shadow: 0 12px 36px rgb(32 58 41 / 5%);
+}
+
+.site-experience .sticker {
+  border-color: var(--site-line);
+  border-radius: 1.35rem;
+}
+
+.dark .site-experience .card-premium,
+.dark .site-experience .card-gradient {
+  background: var(--site-card);
+  box-shadow: 0 14px 36px rgb(0 0 0 / 18%);
+}
+
+.site-experience .btn-primary {
+  border: 1px solid var(--site-green);
+  border-radius: 999px;
+  background: var(--site-green);
+  padding: 0.8rem 1.45rem;
+  color: #fffdf4;
+  box-shadow: none;
+  transform: none;
+}
+
+.site-experience .btn-primary:hover {
+  background: #174b2d;
+  box-shadow: 0 8px 20px rgb(35 100 60 / 16%);
+  transform: translateY(-1px);
+}
+
+.site-experience .btn-secondary {
+  border-width: 1px;
+  border-radius: 999px;
+  border-color: var(--site-green);
+  color: var(--site-green);
+}
+
+.site-experience input:not([type='checkbox']):not([type='radio']),
+.site-experience select,
+.site-experience textarea {
+  border-radius: 0.8rem;
+  border-color: var(--site-line);
+}
+
+.site-experience :focus-visible {
+  outline: 3px solid #b66b4c;
+  outline-offset: 3px;
+}
+
+.skip-to-main {
+  position: fixed;
+  z-index: 100;
+  top: 0.75rem;
+  left: 0.75rem;
+  transform: translateY(-160%);
+  border-radius: 999px;
+  background: var(--site-green);
+  padding: 0.75rem 1rem;
+  color: #fffdf4;
+}
+
+.skip-to-main:focus {
+  transform: translateY(0);
+}
+
+.site-header {
+  border-color: var(--site-line);
+  background: rgb(251 248 241 / 94%);
+  box-shadow: 0 3px 18px rgb(32 58 41 / 3%);
+  backdrop-filter: blur(14px);
+}
+
+.dark .site-header {
+  background: rgb(19 29 22 / 94%);
+}
+
+.site-header > div > div {
+  min-height: 82px;
+  padding-block: 0.75rem;
+}
+
+.site-header .font-display {
+  color: var(--site-green);
+  font-size: 1.65rem;
+  letter-spacing: -0.055em;
+}
+
+.site-header nav a,
+.site-header nav button {
+  border-radius: 0.65rem;
+}
+
+.site-header nav a:hover,
+.site-header nav button:hover {
+  color: var(--site-green);
+}
+
+.site-header-cta {
+  border-radius: 999px;
+  background: var(--site-green);
+  box-shadow: none;
+}
+
+.site-header-cta:hover {
+  background: #174b2d;
+  box-shadow: 0 8px 20px rgb(35 100 60 / 16%);
+  transform: translateY(-1px);
+}
+
+.site-footer {
+  margin-top: 5rem;
+  border-color: var(--site-line);
+  background: var(--site-paper);
+}
+
+.site-footer > div > div:first-child > div > span {
+  color: var(--site-green);
+  font-family: GobhiWork, sans-serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.055em;
+}
+
+.site-footer h4 {
+  font-family: GobhiWork, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.site-footer a:hover {
+  color: var(--site-green);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-experience *,
+  .site-experience *::before,
+  .site-experience *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
