@@ -121,13 +121,6 @@ export default function AndroidDownloadOptions({ release }: { release: AndroidRe
                   Download APK
                 </a>
               </div>
-              <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                SHA-256 is a public file-integrity checksum. It helps verify the APK download and is not a password or signing key.
-              </p>
-              <details className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                <summary className="w-fit cursor-pointer underline underline-offset-2">Show checksum</summary>
-                <p className="mt-2 break-all font-mono">SHA-256: {file.sha256}</p>
-              </details>
             </div>
           );
         })}
