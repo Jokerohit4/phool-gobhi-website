@@ -32,13 +32,23 @@ function detectedAbi(): Promise<AndroidAbi | null> {
 export default function AndroidDownloadOptions({ release }: { release: AndroidRelease }) {
   const [selectedAbi, setSelectedAbi] = useState<AndroidAbi>('arm64-v8a');
   const [recommendedAbi, setRecommendedAbi] = useState<AndroidAbi | null>(null);
+  const [isAndroid, setIsAndroid] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     let active = true;
+    setIsAndroid(typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent));
     void detectedAbi().then((abi) => {
-      if (!active || !abi) return;
-      setRecommendedAbi(abi);
-      setSelectedAbi(abi);
+      if (!active) return;
+      if (abi) {
+        setRecommendedAbi(abi);
+        setSelectedAbi(abi);
+        setShowAll(false);
+      } else {
+        // When the browser hides architecture hints, default to the most
+        // common Android ABI and keep the alternatives one tap away.
+        setSelectedAbi('arm64-v8a');
+      }
     });
     return () => { active = false; };
   }, []);
@@ -50,12 +60,38 @@ export default function AndroidDownloadOptions({ release }: { release: AndroidRe
           Android app <span className="text-gray-500 dark:text-gray-400">v{release.versionName} ({release.versionCode})</span>
         </p>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          {recommendedAbi ? `Recommended for this device: ${release.downloads[recommendedAbi].label}` : 'Choose the build that matches your device.'}
+          {recommendedAbi
+            ? `Detected ${release.downloads[recommendedAbi].label} for this device.`
+            : isAndroid
+              ? 'Most Android phones use ARM 64-bit. You can change the build if needed.'
+              : 'Open this page on Android, or choose a build manually.'}
         </p>
       </div>
 
-      <div className="grid gap-3">
-        {ABI_ORDER.map((abi) => {
+      {isAndroid && !showAll ? (
+        <div className="rounded-2xl border border-emerald-600 bg-emerald-50 p-5 dark:border-emerald-500 dark:bg-emerald-950/40">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-semibold text-gray-900 dark:text-white">
+                {release.downloads[selectedAbi].label}
+                {recommendedAbi ? ' · detected' : ' · most common for Android'}
+              </p>
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                ABI: {selectedAbi} · {formatSize(release.downloads[selectedAbi].sizeBytes)}
+              </p>
+            </div>
+            <a href={release.downloads[selectedAbi].url} className="btn-primary inline-flex justify-center">
+              Download Android APK
+            </a>
+          </div>
+          <button type="button" className="mt-4 text-sm font-medium text-emerald-800 underline underline-offset-2 dark:text-emerald-300" onClick={() => setShowAll(true)}>
+            My download won&apos;t install? Choose another build
+          </button>
+        </div>
+      ) : null}
+
+      {(!isAndroid || showAll) ? <div className="grid gap-3">
+        {ABI_ORDER.filter((abi) => !isAndroid || showAll || abi === selectedAbi).map((abi) => {
           const file = release.downloads[abi];
           const selected = selectedAbi === abi;
           return (
@@ -85,14 +121,18 @@ export default function AndroidDownloadOptions({ release }: { release: AndroidRe
                   Download APK
                 </a>
               </div>
-              <details className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                <summary className="w-fit cursor-pointer underline underline-offset-2">Verify file</summary>
+              <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                SHA-256 is a public file-integrity checksum. It helps verify the APK download and is not a password or signing key.
+              </p>
+              <details className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                <summary className="w-fit cursor-pointer underline underline-offset-2">Show checksum</summary>
                 <p className="mt-2 break-all font-mono">SHA-256: {file.sha256}</p>
               </details>
             </div>
           );
         })}
-      </div>
+      </div> : null}
+      {isAndroid && showAll ? <button type="button" className="mt-4 text-sm font-medium text-emerald-800 underline underline-offset-2 dark:text-emerald-300" onClick={() => setShowAll(false)}>Back to recommended build</button> : null}
     </div>
   );
 }
