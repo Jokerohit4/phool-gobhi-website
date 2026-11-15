@@ -30,8 +30,7 @@ const SAFETY_NOTES = [
 ];
 
 export default function AboutPage() {
-  const androidUrl = process.env.NEXT_PUBLIC_PLAY_STORE_URL ||
-    'https://play.google.com/store/apps/details?id=in.phoolgobi.customer';
+  const androidUrl = '/download/android';
   const iosUrl = process.env.NEXT_PUBLIC_APP_STORE_URL ||
     'https://apps.apple.com/app/id6804278072';
 
@@ -182,8 +181,8 @@ export default function AboutPage() {
             in your area.
           </p>
           <div className="flex flex-col justify-center gap-3 sm:flex-row">
-            <a href={androidUrl} target="_blank" rel="noopener noreferrer" className="btn-primary inline-flex justify-center">
-              Get it on Google Play
+            <a href={androidUrl} className="btn-primary inline-flex justify-center">
+              Download Android APK
             </a>
             <a href={iosUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary inline-flex justify-center">
               Download on the App Store

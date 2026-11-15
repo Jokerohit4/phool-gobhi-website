@@ -1,6 +1,6 @@
 'use client';
 
-import { APP_STORE_URL, PLAY_STORE_URL } from '@/lib/appDeepLink';
+import { APP_STORE_URL } from '@/lib/appDeepLink';
 
 /**
  * Store/install buttons for the printed-QR pages (`/join/[gymId]`,
@@ -53,24 +53,9 @@ export default function AppStoreButtons({
         </a>
       ) : null}
 
-      {PLAY_STORE_URL ? (
-        <a
-          href={
-            attributionUri
-              ? `${PLAY_STORE_URL}${PLAY_STORE_URL.includes('?') ? '&' : '?'}referrer=${encodeURIComponent(attributionUri)}`
-              : PLAY_STORE_URL
-          }
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-secondary inline-block text-center"
-        >
-          Get it on Google Play
-        </a>
-      ) : (
-        <span className="btn-secondary opacity-60 cursor-not-allowed text-center" title="Coming soon">
-          Get it on Google Play
-        </span>
-      )}
+      <a href="/download/android" className="btn-secondary inline-block text-center">
+        Download Android APK
+      </a>
 
       {APP_STORE_URL ? (
         <button type="button" onClick={openAppStore} className="btn-secondary inline-block text-center">

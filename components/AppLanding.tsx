@@ -4,7 +4,6 @@ import { useEffect, useSyncExternalStore } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-const PLAY_STORE_URL = process.env.NEXT_PUBLIC_PLAY_STORE_URL ?? '';
 const APP_STORE_URL = process.env.NEXT_PUBLIC_APP_STORE_URL ?? '';
 
 type Platform = 'android' | 'ios' | 'other';
@@ -34,25 +33,15 @@ function getPlatformServerSnapshot(): Platform {
 export default function AppLanding() {
   const platform = useSyncExternalStore(subscribePlatform, getPlatformSnapshot, getPlatformServerSnapshot);
 
-  // Smart link: the QR prints https://www.phoolgobhi.com/app forever. Once the
-  // store listings go live, set NEXT_PUBLIC_PLAY_STORE_URL / NEXT_PUBLIC_APP_STORE_URL
-  // and phones scanning the shirt get routed to the right store automatically —
-  // no QR reprint needed. Until then the landing page below shows "coming soon".
-  //
-  // Auto-redirect is phone-only: a desktop visitor on this URL gets the store
-  // buttons as links if they want them, but is NOT bounced to the App Store.
-  // ('other' is desktop/tablet — the old `: APP_STORE_URL` fallback sent every
-  // desktop visitor who scanned an iOS-first QR to the iOS store, which made
-  // no sense with both listings live.)
-  const storeUrl =
-    platform === 'android' ? PLAY_STORE_URL : platform === 'ios' ? APP_STORE_URL : '';
+  // Route phone visitors to the appropriate install option; desktop users can
+  // choose from both links below.
+  const storeUrl = platform === 'android' ? '/download/android' : platform === 'ios' ? APP_STORE_URL : '';
 
   useEffect(() => {
     if (!storeUrl) return;
     window.location.replace(storeUrl);
   }, [storeUrl]);
 
-  const playLive = PLAY_STORE_URL.length > 0;
   const appLive = APP_STORE_URL.length > 0;
 
   return (
@@ -83,15 +72,9 @@ export default function AppLanding() {
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
-          {playLive ? (
-            <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer" className="btn-secondary inline-block text-center">
-              Get it on Google Play
-            </a>
-          ) : (
-            <span className="btn-secondary opacity-60 cursor-not-allowed text-center" title="Coming soon">
-              Get it on Google Play
-            </span>
-          )}
+          <Link href="/download/android" className="btn-secondary inline-block text-center">
+            Download Android APK
+          </Link>
           {appLive ? (
             <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="btn-secondary inline-block text-center">
               Download on the App Store

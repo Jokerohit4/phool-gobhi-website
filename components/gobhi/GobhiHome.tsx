@@ -15,9 +15,9 @@ const storySections = [
 
 function StoreLinks({ androidUrl, iosUrl, primary = false }: { androidUrl: string; iosUrl: string; primary?: boolean }) {
   return <div className="store-links">
-    <a id={primary ? 'android-download' : undefined} href={androidUrl} target="_blank" rel="noopener noreferrer" aria-label="Download Phool Gobhi for Android on Google Play" onClick={() => trackCta('home_download_android')}>
+    <a id={primary ? 'android-download' : undefined} href={androidUrl} aria-label="Download Phool Gobhi for Android" onClick={() => trackCta('home_download_android')}>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5 18 11a1.2 1.2 0 0 1 0 2L5 20.5Z" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/><path d="m5 3.5 9 12m-9 5 9-12" stroke="currentColor" strokeWidth="1.1"/></svg>
-      <span><small>GET IT ON</small><b>Google Play</b></span><em>↗</em>
+      <span><small>DOWNLOAD FOR</small><b>Android</b></span><em>↗</em>
     </a>
     <a id={primary ? 'ios-download' : undefined} href={iosUrl} target="_blank" rel="noopener noreferrer" aria-label="Download Phool Gobhi for iOS on the App Store" onClick={() => trackCta('home_download_ios')}>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.3 6.3c1-.9 1.6-2.1 1.4-3.3-1.2.1-2.5.8-3.3 1.7-.7.8-1.4 2-1.2 3.2 1.3.1 2.4-.6 3.1-1.6ZM19.7 16.7c-.4 1-1 2-1.8 3-.7.9-1.5 1.9-2.7 1.9-1.1 0-1.4-.6-2.9-.6s-1.9.6-2.9.6c-1.2.1-2.1-1.1-2.9-2-1.6-2-2.8-5.6-1.1-8.3.8-1.3 2.1-2.1 3.5-2.1 1.1 0 2.2.7 2.9.7.6 0 2-.8 3.4-.7 1.2.1 2.3.5 3.1 1.5-2.8 1.5-2.4 5.3.4 6Z" fill="currentColor"/></svg>

@@ -1,7 +1,6 @@
-// App-install upsell shown on the login page (poster QR landing). Same
-// treatment as the check-in page's upsell: store links are placeholders —
-// no live store listing yet, pre-launch. Swap the spans for real <a href>
-// links (Android / App Store URLs) once the listings go live.
+import Link from 'next/link';
+
+// App-install upsell shown on the login page (poster QR landing).
 export default function AppDownloadCard({ className = '' }: { className?: string }) {
   return (
     <div className={`card-premium p-6 text-center space-y-3 ${className}`}>
@@ -12,9 +11,9 @@ export default function AppDownloadCard({ className = '' }: { className?: string
         Faster QR check-ins, booking reminders, and more.
       </p>
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        <span className="btn-secondary opacity-60 cursor-not-allowed text-center" title="Coming soon">
-          Get it on Google Play
-        </span>
+        <Link href="/download/android" className="btn-secondary inline-block text-center">
+          Download Android APK
+        </Link>
         <span className="btn-secondary opacity-60 cursor-not-allowed text-center" title="Coming soon">
           Download on the App Store
         </span>
