@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'About Phool Gobhi — Pay-Per-Session Gym Booking',
-  description: 'Phool Gobhi is building pay-per-session gym access for Gurugram — no memberships, no 12-month contracts, just book a session and go.',
+  title: 'About Phool Gobhi — Your Everyday Health Companion',
+  description: 'Meet Phool Gobhi: a health companion for everyday choices, health trends, and a clearer next step to discuss with your doctor.',
   alternates: { canonical: '/about' },
 };
 
