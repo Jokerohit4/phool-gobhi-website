@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 export const runtime = 'nodejs';
-export const alt = 'Phool Gobhi — Your health and fitness buddy';
+export const alt = 'Phool Gobhi — Your health and fitness expert';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -46,7 +46,7 @@ export default async function OpengraphImage() {
             display: 'flex',
           }}
         >
-          Your health and fitness buddy.
+          Your health and fitness expert.
         </div>
         <div style={{ marginTop: 22, fontSize: 23, color: '#738566', display: 'flex' }}>
           Your workouts. Your habits. Your little wins.

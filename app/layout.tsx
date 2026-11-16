@@ -47,14 +47,14 @@ const bebasNeue = Bebas_Neue({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.phoolgobhi.com'),
-  title: 'Phool Gobhi — Your health and fitness buddy',
-  description: 'Meet Gobhi. Bring your water, food, workouts, history and little wins together with Phool Gobhi, your everyday health and fitness buddy.',
+  title: 'Phool Gobhi — Your health and fitness expert',
+  description: 'Meet Gobhi. Bring your water, food, workouts, history and little wins together with Phool Gobhi, your everyday health and fitness expert.',
   keywords: 'Phool Gobhi, fitness buddy, water logging, food journal, workout logging, fitness history, Gobhi coins, gym access',
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'Phool Gobhi — Your health and fitness buddy',
+    title: 'Phool Gobhi — Your health and fitness expert',
     description: 'Your training, daily habits and little wins. Meet Gobhi and bring your everyday together.',
     url: 'https://www.phoolgobhi.com',
     siteName: 'Phool Gobhi',
