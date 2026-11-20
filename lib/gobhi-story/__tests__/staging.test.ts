@@ -1,8 +1,24 @@
 import { journeyStops } from '../journey';
 import { describe, expect, it } from 'vitest';
 import { storyStaging, appTransition, phoneHandoff, phoneHandoffZoom } from '../staging';
+import { speechCloudGeometry } from '../speech-cloud';
 
 describe('phone and mascot staging', () => {
+  it.each([false, true])('builds a closed speech cloud for mobile=%s', (mobile) => {
+    const { vertices, triangles } = speechCloudGeometry(mobile);
+    const edges = new Map<number, number>();
+    const vertexCount = vertices.length/3;
+    expect(vertexCount).toBeGreaterThan(0);
+    expect(vertexCount).toBeLessThan(65536);
+    for (let i=0; i<triangles.length; i+=3) {
+      const [a,b,c] = triangles.slice(i,i+3);
+      for (const [first,second] of [[a,b],[b,c],[c,a]]) {
+        const edge = Math.min(first,second)*vertexCount+Math.max(first,second);
+        edges.set(edge,(edges.get(edge) ?? 0)+1);
+      }
+    }
+    expect([...edges.values()].every(count=>count===2)).toBe(true);
+  });
   it('keeps the same reached hand surface across the former pose switch', () => {
     const before=storyStaging(.095-.000001,true),after=storyStaging(.095+.000001,true);
     expect(Math.abs(after.reach-before.reach)).toBeLessThan(.000001);
