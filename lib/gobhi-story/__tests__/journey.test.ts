@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyDemoAction, createDemoDay, littleWins, waterScrollProgress, scrollWorkoutSets, rewardLandingAngle, tourTiming } from '../journey';
+import { applyDemoAction, createDemoDay, littleWins, waterPreviewMl, waterScrollProgress, scrollWorkoutSets, rewardLandingAngle, tourTiming } from '../journey';
 import { sampleCameraPath } from '../motion';
 
 describe('a connected sample day', () => {
@@ -44,25 +44,22 @@ describe('a connected sample day', () => {
   });
 });
 
-describe('scrolling a little sip into the day', () => {
-  it('saves the selected amount once even when the visitor scrubs back and forth', () => {
-    let day = applyDemoAction(createDemoDay(), 'water-amount', 500).state;
-    day = applyDemoAction(day, 'water-scroll').state;
-    expect(day.water).toBe(1500); expect(day.waterLogs).toBe(1); expect(day.waterScrollLogged).toBe(true);
-    expect(applyDemoAction(day, 'water-scroll').state).toEqual(day);
-    expect(littleWins(day)).toBe(1);
+describe('the water preview', () => {
+  it('previews the selected amount while scrolling without adding it to the day', () => {
+    const day = applyDemoAction(createDemoDay(), 'water-amount', 500).state;
+    expect(waterPreviewMl(day, tourTiming.waterEnd, 'tour')).toBe(500);
+    expect(waterPreviewMl(day, tourTiming.waterStart, 'tour')).toBe(0);
+    expect(waterPreviewMl(day, .61, 'tour')).toBe(0);
+    expect(day.water).toBe(1000);
+    expect(day.waterLogs).toBe(0);
   });
-  it('lets a manual glass take precedence over the automatic scroll entry', () => {
-    const manual = applyDemoAction(createDemoDay(), 'water').state;
-    expect(applyDemoAction(manual, 'water-scroll').state).toEqual(manual);
-    expect(manual.waterScrollLogged).toBe(false);
-    expect(applyDemoAction(manual, 'water').state.water).toBe(1500);
-  });
-  it('allows a new scroll sip after replay creates a fresh day', () => {
-    const first=applyDemoAction(createDemoDay(),'water-scroll').state;
-    const fresh=createDemoDay();
-    expect(fresh.waterScrollLogged).toBe(false);
-    expect(applyDemoAction(fresh,'water-scroll').state.water).toBe(first.water);
+  it('shows only the recorded total while logging a glass and after saving it', () => {
+    const day = createDemoDay();
+    expect(waterPreviewMl(day, tourTiming.waterEnd, 'form')).toBe(0);
+    const logged = applyDemoAction(day, 'water').state;
+    expect(logged.water).toBe(1250);
+    expect(waterPreviewMl(logged, tourTiming.waterEnd, 'saved')).toBe(0);
+    expect(waterPreviewMl(logged, tourTiming.waterEnd, 'tour')).toBe(0);
   });
   it('scrubs a smooth, bounded preview without changing the journal', () => {
     expect(waterScrollProgress(tourTiming.waterStart-.01)).toBe(0);expect(waterScrollProgress(tourTiming.waterEnd+.01)).toBe(1);

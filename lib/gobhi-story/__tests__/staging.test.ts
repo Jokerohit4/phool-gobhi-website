@@ -1,6 +1,6 @@
 import { journeyStops } from '../journey';
 import { describe, expect, it } from 'vitest';
-import { storyStaging, appTransition } from '../staging';
+import { storyStaging, appTransition, phoneHandoff, phoneHandoffZoom } from '../staging';
 
 describe('phone and mascot staging', () => {
   it('keeps the same reached hand surface across the former pose switch', () => {
@@ -16,6 +16,15 @@ describe('phone and mascot staging', () => {
     }
     expect(storyStaging(.11,true).holding).toBe(true);
     expect(storyStaging(.23,true).release).toBeGreaterThan(.5);
+  });
+  it('pushes in after the hand releases and pulls back before the app tour', () => {
+    const { approach, closest, settled } = phoneHandoff;
+    expect(storyStaging(approach, true).release).toBe(1);
+    expect(phoneHandoffZoom(approach)).toBe(0);
+    expect(phoneHandoffZoom(closest)).toBe(1);
+    expect(phoneHandoffZoom((closest+settled)/2)).toBeCloseTo(.5);
+    expect(phoneHandoffZoom(settled)).toBe(0);
+    for (const stop of journeyStops.slice(3)) expect(phoneHandoffZoom(stop)).toBe(0);
   });
   it('lets the camera pass the solid mascot without a visible dissolve', () => {
     for(let p=.11;p<=.349;p+=.001)expect(storyStaging(p,true).actorOpacity).toBe(1);

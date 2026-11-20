@@ -4,6 +4,13 @@ export const smooth = (a: number, b: number, p: number) => {
   return t*t*(3-2*t);
 };
 
+export const phoneHandoff = { approach: .273, closest: .320, settled: .348 };
+
+export function phoneHandoffZoom(progress: number) {
+  const { approach, closest, settled } = phoneHandoff;
+  return smooth(approach, closest, progress) * (1 - smooth(closest, settled, progress));
+}
+
 /** Reveals and the returning display follow scroll position, in either direction. */
 export function storyStaging(p: number, mobile: boolean) {
   const ending = smooth(.89, .985, p);
