@@ -26,7 +26,7 @@ describe('GET /api/wallet/transactions', () => {
       .mockResolvedValueOnce({ id: 42 })
       .mockResolvedValueOnce({ transactions: [{ id: 't1' }] });
 
-    await GET();
+    await GET(new Request('http://localhost/api/wallet/transactions'));
 
     expect(mockAuthedGatewayFetch).toHaveBeenCalledTimes(2);
     expect(mockAuthedGatewayFetch).toHaveBeenNthCalledWith(1, '/api/auth/me');
@@ -55,14 +55,14 @@ describe('GET /api/wallet/transactions', () => {
       .mockResolvedValueOnce({ id: 42 })
       .mockResolvedValueOnce(txData);
 
-    await GET();
+    await GET(new Request('http://localhost/api/wallet/transactions'));
     expect(mockJson).toHaveBeenCalledWith(txData);
   });
 
   it('returns GatewayError status when /auth/me fails', async () => {
     mockAuthedGatewayFetch.mockRejectedValueOnce(new GatewayError(401, { error: 'Not authenticated' }));
 
-    await GET();
+    await GET(new Request('http://localhost/api/wallet/transactions'));
     expect(mockJson).toHaveBeenCalledWith({ error: 'Not authenticated' }, { status: 401 });
   });
 
@@ -71,14 +71,14 @@ describe('GET /api/wallet/transactions', () => {
       .mockResolvedValueOnce({ id: 42 })
       .mockRejectedValueOnce(new GatewayError(403, { error: 'Forbidden' }));
 
-    await GET();
+    await GET(new Request('http://localhost/api/wallet/transactions'));
     expect(mockJson).toHaveBeenCalledWith({ error: 'Forbidden' }, { status: 403 });
   });
 
   it('returns 502 on non-GatewayError from /auth/me', async () => {
     mockAuthedGatewayFetch.mockRejectedValueOnce(new Error('ECONNREFUSED'));
 
-    await GET();
+    await GET(new Request('http://localhost/api/wallet/transactions'));
     expect(mockJson).toHaveBeenCalledWith({ error: 'Gateway unreachable' }, { status: 502 });
   });
 
@@ -87,7 +87,7 @@ describe('GET /api/wallet/transactions', () => {
       .mockResolvedValueOnce({ id: 42 })
       .mockRejectedValueOnce(new Error('ECONNREFUSED'));
 
-    await GET();
+    await GET(new Request('http://localhost/api/wallet/transactions'));
     expect(mockJson).toHaveBeenCalledWith({ error: 'Gateway unreachable' }, { status: 502 });
   });
 });
