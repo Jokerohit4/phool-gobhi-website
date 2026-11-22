@@ -1,5 +1,6 @@
 'use client';
 
+import { WHATSAPP_URL, WHATSAPP_DISPLAY } from '@/lib/contact';
 import { motion } from 'framer-motion';
 import PhoolGobhiLogo from './PhoolGobhiLogo';
 import PitchStoryAnimation from './PitchStoryAnimation';
@@ -542,7 +543,7 @@ export default function PitchDeckContent() {
               {' · '}
               <a href="mailto:me@rohitashwa.co.in" className="hover:text-emerald-600 dark:hover:text-emerald-400">me@rohitashwa.co.in</a>
               {' · '}
-              <a href="https://wa.me/919354859197" className="hover:text-emerald-600 dark:hover:text-emerald-400">+91 9354859197</a>
+              <a href={WHATSAPP_URL} className="hover:text-emerald-600 dark:hover:text-emerald-400">{WHATSAPP_DISPLAY}</a>
             </p>
           </motion.div>
         </div>

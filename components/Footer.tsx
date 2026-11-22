@@ -1,5 +1,6 @@
 'use client';
 
+import { WHATSAPP_URL, WHATSAPP_DISPLAY } from '@/lib/contact';
 import Link from 'next/link';
 import PhoolGobhiLogo from './PhoolGobhiLogo';
 import { motion } from 'framer-motion';
@@ -119,12 +120,12 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <motion.li whileHover={{ x: 4 }} transition={{ type: 'spring', stiffness: 300 }}>
                 <a
-                  href="https://wa.me/919354859197"
+                  href={WHATSAPP_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors font-medium"
                 >
-                  WhatsApp: +91 9354859197
+                  WhatsApp: {WHATSAPP_DISPLAY}
                 </a>
               </motion.li>
               <motion.li whileHover={{ x: 4 }} transition={{ type: 'spring', stiffness: 300 }}>

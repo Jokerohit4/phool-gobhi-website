@@ -1,3 +1,4 @@
+import { WHATSAPP_URL, WHATSAPP_DISPLAY } from '@/lib/contact';
 import type { Metadata } from 'next';
 import { PosterFill, PosterOutline, StickerBadge } from '@/components/Poster';
 
@@ -42,8 +43,8 @@ export default function DeleteAccountPage() {
                 hello@phoolgobhi.com
               </a>{' '}
               or WhatsApp{' '}
-              <a href="https://wa.me/919354859197" className="text-emerald-600 dark:text-emerald-400 underline">
-                +91 9354859197
+              <a href={WHATSAPP_URL} className="text-emerald-600 dark:text-emerald-400 underline">
+                {WHATSAPP_DISPLAY}
               </a>{' '}
               from the phone number registered on your account, with the subject or message &quot;Delete my
               account&quot;. We verify the request against that phone number and delete your account within{' '}

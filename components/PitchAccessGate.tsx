@@ -1,5 +1,6 @@
 'use client';
 
+import { WHATSAPP_URL } from '@/lib/contact';
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import PhoolGobhiLogo from './PhoolGobhiLogo';
@@ -86,7 +87,7 @@ export default function PitchAccessGate({ children }: { children: ReactNode }) {
             className="mt-4 text-sm font-semibold text-red-600 dark:text-red-400"
           >
             You do not have access. If you believe this is a mistake, reach out on{' '}
-            <a href="https://wa.me/919354859197" target="_blank" rel="noopener noreferrer" className="underline">
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="underline">
               WhatsApp
             </a>
             .
