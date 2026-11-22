@@ -50,7 +50,19 @@ export async function gatewayFetch<T = unknown>(path: string, opts: GatewayFetch
   });
 
   const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
+  let data: unknown = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      // Non-JSON body (e.g. an HTML 502/504 page from Cloud Run or a proxy).
+      // Surface it as a GatewayError so callers' existing handling applies:
+      // route handlers forward err.status/err.body, and lib/session.ts only
+      // treats 401/403 as a dead session, so a 5xx stays a transient error.
+      // A 2xx with an unparseable body is a broken upstream, reported as 502.
+      throw new GatewayError(res.ok ? 502 : res.status, { error: 'Gateway returned an invalid response' });
+    }
+  }
 
   if (!res.ok) {
     throw new GatewayError(res.status, data);
