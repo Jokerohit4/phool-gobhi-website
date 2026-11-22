@@ -13,6 +13,14 @@ import { NextResponse } from 'next/server';
 // reflect the Host the client actually sent, so comparing against it rejects
 // every legitimate same-origin request in both local dev and prod.
 export function rejectCrossOrigin(req: Request): NextResponse | null {
+  // Fetch Metadata: browsers set Sec-Fetch-Site and scripts can't forge it.
+  // "cross-site" is never legitimate for these same-site BFF routes. A missing
+  // header (older browsers, non-browser clients) is still allowed, as is
+  // same-origin / same-site / none (user-initiated navigation).
+  if (req.headers.get('sec-fetch-site') === 'cross-site') {
+    return NextResponse.json({ error: 'Cross-origin request rejected' }, { status: 403 });
+  }
+
   const origin = req.headers.get('origin');
   if (!origin) return null; // same-site requests often omit Origin; SameSite=Lax is the real guard
 
