@@ -36,7 +36,8 @@ export default function GobhiHome({ androidUrl, iosUrl }: { androidUrl: string; 
     let cancelled = false, dispose: (() => void) | undefined;
     import('@/lib/gobhi-story/controller').then(({ mountGobhiStory }) => {
       if (!cancelled) dispose = mountGobhiStory(element);
-    }).catch(() => {
+    }).catch((error) => {
+      console.error('[gobhi] story failed to mount', error);
       if (!cancelled) { element.classList.add('no-webgl'); element.querySelector('.loading')?.classList.add('done'); }
     });
     return () => { cancelled = true; dispose?.(); };
