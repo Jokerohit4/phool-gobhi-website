@@ -1,5 +1,6 @@
 'use client';
 
+import { WHATSAPP_URL, WHATSAPP_DISPLAY } from '@/lib/contact';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { PosterFill, PosterOutline, StickerBadge } from '@/components/Poster';
@@ -79,11 +80,11 @@ export default function ContactPage() {
             <div>
               <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Fastest Ways To Bother Gobhi</h3>
               <div className="space-y-3">
-                <a href="https://wa.me/919354859197" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">
+                <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">
                   <span className="text-2xl">💬</span>
                   <div>
                     <p className="font-semibold">WhatsApp</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">+91 9354859197</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{WHATSAPP_DISPLAY}</p>
                   </div>
                 </a>
                 <a href="mailto:hello@phoolgobhi.com" className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400">

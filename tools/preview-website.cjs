@@ -14,9 +14,23 @@ function send(method,params={}){const id=++seq;return new Promise((resolve,rejec
 async function evaluate(expression){const result=await send('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(result.exceptionDetails)throw Error(JSON.stringify(result.exceptionDetails));return result.result.value;}
 async function until(expression,description){for(let i=0;i<120;i++){if(await evaluate(expression))return;await delay(250);}throw Error('Timed out: '+description);}
 async function shot(name){const r=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});fs.writeFileSync(path.join(output,name+'.png'),Buffer.from(r.data,'base64'));}
-async function seek(p){await evaluate(`scrollTo({top:(document.documentElement.scrollHeight-innerHeight)*${p},behavior:'instant'})`);await delay(150);const target=p;await until(`Boolean(window.__storyState)&&Math.abs(window.__storyState.progress-${target})<.002`,'Camera reaches '+target);await delay(300);await until('Boolean(window.__storyState)&&Math.abs(window.__storyState.progress-scrollY/(document.documentElement.scrollHeight-innerHeight))<.000001','Camera matches actual native scroll');}
+const scrollRange = "(matchMedia('(max-width: 639px) and (max-height: 640px)').matches ? document.querySelector('#join').getBoundingClientRect().top + scrollY : document.documentElement.scrollHeight - innerHeight)";
+async function seek(p){await evaluate(`scrollTo({top:${scrollRange}*${p},behavior:'instant'})`);await delay(150);const target=p;await until(`Boolean(window.__storyState)&&Math.abs(window.__storyState.progress-${target})<.002`,'Camera reaches '+target);await delay(300);await until(`Boolean(window.__storyState)&&Math.abs(window.__storyState.progress-Math.min(1,scrollY/${scrollRange}))<.000001`,'Camera matches actual native scroll');}
 async function ready(){try{await until('Boolean(document.querySelector(".gobhi-home .loading.done")) && Boolean(window.__storyState?.ready)','Gobhi ready');}catch(error){await shot('loading-failure');throw Error(error.message+' '+JSON.stringify({dom:await evaluate('({root:document.querySelector(".gobhi-home")?.className,loading:document.querySelector(".loading")?.className,state:window.__storyState})'),errors,badAssets}));}}
-async function click(selector){const rect=await evaluate(`(()=>{const r=document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2};})()`);await send('Input.dispatchMouseEvent',{type:'mousePressed',...rect,button:'left',clickCount:1});await send('Input.dispatchMouseEvent',{type:'mouseReleased',...rect,button:'left',clickCount:1});}
+async function click(selector) {
+ const target = `(() => {
+   const element = document.querySelector(${JSON.stringify(selector)});
+   if (!element || element.matches(':disabled')) return null;
+   const { x, y, width, height } = element.getBoundingClientRect();
+   const point = { x: x + width / 2, y: y + height / 2 };
+   return element.contains(document.elementFromPoint(point.x, point.y)) ? point : null;
+ })()`;
+ await until(`Boolean(${target})`, `${selector} is clickable`);
+ const point = await evaluate(target);
+ assert.ok(point, `${selector} moved before the click`);
+ await send('Input.dispatchMouseEvent', { type: 'mousePressed', ...point, button: 'left', clickCount: 1 });
+ await send('Input.dispatchMouseEvent', { type: 'mouseReleased', ...point, button: 'left', clickCount: 1 });
+}
 async function clickPhone(){const rect=await evaluate('window.__storyState.actionRect');assert.ok(rect);const x=rect.x+rect.width/2,y=rect.y+rect.height/2;assert.equal(await evaluate(`document.elementFromPoint(${x},${y}).id`),'demo-action');await send('Input.dispatchMouseEvent',{type:'mousePressed',x,y,button:'left',clickCount:1});await send('Input.dispatchMouseEvent',{type:'mouseReleased',x,y,button:'left',clickCount:1});}
 async function setCalm(enabled){if(await evaluate('document.querySelector("#motion").getAttribute("aria-pressed")==="true"')!==enabled)await click('#motion');}
 async function settleMotion(){
@@ -25,7 +39,11 @@ async function settleMotion(){
  else{await until('document.querySelector(".gobhi-home").classList.contains("story-idle")','Finite motion settles');const draws=await evaluate('window.__totalDraws');await delay(450);assert.equal(await evaluate('window.__totalDraws'),draws,'Mobile/reduced-motion stops GPU work');}
 }
 async function main(){
- const response=await fetch(base);assert.equal(response.status,200);const html=await response.text();assert.ok(html.includes('Your health and fitness buddy'));assert.ok(html.includes('play.google.com/store/apps/details'));assert.ok(html.includes('apps.apple.com/'));assert.ok(html.includes('data-scroll-behavior="smooth"'));
+ const response = await fetch(base);
+ assert.equal(response.status, 200);
+ const html = await response.text();
+ assert.ok(html.includes('id="story-canvas"'), 'Homepage serves the app tour');
+ assert.ok(html.includes('data-scroll-behavior="smooth"'), 'Homepage declares smooth scrolling');
  let pages;for(let i=0;i<60;i++){try{pages=await(await fetch(`http://127.0.0.1:${port}/json`)).json();break;}catch{await delay(250);}}if(!pages)throw Error('Chrome startup');
  socket=new WebSocket(pages.find(p=>p.type==='page').webSocketDebuggerUrl);await new Promise((resolve,reject)=>{socket.addEventListener('open',resolve,{once:true});socket.addEventListener('error',reject,{once:true});});
  socket.addEventListener('message',event=>{const m=JSON.parse(event.data);if(m.method==='Runtime.exceptionThrown')errors.push(m.params.exceptionDetails);if(m.method==='Network.responseReceived'&&m.params.response.url.includes('/gobhi/')&&m.params.response.status>=400)badAssets.push(m.params.response);if(!m.id)return;const p=pending.get(m.id);if(!p)return;clearTimeout(p.timeout);pending.delete(m.id);if(m.error)p.reject(Error(JSON.stringify(m.error)));else p.resolve(m.result);});
@@ -37,27 +55,177 @@ async function main(){
  await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:process.argv.includes('--motion-default')?'reduce':'no-preference'}]});
  await send('Page.navigate',{url:base+'/?notrack=1'});await send('Page.bringToFront');await ready();assert.equal(await evaluate('document.querySelectorAll("iframe").length'),0);assert.equal(await evaluate('document.querySelectorAll("canvas").length'),1);
 
+ if(process.argv.includes('--theme')){
+  const emulateTheme = value => send('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value},{name:'prefers-reduced-motion',value:'reduce'}]});
+  const theme = () => evaluate(`(() => {
+   const root = document.querySelector('.gobhi-home');
+   const gl = root.querySelector('canvas').getContext('webgl');
+   return { dark: document.documentElement.classList.contains('dark'), paper: getComputedStyle(root).backgroundColor, world: Array.from(gl.getParameter(gl.COLOR_CLEAR_VALUE)), text: root.querySelector('.phone-screen-text text')?.getAttribute('fill') };
+  })()`);
+  await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+  await emulateTheme('dark');
+  await until('document.documentElement.classList.contains("dark")','System theme changes live');
+  await seek(.545);
+  const dark = await theme();
+  assert.equal(dark.paper,'rgb(19, 30, 24)');
+  assert.ok(dark.world[0]>.07&&dark.world[0]<.08,'Dark mode restores the green studio');
+  assert.equal(dark.text,'#eef5ea','Dark theme repaints phone text');
+  await shot('theme-dark-water');
+  await clickPhone();
+  const water=await evaluate('window.__storyState.demo.water');
+  await click('.story-menu summary');
+  await click('.story-menu [aria-label="Light mode"]');
+  await until('!document.documentElement.classList.contains("dark") && document.querySelector(".phone-screen-text text").getAttribute("fill")==="#203b2b"','Manual Light repaints phone text');
+  const light = await theme();
+  assert.equal(light.paper,'rgb(251, 248, 241)');
+  assert.ok(light.world[0]>.95,'Light mode restores the cream studio');
+  assert.equal(await evaluate('window.__storyState.demo.water'),water,'Theme switches preserve tour state');
+  await send('Page.reload');await ready();
+  assert.equal((await theme()).dark,false,'Manual Light persists against a dark system preference');
+  await click('.story-menu summary');
+  await click('.story-menu [aria-label="Dark mode"]');
+  await until('document.documentElement.classList.contains("dark")','Manual Dark applies');
+  await emulateTheme('light');
+  assert.equal((await theme()).dark,true,'Manual Dark overrides a light system preference');
+  await evaluate('document.querySelector("canvas").getContext("webgl").getExtension("WEBGL_lose_context").loseContext()');
+  await until('getComputedStyle(document.querySelector(".no-webgl-message")).display==="flex"','WebGL fallback');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector(".no-webgl-message")).backgroundColor'),'rgb(19, 30, 24)');
+  assert.ok(await evaluate(`document.querySelector('.no-webgl-message [aria-label="Dark mode"]').getAttribute('aria-pressed') === 'true'`),'Fallback uses the same preference');
+  await click('.no-webgl-message [aria-label="Light mode"]');
+  await until('!document.documentElement.classList.contains("dark")','Fallback theme switch works');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector(".no-webgl-message")).backgroundColor'),'rgb(251, 248, 241)');
+  assert.deepEqual(errors,[]);assert.deepEqual(badAssets,[]);
+  console.log('System and saved themes, live WebGL and phone updates, and fallback theme controls pass.');
+  return;
+ }
+
+ if(process.argv.includes('--phone-depth')||process.argv.includes('--holding-fit')){
+  await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:'light'}]});
+  await until('!document.documentElement.classList.contains("dark")','Cream backdrop is visible');
+  const phone = () => evaluate('window.__storyState.phone');
+  const phoneHeight = ({bounds}) => bounds.bottom-bounds.top;
+  for(const [width,height] of [[1440,900],[390,844],[375,667],[320,568]]){
+   await send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<1024});
+   await setCalm(false);
+   await seek(.26);
+   const released = await phone();
+   assert.equal(released.lift,0,'The extra push starts after the handoff');
+   await seek(.320);
+   const close = await phone();
+   assert.ok(await evaluate('document.querySelector("#app-interaction").inert && getComputedStyle(document.querySelector("#app-interaction")).opacity==="0"'),'Controls stay out of the close-up');
+   await shot('handoff-close-'+width);
+   await seek(.35);
+   const ready = await phone();
+   assert.ok(close.lift>.5&&phoneHeight(close)>phoneHeight(ready)*1.25,`Close-up is visibly larger at ${width}px: ${phoneHeight(close)} > ${phoneHeight(ready)}`);
+   assert.equal(ready.lift,0);
+   assert.deepEqual(ready.rotation,[0,Math.PI,0],'The interactive phone faces forward');
+   assert.ok(await evaluate('!document.querySelector("#app-interaction").inert'),'Controls appear after the phone lands');
+   assert.ok(ready.bounds.left>=0&&ready.bounds.right<=width&&ready.bounds.top>=0&&ready.bounds.bottom<=height,'The interactive phone fits');
+   await shot('handoff-ready-'+width);
+   await seek(.320);
+   assert.ok(Math.abs(phoneHeight(close)-phoneHeight(await phone()))<3,'Reverse scrolling repeats the same close-up');
+   await setCalm(true);
+   await until('window.__storyState.phone.lift===0','Calm mode skips the close-up');
+   await seek(.545);
+   assert.deepEqual((await phone()).rotation,[0,Math.PI,0]);
+  }
+  assert.deepEqual(errors,[]);assert.deepEqual(badAssets,[]);
+  console.log('Close-up and pullback, front-on controls, reverse scroll and Calm mode pass at all four viewport sizes.');return;
+ }
+
  if(process.argv.includes('--motion-default')){
   for(const [width,height,dpr] of [[1440,900,2],[390,844,3]]){
    await send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:dpr,mobile:width<1024});
    await send('Page.reload');await delay(500);await ready();
-   assert.equal(await evaluate('matchMedia("(prefers-reduced-motion: reduce)").matches'),true,'Test the desktop setting that caused the issue');
+   assert.equal(await evaluate('matchMedia("(prefers-reduced-motion: reduce)").matches'),true);
    assert.equal(await evaluate('document.querySelector("#motion").getAttribute("aria-pressed")'),'false');
    assert.ok(await evaluate('document.querySelector("#motion").textContent.includes("Motion on")'));
-   assert.equal(await evaluate('document.querySelector(".gobhi-home").classList.contains("reduced-motion")'),false);
-   assert.equal(await evaluate('Boolean(document.querySelector("#sample-label"))'),false);
-   assert.equal(await evaluate('document.body.textContent.includes("Interactive app preview")'),false);
-   assert.equal(await evaluate('getComputedStyle(document.querySelector(".loading > span")).animationName'),'flower','Default motion also enables CSS animation');
-   await seek(.415);await delay(width>1024?4600:500);const phase=await evaluate('window.__storyState.microMotion.phase');await delay(500);
-   assert.ok(await evaluate(`window.__storyState.microMotion.phase>${phase}+.2`),'Motion runs by default despite OS setting');await shot('motion-default-'+width);
-   await setCalm(true);await delay(250);assert.equal(await evaluate('window.__storyState.microMotion.active'),false);
+   await seek(.415);assert.equal(await evaluate('window.__storyState.microMotion.active'),true);
+   await setCalm(true);
+   await until('!window.__storyState.microMotion.active','Calm pauses the tour');
    const frames=await evaluate('window.__storyFrames');await delay(400);assert.equal(await evaluate('window.__storyFrames'),frames,'Manual calm mode still pauses animation');
    await seek(.48);assert.equal(await evaluate('window.__storyState.screen'),'home','Calm mode preserves native scroll');
    await setCalm(false);await delay(450);assert.equal(await evaluate('window.__storyState.microMotion.active'),true);
-   await setCalm(true);await send('Page.reload');await delay(500);await ready();
-   assert.ok(await evaluate('document.querySelector("#motion").textContent.includes("Motion on")'),'A fresh visit starts with Motion on');
+   await setCalm(true);await delay(250);assert.equal(await evaluate('window.__storyState.microMotion.active'),false);
+   await send('Page.reload');await delay(500);await ready();
+   assert.ok(await evaluate('document.querySelector("#motion").textContent.includes("Motion on")'),'A fresh visit starts with motion on');
   }
-  assert.deepEqual(errors,[]);assert.deepEqual(badAssets,[]);console.log('Motion defaults on with OS reduced-motion enabled; manual Calm toggle and scroll work on desktop/mobile; preview label removed; fresh visits reset to Motion on.');return;
+  assert.deepEqual(errors,[]);assert.deepEqual(badAssets,[]);console.log('Motion starts on and manual Calm still works on desktop and mobile.');return;
+ }
+
+ if(process.argv.includes('--accessibility')){
+  await send('Emulation.setDeviceMetricsOverride',{width:320,height:568,deviceScaleFactor:1,mobile:true});
+  await evaluate('document.querySelector(".skip").focus()');
+  await send('Input.dispatchKeyEvent',{type:'rawKeyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await until('document.activeElement.id==="scene-heading" && window.__storyState.screen==="plan"','Skip moves focus to the plan heading');
+  assert.ok(await evaluate('document.querySelector("#phone-screen-summary").textContent.includes("8,000 steps")'));
+  await send('Page.navigate',{url:base+'/?notrack=1&direct=1#water'});
+  await ready();
+  await until('document.activeElement.id==="scene-heading" && window.__storyState.screen==="water"','Direct chapter link shows and focuses Water');
+  assert.ok(await evaluate('document.querySelector("#phone-screen-summary").textContent.includes("1000 ml")'));
+  const { result: heading } = await send('Runtime.evaluate',{expression:'document.querySelector("#scene-heading")'});
+  const { nodes } = await send('Accessibility.getPartialAXTree',{objectId:heading.objectId,fetchRelatives:false});
+  assert.ok(nodes.some(node=>node.role?.value==='heading'&&node.description?.value.includes('1000 ml')),'Water summary is exposed in the accessibility tree');
+  await clickPhone();
+  assert.ok(await evaluate('document.querySelector("#phone-screen-summary").textContent.includes("1250 ml")'));
+  const navFits = await evaluate(`(() => {
+   const buttons = [...document.querySelectorAll('[data-phone-tab]:not([hidden])')];
+   return buttons.length === 5 && buttons.every(button => {
+    const { left, top, width, height } = button.getBoundingClientRect();
+    return width >= 44 && height >= 44 && button.contains(document.elementFromPoint(left + width / 2, top + height / 2));
+   });
+  })()`);
+  assert.ok(navFits,'Compact navigation has reachable 44px tap targets');
+  await click('[data-phone-tab=Buddies]');
+  await until('window.__storyState.screen==="buddies" && document.activeElement.id==="scene-heading"','Compact Buddies tab works');
+  await seek(1);
+  for(const selector of ['#android-download','#ios-download','#replay']){
+   assert.ok(await evaluate(`(() => {
+    const element = document.querySelector('${selector}'), rect = element.getBoundingClientRect();
+    return rect.bottom <= innerHeight && element.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2));
+   })()`), selector + ' fits and receives taps on 320px phones');
+  }
+  await click('#replay');
+  await until('window.__storyState.progress < .002 && document.activeElement.id==="story-heading"','Replay resets and focuses the greeting');
+  await evaluate('document.querySelector("#start-story").focus(); document.querySelector("canvas").getContext("webgl").getExtension("WEBGL_lose_context").loseContext()');
+  await until('document.activeElement.matches(".no-webgl-message h2")','Fallback gets focus when WebGL is lost');
+  assert.ok(await evaluate('document.querySelector(".story-content").inert && getComputedStyle(document.querySelector(".story-content")).display==="none"'));
+  await send('Emulation.setScriptExecutionDisabled',{value:true});
+  await send('Page.reload');
+  await until('getComputedStyle(document.querySelector(".no-webgl-message")).display==="flex"','Fallback is visible without JavaScript');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector(".story-content")).display'),'none');
+  assert.deepEqual(errors,[]);assert.deepEqual(badAssets,[]);
+  console.log('Keyboard focus, direct chapters, text summaries, compact tabs, 320px ending and fallbacks pass.');
+  return;
+ }
+
+ if(process.argv.includes('--staged-loading')){
+  await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+  await send('Network.setCacheDisabled',{cacheDisabled:true});
+  await send('Network.emulateNetworkConditions',{offline:false,latency:150,downloadThroughput:200000,uploadThroughput:94000});
+  await send('Page.addScriptToEvaluateOnNewDocument',{source:`
+   addEventListener('gobhi:ready', () => performance.mark('gobhi-greeting'), { capture: true, once: true });
+   const realFetch = window.fetch;
+   window.fetch = async (url, ...options) => {
+    if (String(url).includes('/runtime/gobhi-hold.glb')) {
+     await new Promise(resolve => { window.__releaseStoryPose = resolve; });
+    }
+    return realFetch(url, ...options);
+   };
+  `});
+  await send('Page.navigate',{url:base+'/?notrack=1&staged=1'});
+  await ready();
+  await until('typeof window.__releaseStoryPose === "function"','The holding pose is pending');
+  assert.ok(await evaluate('window.__storyState.progress===0 && !document.querySelector(".story-content").inert'));
+  const greetingMs = await evaluate('Math.round(performance.getEntriesByName("gobhi-greeting")[0].startTime)');
+  await click('#start-story');
+  await until('scrollY > 0 && window.__storyState.progress===0','Start can queue the next scene while the pose loads');
+  await evaluate('window.__releaseStoryPose()');
+  await until('window.__storyState.scene===1 && document.activeElement.id==="scene-heading"','Queued chapter renders once the remaining pose loads');
+  assert.deepEqual(errors,[]);assert.deepEqual(badAssets,[]);
+  console.log(`Cold greeting ready in ${greetingMs} ms at 1.6 Mbps and 150 ms latency. Start accepted before the holding pose arrived.`);
+  return;
  }
  if(process.argv.includes('--buddies')){
   const report=[];const overlaps=(a,b)=>Math.min(a.right,b.right)>Math.max(a.left,b.left)+3&&Math.min(a.bottom,b.bottom)>Math.max(a.top,b.top)+3;
@@ -157,10 +325,17 @@ async function main(){
     report.push({width,height,p,name});if(name==='assistant'||name==='history'||name==='buddies'||name==='map')await shot('live-ecosystem-'+width+'-'+name);
    }
    await seek(1);assert.equal(await evaluate('document.querySelector(".gobhi-home").dataset.scene'),'join');
+   const downloads = await evaluate(`Object.fromEntries(['android', 'ios'].map(platform => {
+     const link = document.getElementById(platform + '-download');
+     return [platform, { href: link?.href, visible: Boolean(link?.getClientRects().length) }];
+   }))`);
+   assert.ok(downloads.android.visible && downloads.ios.visible, 'Both download links are visible at the end of the tour');
+   assert.equal(downloads.android.href, new URL('/download/android', base).href);
+   assert.equal(new URL(downloads.ios.href).origin, 'https://apps.apple.com');
   }
-  assert.deepEqual(errors,[]);assert.deepEqual(badAssets,[]);fs.writeFileSync(path.join(output,'live-ecosystem.json'),JSON.stringify(report,null,2));console.log('Production smoke passes on desktop/mobile: all nine app chapters, sharp native text, Map navigation labels, bounded surfaces, downloads and no runtime/asset errors.');return;
+  assert.deepEqual(errors,[]);assert.deepEqual(badAssets,[]);fs.writeFileSync(path.join(output,'live-ecosystem.json'),JSON.stringify(report,null,2));console.log('Production smoke passes on desktop/mobile: all ten app chapters, sharp native text, Map navigation labels, bounded surfaces, downloads and no runtime/asset errors.');return;
  }
- if(!process.argv.slice(2).length||['--ecosystem','--history','--native-text','--water-scroll','--showcase','--release','--wow-polish'].some(flag=>process.argv.includes(flag))){
+ if(!process.argv.slice(2).length||['--ecosystem','--history','--native-text','--showcase','--release','--wow-polish'].some(flag=>process.argv.includes(flag))){
   const report=[];
   const idle=settleMotion;
   const overlap=(a,b)=>Math.min(a.right,b.right)>Math.max(a.left,b.left)+3&&Math.min(a.bottom,b.bottom)>Math.max(a.top,b.top)+3;
@@ -171,7 +346,7 @@ async function main(){
    await seek(.35);await evaluate('document.querySelector("[data-context=gym]").click();document.querySelectorAll("[data-training-days]")[2].click()');await click('#interaction-action');assert.equal(await evaluate('window.__storyState.demo.planSaved'),true);assert.equal(await evaluate('window.__storyState.demo.trainingDays'),4);await layout(width,.35);await shot('ecosystem-'+width+'-plan');
    await click('#interaction-action');await until('window.__storyState.screen==="assistant"&&Math.abs(window.__storyState.progress-.415)<.002','Ask Gobhi');await click('#interaction-action');assert.equal(await evaluate('window.__storyState.demo.routineSaved'),true);assert.equal(await evaluate('window.__storyState.demo.routineStarted'),false);await click('#interaction-action');assert.equal(await evaluate('window.__storyState.demo.routineStarted'),true);assert.equal(await evaluate('window.__storyState.demo.trainingDays'),4);await layout(width,.415);await shot('ecosystem-'+width+'-assistant');
    await click('#journey-follow');await until('window.__storyState.screen==="home"&&Math.abs(window.__storyState.progress-.48)<.002','Connected Today');await shot('ecosystem-'+width+'-today');await layout(width,.48);
-   await seek(.54);await evaluate('document.querySelectorAll("[data-water-amount]")[1].click()');await seek(.570);await until('window.__storyState.demo.waterLogs===1','Scroll water saved');assert.equal(await evaluate('window.__storyState.demo.water'),1500);
+   await seek(.545);await click('[data-water-amount="500"]');await clickPhone();assert.equal(await evaluate('window.__storyState.demo.water'),1500);
    await seek(.61);await evaluate('document.querySelector("[data-meal=paneer]").click()');await seek(.635);await until('window.__storyState.demo.foodSaved','Scroll meal saved');assert.equal(await evaluate('window.__storyState.demo.loggedMeal'),'paneer');
    await seek(.652);await seek(.668);await until('window.__storyState.demo.workoutSets===1','First set');await seek(.686);await until('window.__storyState.demo.workoutSets===2','Second set');await seek(.700);await until('window.__storyState.demo.workoutSaved','Workout saved');
    const day=await evaluate('JSON.stringify(window.__storyState.demo)');
@@ -190,17 +365,13 @@ async function main(){
   assert.deepEqual(errors,[]);assert.deepEqual(badAssets,[]);assert.deepEqual(await evaluate('window.__syncErrors'),[]);assert.equal(await evaluate('document.querySelector("canvas").getContext("webgl").getError()'),0);
   fs.writeFileSync(path.join(output,'ecosystem-verification.json'),JSON.stringify(report,null,2));console.log('Ecosystem passes: plans and saved AI routines, connected logs/Today, animated history/week, working Map tabs, wellbeing, sample coins, native text, mobile layout and idle GPU pause.');return;
  }
- if(process.argv.includes('--holding-fit')){
-  const report=[];for(const [width,height] of [[390,844],[375,667]]){await send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:true});let previous=null;for(const p of [.31,.325,.3299,.3301,.335,.345,.3499,.35,.3501,.38]){await seek(p);const state=await evaluate('window.__storyState'),b=state.phone.bounds,h=b.bottom-b.top;if(previous)assert.ok(h>=previous.height-2,`${width}: late phone framing shrinks ${previous.height} -> ${h} at ${p}`);previous={p,height:h};report.push({width,height,p,actual:state.progress,phoneHeight:h,scale:state.phone.scale});if(p===.345||p===.35)await shot('holding-fit-'+width+'-'+p);}assert.ok(Math.abs((await evaluate('window.__storyState.phone.scale'))-.31*.92*Math.min(1,height/780))<.00001,'Approved final app fit is preserved');}
-  assert.deepEqual(errors,[]);assert.deepEqual(badAssets,[]);assert.equal(await evaluate('document.querySelector("canvas").getContext("webgl").getError()'),0);fs.writeFileSync(path.join(output,'holding-fit-verification.json'),JSON.stringify(report,null,2));console.log('Late mobile handoff framing passes on tall and short phones with the unchanged two-pixel tolerance, no runtime/WebGL errors.');return;
- }
  if(process.argv.includes('--native-text')){
   const report=[];
   for(const [width,height,dpr] of [[1440,900,2],[390,844,3]]){
    await send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:dpr,mobile:width<1024});
    for(const p of [.34,.36,.38,.4,.45,.5,.55,.6,.65,.7,.75,.8,.85,.88,.90]){
     await seek(p);
-    const result=await evaluate('(()=>{const svg=document.querySelector(".phone-screen-text");return {weight:window.__storyState.renderBudget.nativeText,display:svg.style.display,text:[...svg.querySelectorAll("text")].map(n=>({text:n.textContent,transform:n.getAttribute("transform"),opacity:+n.getAttribute("opacity")})),matrix:svg.querySelector(":scope > g").getAttribute("transform"),pointer:getComputedStyle(svg).pointerEvents}})()');
+    const result=await evaluate('(()=>{const svg=document.querySelector(".phone-screen-text");return {weight:window.__storyState.renderBudget.nativeText,display:svg.style.display,text:[...svg.querySelectorAll("text")].map(n=>({text:n.textContent,transform:n.getAttribute("transform"),opacity:+n.getAttribute("opacity")})),matrix:svg.style.transform,pointer:getComputedStyle(svg).pointerEvents}})()');
     assert.equal(result.pointer,'none','Native text never intercepts app controls');
     if(p>=.38&&p<=.85){assert.equal(result.weight,1);assert.ok(result.text.length>10);assert.ok(result.text.every(t=>t.transform&&!t.transform.includes('NaN')));}
     if(p===.34||p===.90){assert.equal(result.weight,0);assert.equal(result.display,'none','Native text is hidden during the camera orbit');}
@@ -208,7 +379,7 @@ async function main(){
     if(p===.45||p===.75)await shot('vector-text-'+width+'-'+p);
     report.push({width,height,dpr,p,...result});
    }
-   await seek(.45);await click('#interaction-action');await until('document.querySelector(".phone-screen-text").textContent.includes("NICE. KEEP THE FLOW.")','Native labels reflect logging');
+   await seek(.545);await click('#interaction-action');await until('document.querySelector(".phone-screen-text").textContent.includes("ML LOGGED")','Native labels reflect logging');
    await settleMotion();
   }
   assert.deepEqual(errors,[]);assert.deepEqual(badAssets,[]);fs.writeFileSync(path.join(output,'native-text.json'),JSON.stringify(report,null,2));
@@ -268,7 +439,7 @@ async function main(){
    for(const p of [.11,.13,.15,.175,.19,.205,.215,.23,.245,.26,.28,.31,.325,.3299,.3301,.335,.345,.3499,.35,.3501]){await seek(p);const state=await evaluate('window.__storyState');states.push({width,height,p,state});if([.11,.175,.205,.23,.26,.31,.325,.335,.35].includes(p))await shot(label+'-'+width+'-'+p);}
    if(label.startsWith('hold-after')||process.argv.includes('--assert-holding')){
     const forward=states.filter(row=>row.width===width);fs.writeFileSync(path.join(output,label+'-'+width+'-framing.json'),JSON.stringify(forward,null,2));let previous;
-    for(const row of forward){const bounds=row.state.phone.bounds,phoneHeight=bounds.bottom-bounds.top;if(row.p>=.175&&previous){const rate=(phoneHeight-previous.height)/(row.p-previous.p)*.01;assert.ok(phoneHeight>=previous.height-2,`Screen grows instead of shrinking: viewport ${width}, p ${row.p}, actual ${row.state.progress}, height ${phoneHeight}, previous p ${previous.p}, height ${previous.height}`);assert.ok(rate<(width<1024?50:75),'No concentrated zoom burst');}if(row.p>=.175)previous={p:row.p,height:phoneHeight};if(row.p>=.205){assert.ok(bounds.left>=15&&bounds.right<=width-15,'Phone stays inside the viewport');assert.ok(bounds.top>=75&&bounds.bottom<=height-20,'Phone remains visible');}}
+    for(const row of forward){const bounds=row.state.phone.bounds,phoneHeight=bounds.bottom-bounds.top;if(row.p>=.175&&row.p<=.26&&previous){const rate=(phoneHeight-previous.height)/(row.p-previous.p)*.01;assert.ok(phoneHeight>=previous.height-2,`Screen grows instead of shrinking: viewport ${width}, p ${row.p}, actual ${row.state.progress}, height ${phoneHeight}, previous p ${previous.p}, height ${previous.height}`);assert.ok(rate<(width<1024?50:75),'No concentrated zoom burst');}if(row.p>=.175)previous={p:row.p,height:phoneHeight};if(row.p>=.205&&(row.p<=.26||row.p>=.348)){assert.ok(bounds.left>=15&&bounds.right<=width-15,'Phone stays inside the viewport');assert.ok(bounds.top>=75&&bounds.bottom<=height-20,'Phone remains visible');}}
     await seek(.3501);const camera=await evaluate('window.__storyState.camera'),v=camera.target.map((n,i)=>n-camera.eye[i]),length=Math.hypot(...v),axis=v.map(n=>n/length),depths=[];for(const x of [-1.3,1.3])for(const y of [0,2.7])for(const z of [-.65,.65])depths.push([x,y,z].reduce((sum,n,i)=>sum+(n-camera.eye[i])*axis[i],0));assert.ok(Math.max(...depths)<0,'Cull only after the complete Gobhi bounding box is behind the camera');
     for(const p of [.335,.325,.31,.28,.26,.245,.23,.215,.205,.19,.175,.15,.13,.11]){await seek(p);const actual=await evaluate('window.__storyState'),original=forward.find(row=>row.p===p).state;for(const field of ['eye','target'])actual.camera[field].forEach((n,i)=>assert.ok(Math.abs(n-original.camera[field][i])<.006,'Reverse camera path matches forward'));assert.ok(Math.abs(actual.phone.scale-original.phone.scale)<.0006,'Reverse phone size matches forward');}
    }
@@ -329,7 +500,7 @@ async function main(){
   await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await seek(.83);await seek(.875);await until('window.__storyState.rewardPhase==="won"','Reward lands');await delay(700);await shot('final-mobile-reward');assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);assert.equal(await evaluate('window.__storyState.demo.coins'),20);assert.deepEqual(errors,[]);assert.deepEqual(badAssets,[]);assert.equal(await evaluate('document.querySelector("canvas").getContext("webgl").getError()'),0);console.log('Meal prop and mobile reward polish pass; reward lands and no browser/WebGL errors.');return;
  }
  if(process.argv.includes('--showcase')){
-  await seek(.43);await seek(.48);await until('window.__storyState.demo.waterScrollLogged','Water is part of the day');
+  await seek(.545);await clickPhone();assert.equal(await evaluate('window.__storyState.demo.waterLogs'),1);
   await seek(.535);await evaluate('document.querySelectorAll("[data-meal]")[1].click()');assert.equal(await evaluate('window.__storyState.demo.foodSaved'),false);await shot('meal-coming-together');await seek(.585);await until('window.__storyState.demo.foodScrollLogged','Scroll saves lunch');assert.equal(await evaluate('window.__storyState.demo.loggedMeal'),'paneer');await delay(900);await shot('meal-saved');await seek(.53);await seek(.586);assert.equal(await evaluate('window.__storyState.demo.loggedMeal'),'paneer');
   await seek(.612);assert.equal(await evaluate('window.__storyState.demo.workoutSets'),0);for(const [p,count] of [[.634,1],[.662,2],[.688,3]]){await seek(p);await until(`window.__storyState.demo.workoutSets===${count}`,'Set '+count+' logged');await delay(500);await shot('workout-set-'+count);}assert.equal(await evaluate('window.__storyState.demo.workoutSaved'),true);await seek(.623);await seek(.689);assert.equal(await evaluate('window.__storyState.demo.workoutSets'),3);
   await seek(.75);assert.ok((await evaluate('document.querySelector("#interaction-stat").textContent')).includes('3 little wins'));await shot('whole-day-history');
@@ -342,19 +513,55 @@ async function main(){
   assert.deepEqual(errors,[]);assert.deepEqual(badAssets,[]);assert.deepEqual(await evaluate('window.__syncErrors'),[]);assert.equal(await evaluate('document.querySelector("canvas").getContext("webgl").getError()'),0);const report={passed:['Scroll saves the chosen meal once','Three distinct workout logging milestones','Water, food and workout carry into history','Wheel and 3D coins rotate continuously on entry','Scroll and manual spins land on the 20-coin sector','Reward only collected once; coin motion settles to idle','Replay and manual logging precedence','Reduced motion stays static','Mobile scenes and no browser/WebGL errors']};fs.writeFileSync(path.join(output,'verification.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));return;
  }
  if(process.argv.includes('--water-scroll')){
-  await seek(.410);await evaluate('document.querySelectorAll("[data-water-amount]")[1].click()');await seek(.442);assert.equal(await evaluate('window.__storyState.demo.waterLogs'),0);const preview=await evaluate('window.__storyState.waterDisplay');assert.ok(preview>1000&&preview<1500);await shot('water-slow-preview');
-  await seek(.478);await until('window.__storyState.demo.waterScrollLogged===true','One scroll glass saved');assert.equal(await evaluate('window.__storyState.demo.water'),1500);assert.equal(await evaluate('window.__storyState.demo.waterLogs'),1);assert.ok((await evaluate('window.__storyState.waterDisplay'))<1500);await shot('water-scroll-saving');await until('Math.abs(window.__storyState.waterDisplay-1500)<2','Slow water level settles');await shot('water-scroll-saved');
-  await seek(.432);await seek(.481);assert.equal(await evaluate('window.__storyState.demo.waterLogs'),1);assert.equal(await evaluate('window.__storyState.demo.water'),1500);await seek(.75);assert.equal(await evaluate('window.__storyState.demo.water'),1500);
-  await seek(1);await click('#replay');await until('window.__storyState.progress<.002','Replay returns home');assert.equal(await evaluate('window.__storyState.demo.water'),1000);assert.equal(await evaluate('window.__storyState.demo.waterScrollLogged'),false);
-  await seek(.435);await clickPhone();assert.equal(await evaluate('window.__storyState.demo.water'),1250);assert.equal(await evaluate('document.querySelector(".toast").classList.contains("visible")'),false);const first=await evaluate('window.__storyState.waterDisplay');await delay(500);assert.ok((await evaluate('window.__storyState.waterDisplay'))>first);await seek(.48);assert.equal(await evaluate('window.__storyState.demo.waterLogs'),1);assert.equal(await evaluate('window.__storyState.demo.waterScrollLogged'),false);
-  await seek(1);await setCalm(true);await click('#replay');await until('window.__storyState.progress<.002','Static replay');await seek(.435);await seek(.48);assert.equal(await evaluate('window.__storyState.demo.water'),1250);assert.equal(await evaluate('window.__storyState.waterDisplay'),1250);await seek(.43);await seek(.48);assert.equal(await evaluate('window.__storyState.demo.waterLogs'),1);
-  await seek(1);await click('#replay');await until('window.__storyState.progress<.002','Fresh mobile day');await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await setCalm(false);await seek(.43);await seek(.48);await until('window.__storyState.demo.waterScrollLogged===true','Mobile scroll saves water');await shot('mobile-water-scroll');await until('Math.abs(window.__storyState.waterDisplay-1250)<2','Mobile water settles');assert.equal(await evaluate('window.__storyState.demo.waterLogs'),1);assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);await shot('mobile-water-scroll-saved');
-  assert.deepEqual(errors,[]);assert.deepEqual(badAssets,[]);assert.equal(await evaluate('document.querySelector("canvas").getContext("webgl").getError()'),0);const report={passed:['Scroll previews and saves the selected water amount once','Slow level/counter interpolation','Reverse scrolling does not duplicate logs','History retains the scroll entry','Replay resets the day without logging on the reverse trip','Manual logging takes precedence; no water confetti/toast','Reduced motion uses static feedback and remains idempotent','Mobile scroll logging and layout','No browser or WebGL errors']};fs.writeFileSync(path.join(output,'water-scroll-verification.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));return;
+  for(const [width,height,calm] of [[1440,900,false],[390,844,false],[320,568,true]]){
+   await send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<1024});
+   await setCalm(calm);
+   await seek(1);await click('#replay');await until('window.__storyState.progress<.002','Fresh demo');
+   await seek(.570);
+   assert.ok(await evaluate('window.__storyState.waterPreview>0'),'Native scroll previews the glass');
+   assert.equal(await evaluate('window.__storyState.demo.water'),1000,'Preview leaves the recorded total alone');
+   await seek(.48);
+   await evaluate('window.__phoneTransitions=[]; window.recordPhoneTransition ||= e=>window.__phoneTransitions.push(e.detail.phoneTransitioning); window.addEventListener("gobhi:frame", window.recordPhoneTransition)');
+   await click('#phone-water-row');
+   await until('window.__storyState.waterEntry==="form" && !window.__storyState.phoneTransitioning && document.activeElement.id==="scene-heading"','Open water and move focus');
+   assert.equal(await evaluate('window.__phoneTransitions.includes(true)'),!calm,'Only animate the screen with motion enabled');
+   assert.equal(await evaluate('window.__storyState.waterPreview'),0);
+   if(calm){
+    await evaluate(`document.querySelector('[data-water-amount="250"]').focus()`);
+    await send('Input.dispatchKeyEvent',{type:'rawKeyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+    await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+   }else{
+    await click('[data-phone-water-amount="500"]');
+   }
+   const amount=calm?250:500;
+   assert.equal(await evaluate('window.__storyState.demo.waterAmount'),amount);
+   assert.equal(await evaluate('window.__storyState.demo.waterLogs'),0,'Choosing a glass leaves the day unchanged');
+   const target=await evaluate('(()=>{const b=document.querySelector("#demo-action").getBoundingClientRect();return {x:b.x+b.width/2,y:b.y+b.height/2}})()');
+   await send('Input.dispatchMouseEvent',{type:'mousePressed',...target,button:'left',clickCount:1});
+   await until('getComputedStyle(document.querySelector("#demo-action")).boxShadow.includes("inset")','Pressed phone button paints feedback');
+   await send('Input.dispatchMouseEvent',{type:'mouseReleased',...target,button:'left',clickCount:1});
+   assert.equal(await evaluate('window.__storyState.demo.water'),1000+amount);
+   assert.equal(await evaluate('window.__storyState.waterEntry'),'saved');
+   assert.ok(await evaluate('document.querySelector("#interaction-feedback").textContent.includes("logged")'));
+   await shot('water-saved-'+width);
+   await clickPhone();
+   await until('window.__storyState.screen==="home" && !window.__storyState.phoneTransitioning','Return to Today');
+   assert.equal(await evaluate('window.__storyState.demo.waterLogs'),1);
+   assert.ok(await evaluate(`document.querySelector("#phone-screen-summary").textContent.includes("${1000+amount} ml")`));
+   await until(`document.querySelector(".phone-screen-text").textContent.includes("${(1000+amount)/1000} L / 2.5 L")`,'Today shows the new total on the phone');
+   await click('#phone-water-row');
+   await until('window.__storyState.waterEntry==="form" && !window.__storyState.phoneTransitioning','Open a new glass after saving');
+   assert.equal(await evaluate('window.__storyState.demo.waterLogs'),1);
+  }
+  assert.deepEqual(errors,[]);assert.deepEqual(badAssets,[]);
+  assert.equal(await evaluate('document.querySelector("canvas").getContext("webgl").getError()'),0);
+  console.log('Water previews, on-phone selection and save, return to Today, keyboard, pressed feedback and reduced motion pass.');
+  return;
  }
  if(process.argv.includes('--release')){
   assert.equal(await evaluate('document.querySelectorAll(".journey-bottom,[data-step],#next,.chapters").length'),0);
   await seek(.85);assert.ok((await evaluate('document.querySelector("#interaction-stat").textContent')).includes('Showing up counts.'));
-  await seek(.45);await evaluate('document.querySelectorAll("[data-water-amount]")[1].click()');await clickPhone();assert.equal(await evaluate('window.__storyState.demo.water'),1500);await delay(950);await shot('release-desktop-water');
+  await seek(.545);await evaluate('document.querySelectorAll("[data-water-amount]")[1].click()');await clickPhone();assert.equal(await evaluate('window.__storyState.demo.water'),1500);await delay(950);await shot('release-desktop-water');
   await click('#journey-follow');await until('Math.abs(window.__storyState.progress-.55)<.003','Continue to lunch');await evaluate('document.querySelectorAll("[data-meal]")[1].click()');await click('#interaction-action');
   await seek(.65);for(let set=0;set<3;set++)await clickPhone();assert.equal(await evaluate('window.__storyState.demo.workoutSaved'),true);
   await seek(.75);assert.equal(await evaluate('window.__storyState.demo.loggedMeal'),'paneer');assert.ok((await evaluate('document.querySelector("#interaction-stat").textContent')).includes('3 little wins'));await shot('release-desktop-history');

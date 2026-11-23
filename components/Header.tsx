@@ -1,5 +1,6 @@
 'use client';
 
+import { WHATSAPP_URL } from '@/lib/contact';
 import Link from 'next/link';
 import { useState } from 'react';
 import PhoolGobhiLogo from './PhoolGobhiLogo';
@@ -120,7 +121,7 @@ export default function Header() {
             </div>
 
             <a
-              href="https://wa.me/919354859197"
+              href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackCta('whatsapp_header_desktop')}
@@ -199,7 +200,7 @@ export default function Header() {
               <ThemeSwitch />
             </div>
             <a
-              href="https://wa.me/919354859197"
+              href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackCta('whatsapp_header_mobile')}

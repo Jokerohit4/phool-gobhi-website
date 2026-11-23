@@ -1,3 +1,4 @@
+import { WHATSAPP_URL, WHATSAPP_DISPLAY } from '@/lib/contact';
 import type { Metadata } from 'next';
 import { PosterFill, PosterOutline, StickerBadge } from '@/components/Poster';
 
@@ -42,8 +43,8 @@ export default function DeleteAccountPage() {
                 hello@phoolgobhi.com
               </a>{' '}
               or WhatsApp{' '}
-              <a href="https://wa.me/919354859197" className="text-emerald-600 dark:text-emerald-400 underline">
-                +91 9354859197
+              <a href={WHATSAPP_URL} className="text-emerald-600 dark:text-emerald-400 underline">
+                {WHATSAPP_DISPLAY}
               </a>{' '}
               from the phone number registered on your account, with the subject or message &quot;Delete my
               account&quot;. We verify the request against that phone number and delete your account within{' '}
@@ -56,17 +57,24 @@ export default function DeleteAccountPage() {
             <ul className="list-disc list-inside space-y-1">
               <li>Your profile — name, phone number, email, gender, date of birth, fitness goals, profile photo</li>
               <li>Your Buddy profile, bio, photos, matches, and chat messages</li>
-              <li>Your booking history and wallet balance</li>
               <li>Your referral data and connections</li>
+              <li>
+                Your health data: values read from Health Connect or Apple Health, workouts, recorded run routes, food
+                logs and photos, cycle data, medical documents and lab reports (including the stored files), AI coach
+                conversations, and your consent records
+              </li>
             </ul>
+            <p>
+              Please spend or withdraw any wallet balance before you ask us to delete your account.
+            </p>
           </div>
 
           <div className="card-premium p-6 space-y-3">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">What we retain, and why</h2>
             <p>
-              Some transaction records (bookings, payments, payouts) may be retained after deletion where required
-              for accounting, tax, or dispute-resolution obligations under Indian law, even though the rest of your
-              profile is removed. See our{' '}
+              Booking, payment, wallet and payout records are kept after deletion where required for accounting, tax,
+              or dispute-resolution obligations under Indian law. They no longer carry your name or contact details;
+              they refer only to an anonymous number. We also keep a minimal record that your data was erased. See our{' '}
               <a href="/policies/privacy" className="text-emerald-600 dark:text-emerald-400 underline">
                 Privacy Policy
               </a>{' '}

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import AndroidDownloadHelp from '@/components/AndroidDownloadHelp';
 import AndroidDownloadOptions from '@/components/AndroidDownloadOptions';
 import { getAndroidRelease } from '@/lib/android-release';
 
@@ -31,6 +32,8 @@ export default async function AndroidDownloadPage() {
           <div className="card-premium p-5 sm:p-7">
             <AndroidDownloadOptions release={release} />
           </div>
+
+          <AndroidDownloadHelp />
 
           <div className="mt-7 grid gap-4 sm:grid-cols-2">
             <div className="rounded-2xl border border-cream-200 bg-cream-100 p-5 dark:border-gray-800 dark:bg-gray-900">

@@ -1,5 +1,6 @@
 'use client';
 
+import { WHATSAPP_URL } from '@/lib/contact';
 import { motion } from 'framer-motion';
 import { PosterFill, PosterOutline, StickerBadge } from '@/components/Poster';
 
@@ -173,7 +174,7 @@ export default function HowItWorksPage() {
               <motion.a
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
-                href="https://wa.me/919354859197"
+                href={WHATSAPP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-ghost inline-block"

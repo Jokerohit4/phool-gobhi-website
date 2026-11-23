@@ -1,3 +1,4 @@
+import { WHATSAPP_URL, WHATSAPP_DISPLAY } from '@/lib/contact';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PosterFill, PosterOutline, StickerBadge } from '@/components/Poster';
@@ -151,8 +152,8 @@ export default function TermsPage() {
                 hello@phoolgobhi.com
               </a>{' '}
               or WhatsApp{' '}
-              <a href="https://wa.me/919354859197" className="text-emerald-600 dark:text-emerald-400 underline">
-                +91 9354859197
+              <a href={WHATSAPP_URL} className="text-emerald-600 dark:text-emerald-400 underline">
+                {WHATSAPP_DISPLAY}
               </a>
               . We will acknowledge your complaint within 48 hours and aim to resolve it within one month, as
               required under Indian consumer protection rules for e-commerce platforms.

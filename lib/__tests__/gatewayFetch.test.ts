@@ -155,4 +155,28 @@ describe('gatewayFetch', () => {
     const [, opts] = mockFetch.mock.calls[0];
     expect(opts.headers).toMatchObject({ 'x-custom': 'value' });
   });
+
+  it('throws a GatewayError with the upstream status on a non-JSON error body', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 502,
+      text: () => Promise.resolve('<html>Bad Gateway</html>'),
+    });
+
+    const err = (await gatewayFetch('/api/x').catch((e) => e)) as InstanceType<typeof GatewayError>;
+    expect(err).toBeInstanceOf(GatewayError);
+    expect(err.status).toBe(502);
+  });
+
+  it('throws a 502 GatewayError when a 2xx body is not valid JSON', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: () => Promise.resolve('<html>oops</html>'),
+    });
+
+    const err = (await gatewayFetch('/api/x').catch((e) => e)) as InstanceType<typeof GatewayError>;
+    expect(err).toBeInstanceOf(GatewayError);
+    expect(err.status).toBe(502);
+  });
 });

@@ -1,11 +1,23 @@
 export const journeyStops = [0, .11, .23, .35, .415, .48, .545, .61, .675, .73, .78, .825, .875, 1];
+export const journeyChapters = ['hello','phone','perspective','plan','assistant','today','water','food','workout','history','buddies','map','coins','join'];
 export const journeyScreens = ['home','home','home','plan','assistant','home','water','food','workout','history','buddies','map','coins','home'];
 export const visualScenes = [0,1,2,3,3,3,4,5,6,7,3,3,8,9];
 export const chapterIndex = (p: number) => { let i=0;for(let n=1;n<journeyStops.length;n++)if(p>=(journeyStops[n-1]+journeyStops[n])/2)i=n;return i; };
 export const chapterAt = (p: number) => journeyScreens[chapterIndex(p)];
-export const tourTiming = { waterStart:.520, waterEnd:.562, waterSave:.568, mealStart:.585, mealEnd:.632, workoutStart:.650, workoutEnd:.697, historyStart:.715, historyEnd:.758, coinSave:.883 };
+export const tourTiming = { waterStart:.520, waterEnd:.562, mealStart:.585, mealEnd:.632, workoutStart:.650, workoutEnd:.697, historyStart:.715, historyEnd:.758, coinSave:.883 };
+export const waterAmounts = [250, 500] as const;
+export const phoneWaterControls = {
+  hydration: { x: 48, y: 635, width: 624, height: 133 },
+  amounts: waterAmounts.map((amount, index) => ({ amount, x: 48 + index * 322, y: 1145, width: 302, height: 70 })),
+};
+export type WaterEntry = 'tour' | 'form' | 'saved';
 export const contexts = { home:'At home', gym:'My gym', wellbeing:'Wellbeing' };
 export const mapPlaces = ['Neighbourhood strength','Move & stretch studio','Your next little adventure'];
+export const routineSteps = {
+  home: ['Bodyweight squat · 3 sets', 'Incline push-up · 3 sets', 'A little stretch to finish'],
+  gym: ['Goblet squat · 3 sets', 'Cable row · 3 sets', 'An easy five-minute finish'],
+  wellbeing: ['A gentle 10-minute walk', '5 minutes to stretch', '5 minutes to breathe'],
+};
 export const meals = {
   dal: { name: 'Dal, rice & a little sabzi', short: 'Dal & rice', protein: '18g', carbs: '62g', fat: '12g' },
   paneer: { name: 'Paneer & a colourful bowl', short: 'Paneer bowl', protein: '26g', carbs: '38g', fat: '18g' },
@@ -13,7 +25,7 @@ export const meals = {
 export type Meal = keyof typeof meals;
 export const createDemoDay = () => ({
   context: 'home' as keyof typeof contexts, trainingDays: 3, planSaved: false, routineSaved: false, routineStarted: false, wellbeingDone: false, buddyFollowing: false, buddyShared: false, mapPlace: 0,
-  water: 1000, waterAmount: 250, waterLogs: 0, waterScrollLogged: false, meal: 'dal' as Meal,
+  water: 1000, waterAmount: 250, waterLogs: 0, meal: 'dal' as Meal,
   loggedMeal: null as Meal | null, foodSaved: false, foodScrollLogged: false, workoutSets: 0,
   loggedWorkoutContext: null as keyof typeof contexts | null, workoutSaved: false, workoutScrollSets: 0, historyWeek: false, coinsCollected: false, coins: 0,
 });
@@ -22,6 +34,11 @@ export const littleWins = (day: DemoDay) => Number(day.waterLogs > 0) + Number(d
 export function waterScrollProgress(progress: number) {
   const t = Math.max(0, Math.min(1, (progress - tourTiming.waterStart) / (tourTiming.waterEnd-tourTiming.waterStart)));
   return t*t*(3-2*t);
+}
+export function waterPreviewMl(day: DemoDay, progress: number, entry: WaterEntry) {
+  return entry === 'tour' && day.waterLogs === 0 && chapterAt(progress) === 'water'
+    ? day.waterAmount * waterScrollProgress(progress)
+    : 0;
 }
 export const rewardSpinDuration = 2800;
 export function rewardLandingAngle(start: number) {
@@ -49,11 +66,9 @@ export function applyDemoAction(day: DemoDay, action: string, value?: string | n
   if(action==='map') { state.mapPlace=(state.mapPlace+1)%mapPlaces.length;message=mapPlaces[state.mapPlace]+' ? illustrative place'; }
   if (action === 'water-amount' && (value === 250 || value === 500)) state.waterAmount = value;
   if (action === 'meal' && (value === 'dal' || value === 'paneer')) state.meal = value;
-  if (action === 'water-scroll' && (state.waterScrollLogged || state.waterLogs > 0)) return { state, message, celebrate };
-  if (action === 'water' || action === 'water-scroll') {
+  if (action === 'water') {
     state.water += state.waterAmount; state.waterLogs++; celebrate = true;
-    if (action === 'water-scroll') state.waterScrollLogged = true;
-    message = action === 'water-scroll' ? `${state.waterAmount} ml saved with your scroll.` : `${state.waterAmount} ml logged. A little good, added to your day.`;
+    message = `${state.waterAmount} ml logged. Your Today total is now ${state.water} ml.`;
   }
   if (action === 'food-scroll' && state.foodSaved) return { state, message, celebrate };
   if (action === 'food' || action === 'food-scroll') {

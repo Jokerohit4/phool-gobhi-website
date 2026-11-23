@@ -1,3 +1,4 @@
+import { CONTACT_TELEPHONE } from '@/lib/contact';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Bebas_Neue } from 'next/font/google';
 import './globals.css';
@@ -16,7 +17,7 @@ const ORGANIZATION_JSON_LD = {
   email: 'hello@phoolgobhi.com',
   contactPoint: {
     '@type': 'ContactPoint',
-    telephone: '+91-9354859197',
+    telephone: CONTACT_TELEPHONE,
     contactType: 'customer service',
     areaServed: 'IN',
   },

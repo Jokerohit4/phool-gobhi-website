@@ -2,10 +2,16 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 
+// The react-hooks plugin is registered inside the eslint-config-next presets;
+// reuse that same instance so the rule override below can resolve it.
+const reactHooksPlugin = nextVitals.find((c) => c.plugins?.["react-hooks"])
+  ?.plugins["react-hooks"];
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   {
+    plugins: { "react-hooks": reactHooksPlugin },
     rules: {
       // This codebase's standard data-fetching pattern is `useEffect(() =>
       // { load() }, [load])` where `load` is an async fetch-and-setState
@@ -14,6 +20,14 @@ const eslintConfig = defineConfig([
       // a warning rather than rewriting all of them as an unrelated
       // side-effect of unrelated work.
       "react-hooks/set-state-in-effect": "warn",
+    },
+  },
+  {
+    // tools/*.cjs are standalone Node CommonJS scripts (not bundled app code);
+    // require() is the correct module system for them.
+    files: ["tools/**/*.cjs"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
     },
   },
   // Override default ignores of eslint-config-next.

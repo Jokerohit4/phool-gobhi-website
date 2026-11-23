@@ -1,4 +1,4 @@
-﻿(() => {
+(() => {
 'use strict';
 const $ = s => document.querySelector(s);
 const buttons = [...document.querySelectorAll('[data-chapter]')];

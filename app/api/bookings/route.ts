@@ -21,14 +21,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
   const { gymId, date, startTime, endTime, classId } = body;
-  if (!gymId || typeof date !== 'string') {
-    return NextResponse.json({ error: 'gymId and date are required' }, { status: 400 });
+  const gymIdOk = (typeof gymId === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(gymId)) || (typeof gymId === 'number' && Number.isSafeInteger(gymId) && gymId > 0);
+  if (!gymIdOk || typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return NextResponse.json({ error: 'gymId and date (YYYY-MM-DD) are required and must be valid' }, { status: 400 });
   }
   if (classId != null) {
     if (typeof classId !== 'number') {
       return NextResponse.json({ error: 'classId must be a number' }, { status: 400 });
     }
-  } else if (typeof startTime !== 'string' || typeof endTime !== 'string') {
+  } else if (typeof startTime !== 'string' || typeof endTime !== 'string' || startTime.length > 20 || endTime.length > 20) {
     return NextResponse.json({ error: 'startTime and endTime are required for a plain-slot booking' }, { status: 400 });
   }
 
