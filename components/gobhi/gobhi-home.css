@@ -166,12 +166,3 @@ html:has(.gobhi-home)::-webkit-scrollbar-thumb{background:#a7b397;border:2px sol
 .gobhi-home .no-webgl-message{justify-content:safe center;gap:14px;padding-block:24px}
 .gobhi-home .fallback-greeting{width:min(100%,325px,37svh);height:auto;border-radius:20px;flex-shrink:0}
 .gobhi-home .no-webgl-message .text-button{margin-top:0}
-
-.gobhi-home.story-preview .world canvas,
-.gobhi-home.story-preview .world .vignette,
-.gobhi-home.story-preview .app-atmosphere,
-.gobhi-home.story-preview .phone-nav-targets,
-.gobhi-home.story-preview .demo-action,
-.gobhi-home.story-preview #motion{display:none}
-.gobhi-home .story-preview-art{position:absolute;inset:0;pointer-events:none}
-.gobhi-home .story-preview-art img{display:block;width:100%;height:100%;object-fit:cover}

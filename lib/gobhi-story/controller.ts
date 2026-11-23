@@ -1,18 +1,8 @@
 import { createStoryRenderer, type StoryFrame } from './renderer';
 import { journeyStops as stops, littleWins, meals, contexts, mapPlaces } from './journey';
 import { storyStaging } from './staging';
-import { createStoryPreview } from './preview';
 
-type StoryScene = {
-  name: string;
-  label: string;
-  kicker?: string;
-  title?: string;
-  description?: string;
-  word?: string;
-};
-
-const scenes: StoryScene[] = [
+const scenes = [
  {name:'hello',label:'A LITTLE COMPANY FOR YOUR EVERYDAY.'},
  {name:'phone',kicker:'A LITTLE LOOK INSIDE',title:'Your day.<br> In my hands.',description:'Come along. Let’s make a little room<br> for the everyday that feels good.',label:'YOUR EVERYDAY, IN GOOD HANDS.'},
  {name:'perspective',kicker:'COME OVER HERE',title:'See it from<br> my side.',description:'A little closer.<br> There’s a whole everyday in here.',label:'INTO GOBHI’S EVERYDAY.'},
@@ -38,15 +28,11 @@ export function mountGobhiStory(root: HTMLElement) {
     if (!element) throw new Error(`Missing story element: ${selector}`);
     return element;
   };
-  root.classList.remove('no-webgl', 'story-preview'); $('.loading').classList.remove('done');
+  root.classList.remove('no-webgl'); $('.loading').classList.remove('done');
   const canvas = $<HTMLCanvasElement>('#story-canvas');
-  let renderer: ReturnType<typeof createStoryRenderer> = null;
-  try {
-    renderer = createStoryRenderer(canvas, root);
-  } catch {
-    // The scroll tour can still use the prerendered scenes.
-  }
-  let preview: ReturnType<typeof createStoryPreview> | undefined;
+  const instance = createStoryRenderer(canvas, root);
+  if (!instance) return () => lifecycle.abort();
+  const renderer = instance;
   let active = 0, reduced = false, queued = 0, renderedScene = '';
   let lastFrame: StoryFrame | undefined, feedbackScene = '', feedbackMessage = '';
   let interactionKey = '';
@@ -54,28 +40,8 @@ export function mountGobhiStory(root: HTMLElement) {
   const totalScroll = () => Math.max(1, document.documentElement.scrollHeight - innerHeight);
   const scrollTarget = () => {
     queued = 0;
-    const progress = Math.max(0, Math.min(1, scrollY / totalScroll()));
-    if (renderer) renderer.setProgress(progress, reduced);
-    else preview?.show(progress, index => {
-      active = index;
-      showScene(scenes[index], 'preview', false);
-      $('#scene-copy').style.opacity = '1';
-      $('#join-panel').style.opacity = '1';
-      $('#join-panel').style.pointerEvents = 'auto';
-      root.classList.remove('no-webgl');
-      $('.loading').classList.add('done');
-    }, () => root.classList.add('no-webgl'));
+    renderer.setProgress(Math.max(0, Math.min(1, scrollY / totalScroll())), reduced);
   };
-  function startPreview() {
-    if (preview) return;
-    const previous = renderer;
-    renderer = null;
-    lastFrame = undefined;
-    previous?.dispose();
-    preview = createStoryPreview(root, scenes);
-    root.classList.add('story-preview');
-    setMotion();
-  }
   function go(index: number) {
     scrollTo({ top: totalScroll() * stops[Math.max(0, Math.min(stops.length-1, index))], behavior: reduced ? 'instant' : 'smooth' });
   }
@@ -124,26 +90,21 @@ export function mountGobhiStory(root: HTMLElement) {
     if (feedback.textContent !== message) feedback.textContent = message;
     const next = $('#journey-follow'); next.hidden = !done; next.innerHTML = follow + ' <span aria-hidden="true">→</span>';
   }
-  function showScene(scene: StoryScene, context: string, interactive: boolean) {
-    const sceneKey = active + context;
-    if (renderedScene !== sceneKey) {
-      renderedScene = sceneKey;
+  function renderFrame(state: StoryFrame) {
+    lastFrame = state; active = state.scene;
+    const scene = active===8&&state.demo.context==='wellbeing'?{...scenes[active],title:'A LITTLE SPACE.<br> A BETTER DAY.',description:'Steps, sleep and a check-in.<br> Your wellbeing belongs here, too.',word:'BREATHE'}:scenes[active], p = state.progress;
+    if (renderedScene !== active+state.demo.context) {
+      renderedScene = active+state.demo.context;
       root.dataset.phase = active === 0 ? 'hello' : active === 13 ? 'join' : active >= 3 ? 'app' : 'setup';
       root.dataset.scene = scene.name; $('.app-atmosphere').dataset.word = scene.word || '';
       $('#scene-copy').hidden = active === 0 || active === 13;
       $('#intro-caption').hidden = active !== 0; $('#join-panel').hidden = active !== 13;
-      $('#app-interaction').hidden = !interactive || active < 3 || active > 12;
+      $('#app-interaction').hidden = active < 3 || active > 12;
       $('#scroll-hint').hidden = active >= 3;
       $('#scene-kicker').textContent = scene.kicker || '';
       $('#scene-heading').innerHTML = scene.title || '';
       $('#scene-description').innerHTML = scene.description || '';
     }
-  }
-  function renderFrame(state: StoryFrame) {
-    if (!renderer) return;
-    lastFrame = state; active = state.scene;
-    const scene = active===8&&state.demo.context==='wellbeing'?{...scenes[active],title:'A LITTLE SPACE.<br> A BETTER DAY.',description:'Steps, sleep and a check-in.<br> Your wellbeing belongs here, too.',word:'BREATHE'}:scenes[active], p = state.progress;
-    showScene(scene, state.demo.context, true);
     const left = active ? (stops[active-1]+stops[active])/2 : 0;
     const right = active < 13 ? (stops[active]+stops[active+1])/2 : 1;
     const fade = reduced ? 1 : smooth(left,left+(right-left)*.25,p)*(1-smooth(right-(right-left)*.25,right,p));
@@ -161,7 +122,7 @@ export function mountGobhiStory(root: HTMLElement) {
     if(rect){const hitHeight=Math.max(40,rect.height),navTop=state.navRects.length?Math.min(...state.navRects.map(r=>r.y)):Infinity,hitY=Math.min(rect.y,navTop-hitHeight-3);Object.assign(button.style,{left:'0',top:'0',transform:`translate3d(${rect.x}px,${hitY}px,0)`,width:rect.width+'px',height:hitHeight+'px'});}
   }
   function act() {
-    if (!lastFrame || !renderer) return;
+    if (!lastFrame) return;
     if(lastFrame.screen==='home'){go(6);return;}
     if(lastFrame.screen==='plan'&&lastFrame.demo.planSaved){go(4);return;}
     if(lastFrame.screen==='assistant'&&lastFrame.demo.routineStarted){go(5);return;}
@@ -180,17 +141,17 @@ export function mountGobhiStory(root: HTMLElement) {
   window.addEventListener('resize', scrollTarget, { signal });
   $('#start-story').addEventListener('click', () => go(1), { signal });
   $('#get-app').addEventListener('click', () => go(13), { signal });
-  $('#replay').addEventListener('click', () => { feedbackMessage = ''; feedbackScene = ''; renderer?.resetDemo(); go(0); }, { signal });
+  $('#replay').addEventListener('click', () => { feedbackMessage = ''; feedbackScene = ''; renderer.resetDemo(); go(0); }, { signal });
   $('.brand').addEventListener('click', event => { event.preventDefault(); go(0); }, { signal });
   $('.skip').addEventListener('click', event => { event.preventDefault(); go(3); }, { signal });
   $('#motion').addEventListener('click', () => { reduced = !reduced; setMotion(); }, { signal });
   $('#demo-action').addEventListener('click', act, { signal });
   $('#interaction-action').addEventListener('click', act, { signal });
   $('#journey-follow').addEventListener('click', () => go(active+1), { signal });
-  root.querySelectorAll<HTMLElement>('[data-water-amount]').forEach(button => button.addEventListener('click', () => renderer?.act('water-amount',Number(button.dataset.waterAmount)), { signal }));
-  root.querySelectorAll<HTMLElement>('[data-meal]').forEach(button => button.addEventListener('click', () => renderer?.act('meal',button.dataset.meal), { signal }));
-  root.querySelectorAll<HTMLElement>('[data-context]').forEach(b=>b.addEventListener('click',()=>renderer?.act('context',b.dataset.context),{signal}));
-  root.querySelectorAll<HTMLElement>('[data-training-days]').forEach(b=>b.addEventListener('click',()=>renderer?.act('training-days',Number(b.dataset.trainingDays)),{signal}));
+  root.querySelectorAll<HTMLElement>('[data-water-amount]').forEach(button => button.addEventListener('click', () => renderer.act('water-amount',Number(button.dataset.waterAmount)), { signal }));
+  root.querySelectorAll<HTMLElement>('[data-meal]').forEach(button => button.addEventListener('click', () => renderer.act('meal',button.dataset.meal), { signal }));
+  root.querySelectorAll<HTMLElement>('[data-context]').forEach(b=>b.addEventListener('click',()=>renderer.act('context',b.dataset.context),{signal}));
+  root.querySelectorAll<HTMLElement>('[data-training-days]').forEach(b=>b.addEventListener('click',()=>renderer.act('training-days',Number(b.dataset.trainingDays)),{signal}));
   root.querySelectorAll<HTMLElement>('[data-phone-tab]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.phoneTab==='Map'?11:b.dataset.phoneTab==='Buddies'?10:b.dataset.phoneTab==='Train'?8:b.dataset.phoneTab==='You'?9:5),{signal}));
   $('#explore-buddies').addEventListener('click',()=>{go(10);$<HTMLDetailsElement>('.story-menu').open=false;},{signal});
   $('#explore-map').addEventListener('click',()=>{go(11);$<HTMLDetailsElement>('.story-menu').open=false;},{signal});
@@ -203,7 +164,6 @@ export function mountGobhiStory(root: HTMLElement) {
   $('.dialog-button').addEventListener('click', () => dialog.close(), { signal });
   dialog.addEventListener('click', event => { const r = dialog.getBoundingClientRect(); if (event.target === dialog && (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom)) dialog.close(); }, { signal });
   root.addEventListener('gobhi:ready', () => { setMotion(); $('.loading').classList.add('done'); }, { signal });
-  root.addEventListener('gobhi:unavailable', startPreview, { signal });
-  if (renderer) setMotion(); else startPreview();
-  return () => { lifecycle.abort(); cancelAnimationFrame(queued); clearTimeout(toastTimer); if (dialog.open) dialog.close(); renderer?.dispose(); preview?.dispose(); };
+  setMotion();
+  return () => { lifecycle.abort(); cancelAnimationFrame(queued); clearTimeout(toastTimer); if (dialog.open) dialog.close(); renderer.dispose(); };
 }
