@@ -11,7 +11,7 @@ interface MeResponse {
 // (GET /api/wallet/:userId/transactions, ownership-checked server-side
 // against the JWT), not a "mine" route — so this needs the current user's
 // id first, same pattern as app/api/profile/route.ts.
-export async function GET(request: Request) {
+export async function GET(request?: Request) {
   try {
     const me = await authedGatewayFetch<MeResponse>('/api/auth/me');
     const data = await authedGatewayFetch(`/api/wallet/${me.id}/transactions${pageQuery(request)}`);

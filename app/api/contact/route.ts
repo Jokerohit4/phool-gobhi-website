@@ -18,10 +18,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Name, email and message are required' }, { status: 400 });
   }
 
-  if (name.length > 200 || email.length > 254 || message.length > 5000) {
-    return NextResponse.json({ error: 'Name, email or message is too long' }, { status: 400 });
-  }
-
   try {
     const data = await gatewayFetch('/api/auth/contact', {
       method: 'POST',

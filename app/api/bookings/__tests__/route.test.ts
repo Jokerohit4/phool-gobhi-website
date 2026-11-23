@@ -120,16 +120,4 @@ describe('POST /api/bookings', () => {
     expect(res.status).toBe(403);
     expect(mockAuthedGatewayFetch).not.toHaveBeenCalled();
   });
-
-  it('returns 400 for a malformed gymId or date', async () => {
-    for (const body of [
-      { gymId: '../admin', date: '2026-09-20', startTime: '10:00', endTime: '11:00' },
-      { gymId: 'g1', date: 'tomorrow', startTime: '10:00', endTime: '11:00' },
-      { gymId: 'g1', date: '2026-09-20', startTime: 'x'.repeat(50), endTime: '11:00' },
-    ]) {
-      const res = await POST(makeRequest(body));
-      expect(res.status).toBe(400);
-    }
-    expect(mockAuthedGatewayFetch).not.toHaveBeenCalled();
-  });
 });

@@ -81,10 +81,4 @@ describe('POST /api/contact', () => {
     const res = await POST(makeRequest({ name: 'Test', email: 'a@b.com', message: 'Hi' }));
     expect(res.status).toBe(429);
   });
-
-  it('returns 400 when a field exceeds its length limit', async () => {
-    const res = await POST(makeRequest({ name: 'a', email: 'a@b.com', message: 'x'.repeat(5001) }));
-    expect(res.status).toBe(400);
-    expect(mockGatewayFetch).not.toHaveBeenCalled();
-  });
 });

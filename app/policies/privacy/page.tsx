@@ -19,7 +19,7 @@ export default function PrivacyPage() {
             <PosterOutline>Privacy</PosterOutline> <PosterFill color="emerald">Policy</PosterFill>
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
-            Last updated 15 November 2026.
+            Last updated 6 October 2026.
           </p>
         </div>
 
@@ -39,11 +39,10 @@ export default function PrivacyPage() {
               <li><strong>Contact and identity:</strong> your phone number (required for OTP sign-in), name, email address (optional), gender, date of birth, and fitness goals.</li>
               <li><strong>Profile content:</strong> a profile photo you choose to add, and — if you use Buddy matching — your buddy bio, buddy photos, social media link, and chat messages.</li>
               <li><strong>Booking &amp; payment data:</strong> booking history, wallet balance and transaction history, and subscription purchases. Card/UPI details are handled entirely by our payment processor, Razorpay — we never see or store your card number, CVV, or UPI PIN.</li>
-              <li><strong>Location:</strong> used to show gyms near you, and at check-in time to confirm you&apos;re actually at the gym you booked (geofence check). With your consent, your location is also used to rank Buddy discovery candidates. Outside of the run tracker described next, we do not track your location continuously or keep a location history.</li>
-              <li><strong>Run, walk and ride data (Run Tracker):</strong> when you start a run, walk or ride, the app records your GPS route continuously until you finish it, including while the screen is locked or the app is in the background. A notification is shown while this is happening. We store the route (a simplified line of points), distance, pace, splits, duration and an estimated calorie figure in your account so you can see your history and route maps. Storing routes is a separate opt-in that the app asks for before your first run; you can turn it off and delete any run at any time. Routes are never shown to other users, gyms or advertisers.</li>
+              <li><strong>Location:</strong> used to show gyms near you, and at check-in time to confirm you&apos;re actually at the gym you booked (geofence check). With your consent, your location is also used to rank Buddy discovery candidates. It is not tracked continuously or stored as a location history.</li>
               <li><strong>Gym-linked attendance data:</strong> if you sign up through a specific gym&apos;s QR code or join link (for example, an existing gym member registering for attendance tracking), we record which gym you&apos;re linked to and your check-in history there, in addition to the booking data above.</li>
               <li><strong>Referral data:</strong> a referral code if you redeem one, so the person who invited you can be credited.</li>
-              <li><strong>Usage data:</strong> app and website interactions (screens viewed, buttons tapped, searches, bookings, top-ups, check-ins) via our own first-party analytics. We do not send this data to advertising networks or data brokers.</li>
+              <li><strong>Usage data:</strong> app and website interactions (screens viewed, buttons tapped, searches, bookings, top-ups, check-ins) via our own first-party analytics — no third party receives this data.</li>
               <li><strong>IP address:</strong> captured automatically alongside the usage data above, to support aggregate, approximate location reporting (e.g. by city or country). We do not use it to pinpoint your exact location, and it is never shared with a third party.</li>
               <li><strong>Device data:</strong> app version, device model and OS, language and theme settings, and a push-notification token (Firebase Cloud Messaging) so we can notify you about your bookings.</li>
               <li><strong>Partner business details:</strong> if you run a partner gym, we collect your business name, contact details, and the bank account or UPI details you give us, so we can pay you what you have earned and complete statutory withholding.</li>
@@ -76,29 +75,17 @@ export default function PrivacyPage() {
             </ul>
           </div>
 
-          <div className="card-premium p-6 space-y-3">
+          <div className="card-premium p-6 space-y-3 border-l-4 border-amber-400">
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">
+              Draft — pending legal review
+            </p>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">5. Health &amp; fitness data (Health+)</h2>
             <p>
-              Some features let you record health information. We treat all of it as sensitive personal data.
-              This includes:
+              Some features let you record health information: workouts, steps and heart rate from Apple Health or
+              Health Connect, body measurements you type in, food logs (including from photos), period dates, medical documents you upload,
+              and conversations with our AI fitness coach. We treat all of this as sensitive personal data.
             </p>
             <ul className="list-disc list-inside space-y-1">
-              <li>
-                <strong>From Apple Health or Health Connect (read only, only after you grant access):</strong> steps,
-                active calories burned, walking and running distance, exercise sessions, sleep, weight, body fat,
-                resting heart rate and heart rate variability. We read these to show your activity and recovery trends,
-                to calculate your Health Score and weekly recap, and to avoid you entering the same workout twice.
-                Daily totals are stored in your account on our servers. We never write to Apple Health or Health Connect.
-              </li>
-              <li>
-                <strong>That you provide:</strong> body measurements you type in, food logs (including from photos),
-                period dates, medical documents and lab reports you upload, and conversations with our AI fitness coach.
-              </li>
-              <li>
-                <strong>Health Connect and Apple Health data</strong> is used only to provide and improve these
-                user-facing features, in line with the Google Play Health Connect permissions policy and Apple&apos;s
-                HealthKit rules. It is never used for advertising, never sold, and never used to decide insurance or credit.
-              </li>
               <li>Each of these is switched on separately, with its own consent, and you can switch any of them off again in the app.</li>
               <li>Health+ features are only available to people aged 18 and over.</li>
               <li>Phool Gobhi is a general wellness app. It does not diagnose, treat or manage any medical condition, and the AI coach is not a doctor.</li>
@@ -107,7 +94,10 @@ export default function PrivacyPage() {
             </ul>
           </div>
 
-          <div className="card-premium p-6 space-y-3">
+          <div className="card-premium p-6 space-y-3 border-l-4 border-amber-400">
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">
+              Draft — pending legal review
+            </p>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">6. Where your data is processed</h2>
             <p>
               Our servers run in India (Google Cloud, Mumbai). Some of your data is stored or processed outside India
@@ -120,9 +110,6 @@ export default function PrivacyPage() {
               provider (Google Cloud Gemini) to read what is on the plate, and a copy is stored on our cloud storage
               (Google Cloud Storage) so we can re-check it. A dish the model cannot match is reported back to you and
               noted for us to add — it is never assigned a made-up nutrition value.</li>
-              <li><strong>Lab reports and medical documents:</strong> when you upload a lab report PDF to your health vault, it is sent to Google Cloud Document AI (processed in the United States) to read the values on it, and the file is stored on our cloud storage (Google Cloud Storage) under your account.</li>
-              <li><strong>Food search:</strong> the food names you type when logging a meal may be sent to Google to match them to our food list.</li>
-              <li><strong>Maps and walking routes:</strong> map tiles are loaded from OpenFreeMap, and when you ask for walking directions to a place, the start and end coordinates are sent to a community-run OpenStreetMap routing service. These providers also see your IP address.</li>
               <li><strong>Photos and files:</strong> profile and gym photos are stored with Cloudinary.</li>
             </ul>
             <p>
@@ -139,21 +126,9 @@ export default function PrivacyPage() {
               <Link href="/policies/delete-account" className="text-emerald-600 dark:text-emerald-400 underline">
                 how to delete your account
               </Link>{' '}
-              for the in-app and without-the-app options. Deleting your account removes your profile, buddy profile
-              and chats, referrals, and everything in your health data: Health Connect and Apple Health values we
-              stored, workouts, recorded run routes, food logs and photos, cycle data, medical documents and lab
-              reports (including the stored files), AI coach conversations and your consent records. We keep a
-              minimal record that your data was erased, so the erasure can be evidenced later.
-            </p>
-            <p>
-              Booking and wallet transaction records are kept for financial record-keeping and partner settlement, as
-              the law requires. Once your account is deleted they no longer carry your name or contact details; they
-              refer only to an anonymous number.
-            </p>
-            <p>
-              Separately from deletion, you can turn off run-route storage or any individual health feature in the app
-              at any time, and delete a single run. Withdrawing consent does not delete data you have already
-              recorded; deleting a run or your account does.
+              for the in-app and without-the-app options. This removes your profile, buddy profile, bookings,
+              wallet balance and referrals. Some transaction records may be retained where required by law
+              (e.g. financial record-keeping obligations).
             </p>
           </div>
 
@@ -171,7 +146,10 @@ export default function PrivacyPage() {
             </p>
           </div>
 
-          <div className="card-premium p-6 space-y-3">
+          <div className="card-premium p-6 space-y-3 border-l-4 border-amber-400">
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">
+              Draft — pending legal review
+            </p>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">9. Grievances &amp; privacy contact</h2>
             <p>
               If you have a question or complaint about how we handle your personal data, write to our grievance

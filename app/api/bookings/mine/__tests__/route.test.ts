@@ -13,7 +13,7 @@ beforeEach(() => {
 
 describe('GET /api/bookings/mine', () => {
   it('calls proxyAuthedGet with the correct gateway path', async () => {
-    await GET(new Request('http://localhost/api/bookings/mine'));
+    await GET();
     expect(mockProxyAuthedGet).toHaveBeenCalledWith('/api/bookings/mine');
   });
 
@@ -31,7 +31,7 @@ describe('GET /api/bookings/mine', () => {
     const fakeResponse = { bookings: [{ id: 'b1' }] };
     mockProxyAuthedGet.mockResolvedValue(fakeResponse);
 
-    const result = await GET(new Request('http://localhost/api/bookings/mine'));
+    const result = await GET();
     expect(result).toBe(fakeResponse);
   });
 });

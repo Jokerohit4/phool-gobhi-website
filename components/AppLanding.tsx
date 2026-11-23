@@ -1,6 +1,5 @@
 'use client';
 
-import { WHATSAPP_URL } from '@/lib/contact';
 import { useEffect, useSyncExternalStore } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -91,7 +90,7 @@ export default function AppLanding() {
           <Link href="/gyms" className="btn-primary inline-block">
             Browse gyms on the web
           </Link>
-          <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="btn-ghost inline-block">
+          <a href="https://wa.me/919354859197" target="_blank" rel="noopener noreferrer" className="btn-ghost inline-block">
             💬 WhatsApp us
           </a>
         </div>

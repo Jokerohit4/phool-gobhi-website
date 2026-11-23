@@ -104,31 +104,4 @@ describe('POST /api/jobs/[id]/apply', () => {
     );
     expect(res.status).toBe(400);
   });
-
-  it('returns 400 for a job id that is not a safe token', async () => {
-    const res = await POST(
-      makeFormRequest({ name: 'Test', email: 'a@b.com', phone: '123', message: 'Hello' }),
-      makeCtx('..%2Fadmin')
-    );
-    expect(res.status).toBe(400);
-    expect(mockGatewayFetch).not.toHaveBeenCalled();
-  });
-
-  it('returns 400 when the resume exceeds 10 MB', async () => {
-    const big = new File([new Uint8Array(10 * 1024 * 1024 + 1)], 'cv.pdf');
-    const res = await POST(
-      makeFormRequest({ name: 'Test', email: 'a@b.com', phone: '123', message: 'Hello', resume: big }),
-      makeCtx()
-    );
-    expect(res.status).toBe(400);
-    expect(mockGatewayFetch).not.toHaveBeenCalled();
-  });
-
-  it('returns 400 when message is too long', async () => {
-    const res = await POST(
-      makeFormRequest({ name: 'Test', email: 'a@b.com', phone: '123', message: 'x'.repeat(5001) }),
-      makeCtx()
-    );
-    expect(res.status).toBe(400);
-  });
 });

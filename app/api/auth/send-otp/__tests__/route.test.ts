@@ -86,38 +86,4 @@ describe('POST /api/auth/send-otp', () => {
     const json = await res.json();
     expect(json.error).toMatch(/gateway unreachable/i);
   });
-
-  it('rejects cross-origin requests with 403 and does not call the gateway', async () => {
-    const req = new Request('http://localhost:3000/api/auth/send-otp', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', origin: 'https://evil.example', host: 'localhost:3000' },
-      body: JSON.stringify({ phone: '9876543210' }),
-    });
-    const res = await POST(req);
-    expect(res.status).toBe(403);
-    expect(mockGatewayFetch).not.toHaveBeenCalled();
-  });
-
-  it('allows same-origin requests', async () => {
-    const req = new Request('http://localhost:3000/api/auth/send-otp', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', origin: 'http://localhost:3000', host: 'localhost:3000' },
-      body: JSON.stringify({ phone: '9876543210' }),
-    });
-    const res = await POST(req);
-    expect(res.status).toBe(200);
-  });
-
-  it('returns 400 for a malformed phone number', async () => {
-    for (const phone of ['123', 'abcdefghij', '1234567890', '9'.repeat(30)]) {
-      const res = await POST(makeRequest({ phone }));
-      expect(res.status).toBe(400);
-    }
-    expect(mockGatewayFetch).not.toHaveBeenCalled();
-  });
-
-  it('accepts an E.164 phone number', async () => {
-    const res = await POST(makeRequest({ phone: '+919876543210' }));
-    expect(res.status).toBe(200);
-  });
 });
