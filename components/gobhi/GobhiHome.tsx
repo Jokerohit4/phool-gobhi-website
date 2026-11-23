@@ -71,13 +71,14 @@ export default function GobhiHome({ androidUrl, iosUrl }: { androidUrl: string; 
       />
     </div>
     <div className="no-webgl-message">
-      <Image src="/gobhi/gobhi.png" width={100} height={100} alt="Gobhi, your fitness buddy"/>
-      <h2>A little better,<br/>together.</h2><p>Your water, food, workouts and little wins. Bring your everyday together with Phool Gobhi.</p>
+      <h2 className="sr-only">Hi, I am Gobhi. Your health and fitness expert.</h2>
+      <Image className="fallback-greeting" src="/gobhi/wave-preview.webp" width={780} height={1150} alt="Gobhi waving hello" unoptimized/>
+      <p>Your water, food, workouts and little wins. Bring your everyday together with Phool Gobhi.</p>
       <StoreLinks androidUrl={androidUrl} iosUrl={iosUrl}/>
       <button className="text-button" onClick={() => location.reload()}>Meet Gobhi in 3D <span>↻</span></button>
       <SiteLinks/>
     </div>
-    <noscript><style>{'.gobhi-home .loading,.gobhi-home .world,.gobhi-home .scroll-story{display:none!important}.gobhi-home .no-webgl-message{display:flex!important}'}</style></noscript>
+    <noscript><style>{'.gobhi-home .loading,.gobhi-home .world,.gobhi-home .scroll-story,.gobhi-home .no-webgl-message button{display:none!important}.gobhi-home .no-webgl-message{display:flex!important}'}</style></noscript>
     <section className="scene-copy" id="scene-copy" aria-live="polite" hidden><p className="eyebrow" id="scene-kicker"/><h2 id="scene-heading"/><p id="scene-description"/></section>
     <div className="intro-caption" id="intro-caption"><span>GOOD HABITS. A LITTLE COMPANY.</span><button className="text-button" id="start-story">Come, take a look <span>↓</span></button></div>
     <nav className="phone-nav-targets" aria-label="App preview navigation">{['Home','Train','Map','Buddies','You'].map(tab=><button key={tab} data-phone-tab={tab} aria-label={`App preview: ${tab}`} hidden/>)}</nav>
