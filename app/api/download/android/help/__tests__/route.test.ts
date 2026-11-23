@@ -2,7 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GatewayError, gatewayFetch } from '@/lib/gateway-client';
 import { POST } from '../route';
 
-vi.mock('@/lib/gateway-client', { spy: true });
+vi.mock('@/lib/gateway-client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/gateway-client')>()),
+  gatewayFetch: vi.fn(),
+}));
 
 const gateway = vi.mocked(gatewayFetch);
 const email = 'player@example.com';
