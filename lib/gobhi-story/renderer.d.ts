@@ -1,5 +1,4 @@
-import type { DemoDay, WaterEntry } from './journey';
-type ScreenRect = { x: number; y: number; width: number; height: number };
+import type { DemoDay } from './journey';
 export interface StoryFrame {
   ready: boolean;
   scene: number;
@@ -7,24 +6,19 @@ export interface StoryFrame {
   screen: string;
   demo: DemoDay;
   waterDisplay: number;
-  waterPreview: number;
-  waterEntry: WaterEntry;
-  phoneTransitioning: boolean;
+  waterScrollProgress: number;
   historyProgress: number;
   mealProgress: number;
   workoutProgress: number;
   rewardPhase: 'idle' | 'spinning' | 'won';
   wheelAngle: number;
   coinRotation: number;
-  navRects: (ScreenRect & { tab: string })[];
-  actionRect: ScreenRect | null;
-  waterRowRect: ScreenRect | null;
-  waterAmountRects: (ScreenRect & { amount: number })[];
+  navRects: { tab: string; x: number; y: number; width: number; height: number }[];
+  actionRect: { x: number; y: number; width: number; height: number } | null;
 }
 export interface StoryRenderer {
   readonly state: { ready: boolean };
   setProgress(progress: number, still?: boolean): void;
-  navigate(progress: number): void;
   act(name: string, value?: string | number): string;
   resetDemo(): void;
   dispose(): void;
