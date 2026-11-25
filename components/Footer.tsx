@@ -64,7 +64,6 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               {[
                 { href: '/gyms', label: 'Find Gyms' },
-                { href: '/pricing', label: 'Pricing' },
                 { href: '/how-it-works', label: 'How It Works' },
                 { href: '/team', label: 'About Us' },
                 { href: '/policies/cancellation', label: 'Cancellation Policy' },

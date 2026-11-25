@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'How Phool Gobhi Works — Pay-Per-Session Gym Booking',
-  description: 'Discover how Phool Gobhi works in four steps: browse live gyms, book a session, check in with a QR code, and pay only for the sessions you attend — no membership, ever.',
+  title: 'How Phool Gobhi Works — Your Health Companion',
+  description: 'Set a goal, log your day, add your health records and see how you are really doing. How Phool Gobhi helps you build healthy habits and understand your health over time.',
   alternates: { canonical: '/how-it-works' },
 };
 

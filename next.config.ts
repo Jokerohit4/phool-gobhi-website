@@ -25,6 +25,14 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // The pricing page described the retired pay-per-session model and was
+      // removed. Temporary (307) rather than permanent, so browsers and search
+      // engines do not cache it if a real pricing page returns later.
+      {
+        source: '/pricing',
+        destination: '/how-it-works',
+        permanent: false,
+      },
       // Old Vercel-assigned domain -> new custom domain
       {
         source: '/:path*',
