@@ -6,16 +6,16 @@ const scenes = [
  {name:'hello',label:'A LITTLE COMPANY FOR YOUR EVERYDAY.'},
  {name:'phone',kicker:'A LITTLE LOOK INSIDE',title:'Your day.<br> In my hands.',description:'Come along. Let’s make a little room<br> for the everyday that feels good.',label:'YOUR EVERYDAY, IN GOOD HANDS.'},
  {name:'perspective',kicker:'COME OVER HERE',title:'See it from<br> my side.',description:'A little closer.<br> There’s a whole everyday in here.',label:'INTO GOBHI’S EVERYDAY.'},
- {name:'plan',kicker:'YOUR KIND OF FITNESS',title:'YOUR LIFE.<br> YOUR PLAN.',description:'Home, your gym, or a little wellbeing.<br> Build a week that makes room for you.',label:'ONE PLAN / A WEEK THAT FITS.'},
+ {name:'plan',kicker:'START WITH YOUR GOAL',title:'YOUR GOAL.<br> YOUR PLAN.',description:'Home, your gym, or a little wellbeing.<br> Build a week that gets you there.',label:'ONE GOAL / A WEEK THAT FITS.'},
  {name:'assistant',kicker:'A LITTLE HELP FROM GOBHI',title:'ASK A LITTLE.<br> DO A LITTLE.',description:'Your context. A useful suggestion.<br> You choose what to save and start.',label:'ASK GOBHI / A LITTLE HELP, YOUR CHOICE.'},
  {name:'today',kicker:'ONE CONNECTED DAY',title:'YOUR PLAN.<br> YOUR TODAY.',description:'Water, food and a little movement.<br> Every little log belongs to the same day.',label:'TODAY / YOUR LITTLE WINS, TOGETHER.'},
  {name:'water',kicker:'FIRST, A LITTLE HYDRATION',title:'SIP. LOG.<br> LET’S GO.',description:'Choose a glass, then log it.<br> Your total updates in Today.',label:'WATER / EVERY LITTLE SIP COUNTS.'},
  {name:'food',kicker:'THEN, A LITTLE FUEL',title:'GOOD FOOD.<br> GOOD MOOD.',description:'Pick something familiar for lunch.<br> Keep scrolling. We’ll save you a little effort.',label:'FOOD / FAMILIAR MEALS, LESS EFFORT.'},
  {name:'workout',kicker:'TIME FOR YOUR OWN STRONG',title:'YOUR SETS.<br> YOUR STRONG.',description:'A little scroll. One set stronger.<br> Your effort, remembered in Today.',label:'MOVEMENT / YOUR EFFORT, RECORDED.'},
- {name:'history',kicker:'LOOK AT THAT LITTLE DAY',title:'SMALL STEPS.<br> LOOK AT YOU.',description:'Watch your little efforts add up.<br> Your day, your week, and room for rest.',label:'PROGRESS / SMALL THINGS, REAL MOMENTUM.'},
+ {name:'history',kicker:'LOOK AT THAT LITTLE DAY',title:'SMALL STEPS.<br> LOOK AT YOU.',description:'Watch your little efforts add up<br> toward your goal. Your day, your week, and room for rest.',label:'PROGRESS / SMALL THINGS, REAL MOMENTUM.'},
  {name:'buddies',kicker:'YOUR PEOPLE, YOUR KIND OF GOOD',title:'YOUR PEOPLE.<br> YOUR PACE.',description:'Find a buddy. Chat. Share your wins.<br> A little stronger, together.',label:'BUDDIES / YOUR PEOPLE ARE PART OF THE PROGRESS.'},
- {name:'map',kicker:'YOUR WORLD, A LITTLE BIGGER',title:'MORE PLACES.<br> MORE YOU.',description:'Explore gyms and places to move.<br> Find your own corner of the ecosystem.',label:'MAP / FIND YOUR KIND OF FITNESS.'},
- {name:'coins',kicker:'A LITTLE CELEBRATION',title:'SHOW UP.<br> GLOW UP.',description:'That little day? Worth celebrating.<br> Your little win is coming.',label:'GOBHI COINS / MAKE THE EVERYDAY FEEL GOOD.'},
+ {name:'map',kicker:'YOUR WORLD, A LITTLE BIGGER',title:'MORE PLACES.<br> MORE YOU.',description:'Explore gyms and places to move.<br> Find your own kind of spot.',label:'MAP / FIND YOUR KIND OF FITNESS.'},
+ {name:'coins',kicker:'A LITTLE CELEBRATION',title:'SHOW UP.<br> GLOW UP.',description:'That little day? Worth celebrating.<br> Every win gets you closer to your goal.',label:'GOBHI COINS / MAKE THE EVERYDAY FEEL GOOD.'},
  {name:'join',label:'A LITTLE BETTER, TOGETHER.'},
 ];
 const smooth = (a: number, b: number, v: number) => { const t = Math.max(0, Math.min(1, (v-a)/(b-a))); return t*t*(3-2*t); };
@@ -145,7 +145,7 @@ export function mountGobhiStory(root: HTMLElement) {
     if (index === 8) { stat = `${day.workoutSets} of 3 sets logged`; detail = day.workoutSaved?'Three little efforts. All remembered.':'Scroll to log. Or tap for your next set.'; done = day.workoutSaved; label = done ? 'Workout saved ✓' : `Log set ${day.workoutSets+1}`; follow = 'See it adding up'; }
     if(index===8&&day.context==='wellbeing'){stat=day.wellbeingDone?'A little reset, saved':'A little room for you';detail='A walk, sleep intention and check-in. No workout needed.';label=day.wellbeingDone?'Intentions saved':'Save sample intentions';done=day.wellbeingDone;follow='See it adding up';}
     if (index === 9) { stat = `${littleWins(day)} little wins`; detail = 'Your sample day, remembered.'; label = day.historyWeek ? 'Back to today' : 'See your week'; done = true; follow = 'Meet your people'; }
-    if (index === 12) { stat = state.rewardPhase==='spinning'?'A little suspense...':state.rewardPhase==='won'?'+20 Gobhi coins':littleWins(day)?`${littleWins(day)} little wins`:'Showing up counts.'; detail = 'Sample reward · no cash value'; done = state.rewardPhase==='won'; label = done?'Reward collected ✓':state.rewardPhase==='spinning'?'Spinning…':'Spin the wheel'; follow = 'Join the ecosystem'; if(root.dataset.rewardPhase!==state.rewardPhase)root.dataset.rewardPhase=state.rewardPhase; }
+    if (index === 12) { stat = state.rewardPhase==='spinning'?'A little suspense...':state.rewardPhase==='won'?'+20 Gobhi coins':littleWins(day)?`${littleWins(day)} little wins`:'Showing up counts.'; detail = 'Sample reward · no cash value'; done = state.rewardPhase==='won'; label = done?'Reward collected ✓':state.rewardPhase==='spinning'?'Spinning…':'Spin the wheel'; follow = 'Get the app'; if(root.dataset.rewardPhase!==state.rewardPhase)root.dataset.rewardPhase=state.rewardPhase; }
     $('#interaction-stat').textContent = stat; $('#interaction-detail').textContent = detail;
     const summary = $('#phone-screen-summary');
     const description = phoneSummary(state);
@@ -176,7 +176,9 @@ export function mountGobhiStory(root: HTMLElement) {
       if (active >= 3 && active <= 12) $('#scene-heading').setAttribute('aria-describedby', 'phone-screen-summary');
       else $('#scene-heading').removeAttribute('aria-describedby');
       $('#scene-description').innerHTML = scene.description || '';
+      $('.edition').textContent = scene.label || '';
     }
+    root.style.setProperty('--story-p', p.toFixed(4));
     const left = active ? (stops[active-1]+stops[active])/2 : 0;
     const right = active < 13 ? (stops[active]+stops[active+1])/2 : 1;
     const fade = reduced ? 1 : smooth(left,left+(right-left)*.25,p)*(1-smooth(right-(right-left)*.25,right,p))
