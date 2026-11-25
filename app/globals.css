@@ -352,6 +352,18 @@ body {
   @apply transition-colors duration-300;
 }
 
+/* The 300ms colour fade above keeps theme switches smooth, but it is too slow
+   as hover and focus feedback, so interactive elements get a quicker one. */
+a,
+button,
+summary,
+[role="button"],
+input,
+select,
+textarea {
+  transition-duration: 150ms;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 12px;
@@ -667,8 +679,8 @@ html {
 }
 
 .site-header > div > div {
-  min-height: 82px;
-  padding-block: 0.75rem;
+  min-height: 68px;
+  padding-block: 0.5rem;
 }
 
 .site-header .font-display {
@@ -691,6 +703,15 @@ html {
   border-radius: 999px;
   background: var(--site-green);
   box-shadow: none;
+}
+
+/* In dark mode the button fill is a light sage, so white text is unreadable. */
+.dark .site-header-cta {
+  color: var(--site-paper);
+}
+
+.dark .site-header-cta:hover {
+  background: #c2e5bc;
 }
 
 .site-header-cta:hover {
